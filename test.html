@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>asmCrypto test suite</title>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.12.0.css">
+<script src="http://code.jquery.com/qunit/qunit-1.12.0.js"></script>
+<script src="asmcrypto.js"></script>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script>
+
+test( "dummy test", function () {
+    ok( true, "Passed!" );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
+module("sha256");
+
+var sha256_vectors = [
+    [ 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '' ],
+    [ 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', 'abc' ],
+    [ 'f7846f55cf23e14eebeab5b4e1550cad5b509e3348fbc4efa3a1413d393cb650', 'message digest' ],
+    [ 'f30ceb2bb2829e79e4ca9753d35a8ecc00262d164cc077080295381cbd643f0d', 'secure hash algorithm' ],
+    [ '6819d915c73f4d1e77e4e1b52d1fa0f9cf9beaead3939f15874bd988e2a23630', 'SHA256 is considered to be safe' ],
+    [ '248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1', 'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq' ],
+    [ 'f08a78cbbaee082b052ae0708f32fa1e50c5c421aa772ba5dbb406a2ea6be342', 'For this sample, this 63-byte string will be used as input data' ],
+    [ 'ab64eff7e88e2e46165e29f2bce41826bd4c7b3552f6b382a9e7d3af47c245f8', 'This is exactly 64 bytes long, not counting the terminating byte' ]
+];
+
+test( "sha256_hex", function () {
+    for ( var i = 0; i < sha256_vectors.length; ++i ) {
+        equal( asmCrypto.sha256_hex(sha256_vectors[i][1]), sha256_vectors[i][0], "asmCrypto.sha256_hex('"+sha256_vectors[i][1]+"') is equal to '"+sha256_vectors[i][0]+"'" );
+    }
+});
+
+</script>
+</body>
