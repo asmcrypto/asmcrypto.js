@@ -11,13 +11,13 @@ Synopsis
 Add `<script src="path/to/asmcrypto.js"></script>` to your page.
 
     // Hash whole string at once
-    digest = asmCrypto.sha256_hex("The quick brown fox jumps over the lazy dog");
+    digest = asmCrypto.SHA256.hex("The quick brown fox jumps over the lazy dog");
 
     // Or hash it chunk-by-chunk
-    hash = new asmCrypto.sha256;
-    hash.update("The quick brown");
-    hash.update(" fox jumps over the ");
-    hash.update("lazy dog");
+    hash = new asmCrypto.SHA256;
+    hash.process("The quick brown");
+    hash.process(" fox jumps over the ");
+    hash.process("lazy dog");
     digest = hash.finish().asHex(); // also you can chain method calls
 
 Build & Test
@@ -40,25 +40,29 @@ Congratulations! Now you have your `asmcrypto.js` and `asmcrypto.js.map` ready t
 API
 ---
 
-### SHA-256
+### SHA256
 
-Implementation of Secure Hash 2 algorithm.
+Implementation of Secure Hash 2 algorithm with 256-bit output length.
 
-#### Static methods
+#### Static methods and constants
 
-##### asmCrypto.sha256_hex(input)
+##### SHA256.BLOCK_SIZE = 64
 
-Same as `staticInstance.reset().update(input).finish().asHex()` (see below).
+##### SHA256.HASH_SIZE = 32
 
-##### asmCrypto.sha256_base64(input)
+##### SHA256.hex(input)
 
-Same as `staticInstance.reset().update(input).finish().asBase64()` (see below).
+Same as `staticInstance.reset().process(input).finish().asHex()` (see below).
+
+##### SHA256.base64(input)
+
+Same as `staticInstance.reset().process(input).finish().asBase64()` (see below).
 
 #### Constructor
 
-##### asmCrypto.sha256(options)
+##### SHA256(options)
 
-Constructs new instance of `sha256` object.
+Constructs new instance of `SHA256` object.
 
 Optional `options` object can be passed. When ommited, next defaults are used:
 
@@ -66,13 +70,17 @@ Optional `options` object can be passed. When ommited, next defaults are used:
         heapSize: 4096  // must be a multiple of 4096 as asm.js requires
     }
 
-#### Methods
+#### Methods and properties
 
-##### reset()
+##### sha256.BLOCK_SIZE = 64
+
+##### sha256.HASH_SIZE = 32
+
+##### sha256.reset()
 
 Resets internal state into initial.
 
-##### update(input)
+##### sha256.process(input)
 
 Updates internal state with the supplied `input` data.
 
@@ -82,40 +90,48 @@ Throws
 * `new Error("Illegal state")` when trying to update `finish`'ed state,
 * `new ReferenceError("Illegal argument")` when something ridiculous is supplied as input data.
 
-##### finish()
+##### sha256.finish()
 
 Finishes hash calculation.
 
 Throws
 * `new Error("Illegal state")` when trying to finish already `finish`'ed state,
 
-##### asHex()
+##### sha256.asHex()
 
 Returns string representing hex-encoded message digest.
 
 Throws
 * `new Error("Illegal state")` when trying to get non-`finish`'ed state.
 
-##### asBase64()
+##### sha256.asBase64()
 
 Returns string representing base64-encoded message digest.
 
 Throws
 * `new Error("Illegal state")` when trying to get non-`finish`'ed state.
 
-##### asArrayBuffer()
+##### sha256.asArrayBuffer()
 
 Returns raw message digest as an `ArrayBuffer` object.
 
 Throws
 * `new Error("Illegal state")` when trying to get non-`finish`'ed state.
 
-##### asBinaryString()
+##### sha256.asBinaryString()
 
 Returns raw message digest as a binary string.
 
 Throws
 * `new Error("Illegal state")` when trying to get non-`finish`'ed state.
+
+### HMAC
+
+TODO
+
+### HMAC_SHA256
+
+TODO
 
 Performance
 -----------
@@ -128,6 +144,5 @@ TODO
 ----
 
 * aes, cbc, ctr, gcm
-* hmac
 * pbkdf2, scrypt
 * rsa, dsa, ecdsa

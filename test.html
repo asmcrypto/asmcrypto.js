@@ -18,7 +18,7 @@ test( "dummy test", function () {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-module("sha256");
+module("SHA256");
 
 var sha256_vectors = [
     [ 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '' ],
@@ -31,9 +31,32 @@ var sha256_vectors = [
     [ 'ab64eff7e88e2e46165e29f2bce41826bd4c7b3552f6b382a9e7d3af47c245f8', 'This is exactly 64 bytes long, not counting the terminating byte' ]
 ];
 
-test( "sha256_hex", function () {
+test( "SHA256.hex", function () {
     for ( var i = 0; i < sha256_vectors.length; ++i ) {
-        equal( asmCrypto.sha256_hex(sha256_vectors[i][1]), sha256_vectors[i][0], "asmCrypto.sha256_hex('"+sha256_vectors[i][1]+"') is equal to '"+sha256_vectors[i][0]+"'" );
+        equal(
+            asmCrypto.SHA256.hex( sha256_vectors[i][1] ),
+            sha256_vectors[i][0],
+            "asmCrypto.SHA256.hex('"+sha256_vectors[i][1]+"') is equal to '"+sha256_vectors[i][0]+"'"
+        );
+    }
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
+module("HMAC_SHA256");
+
+var hmac_sha256_vectors = [
+    [ 'b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad', '', '' ],
+    [ 'f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8', 'key', 'The quick brown fox jumps over the lazy dog' ]
+];
+
+test( "HMAC_SHA256.hex", function () {
+    for ( var i = 0; i < hmac_sha256_vectors.length; ++i ) {
+        equal(
+            asmCrypto.HMAC_SHA256.hex( hmac_sha256_vectors[i][1], hmac_sha256_vectors[i][2] ),
+            hmac_sha256_vectors[i][0],
+            "asmCrypto.HMAC_SHA256.hex('"+hmac_sha256_vectors[i][1]+"', '"+hmac_sha256_vectors[i][2]+"') is equal to '"+hmac_sha256_vectors[i][0]+"'"
+        );
     }
 });
 
