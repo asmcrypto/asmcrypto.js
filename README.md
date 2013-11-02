@@ -138,7 +138,9 @@ Performance
 
 This stuff is pretty fast under Firefox and Chrome.
 
-See benchmark at [jsperf.com/sha256/30](http://jsperf.com/sha256/30).
+See benchmarks:
+* [SHA256](http://jsperf.com/sha256/30),
+* [HMAC-SHA256](http://jsperf.com/hmac-sha256/1).
 
 TODO
 ----
