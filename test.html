@@ -43,7 +43,7 @@ test( "SHA256.hex", function () {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-module("HMAC_SHA256");
+module("HMAC");
 
 var hmac_sha256_vectors = [
     [ 'b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad', '', '' ],
@@ -56,6 +56,68 @@ test( "HMAC_SHA256.hex", function () {
             asmCrypto.HMAC_SHA256.hex( hmac_sha256_vectors[i][1], hmac_sha256_vectors[i][2] ),
             hmac_sha256_vectors[i][0],
             "asmCrypto.HMAC_SHA256.hex('"+hmac_sha256_vectors[i][1]+"', '"+hmac_sha256_vectors[i][2]+"') is equal to '"+hmac_sha256_vectors[i][0]+"'"
+        );
+    }
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
+module("PBKDF2");
+
+var pbkdf2_hmac_sha256_vectors = [
+    [ '120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b', 'password', 'salt', 1, 32 ],
+    [ 'ae4d0c95af6b46d32d0adff928f06dd02a303f8ef3c251dfd6e2d85a95474c43', 'password', 'salt', 2, 32 ],
+    [ 'c5e478d59288c841aa530db6845c4c8d962893a001ce4e11a4963873aa98134a', 'password', 'salt', 4096, 32 ],
+    [ '348c89dbcbd32b2f32d814b8116e84cf2b17347ebc1800181c4e2a1fb8dd53e1c635518c7dac47e9', 'passwordPASSWORDpassword', 'saltSALTsaltSALTsaltSALTsaltSALTsalt', 4096, 40 ],
+    [ '89b69d0516f829893c696226650a8687', "pass\0word", "sa\0lt", 4096, 16 ]
+];
+
+test( "Common PBKDF2 over HMAC_SHA256", function () {
+    for ( var i = 0; i < pbkdf2_hmac_sha256_vectors.length; ++i ) {
+        equal(
+            // got
+            (new asmCrypto.PBKDF2( pbkdf2_hmac_sha256_vectors[i][1] ))
+                .generate(
+                    pbkdf2_hmac_sha256_vectors[i][2],   // salt
+                    pbkdf2_hmac_sha256_vectors[i][3],   // count
+                    pbkdf2_hmac_sha256_vectors[i][4]    // dklen
+                )
+                .asHex(),
+
+            // expect
+            pbkdf2_hmac_sha256_vectors[i][0],
+
+            // comment
+            "(new asmCrypto.PBKDF2('"+pbkdf2_hmac_sha256_vectors[i][1]+"')).generate('"
+                +pbkdf2_hmac_sha256_vectors[i][2]+"', '"
+                +pbkdf2_hmac_sha256_vectors[i][3]+"', '"
+                +pbkdf2_hmac_sha256_vectors[i][4]
+                +"').asHex() is equal to '"+pbkdf2_hmac_sha256_vectors[i][0]+"'"
+        );
+    }
+});
+
+test( "PBKDF2_HMAC_SHA256.hex", function () {
+    for ( var i = 0; i < pbkdf2_hmac_sha256_vectors.length; ++i ) {
+        equal(
+            // got
+            asmCrypto.PBKDF2_HMAC_SHA256.hex(
+                pbkdf2_hmac_sha256_vectors[i][1],   // password
+                pbkdf2_hmac_sha256_vectors[i][2],   // salt
+                pbkdf2_hmac_sha256_vectors[i][3],   // count
+                pbkdf2_hmac_sha256_vectors[i][4]    // dklen
+            ),
+
+            // expect
+            pbkdf2_hmac_sha256_vectors[i][0],
+
+            // comment
+            "asmCrypto.PBKDF2_HMAC_SHA256.hex('"
+                +pbkdf2_hmac_sha256_vectors[i][1]+"', '"
+                +pbkdf2_hmac_sha256_vectors[i][2]+"', '"
+                +pbkdf2_hmac_sha256_vectors[i][3]+"', '"
+                +pbkdf2_hmac_sha256_vectors[i][4]
+                +"') is equal to '"+pbkdf2_hmac_sha256_vectors[i][0]+"'"
         );
     }
 });

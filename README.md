@@ -133,6 +133,14 @@ TODO
 
 TODO
 
+### PBKDF2
+
+TODO
+
+### PBKDF2_HMAC_SHA256
+
+TODO
+
 Performance
 -----------
 
@@ -140,11 +148,12 @@ This stuff is pretty fast under Firefox and Chrome.
 
 See benchmarks:
 * [SHA256](http://jsperf.com/sha256/30),
-* [HMAC-SHA256](http://jsperf.com/hmac-sha256/1).
+* [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
+* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256).
 
 TODO
 ----
 
 * aes, cbc, ctr, gcm
-* pbkdf2, scrypt
+* scrypt
 * rsa, dsa, ecdsa

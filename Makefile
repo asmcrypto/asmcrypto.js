@@ -1,5 +1,5 @@
 
-JS_FILES = js/*.js
+JS_FILES = js/helpers.js js/sha256.asm.js js/sha256.js js/hmac.js js/pbkdf2.js
 
 all: asmcrypto.js
 
