@@ -1,3 +1,5 @@
+"use strict";
+
 function resultAsArrayBuffer () {
     if ( this.result === null )
         throw new Error("Illegal state");

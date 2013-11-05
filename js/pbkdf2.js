@@ -77,7 +77,7 @@ function pbkdf2_hmac_sha256_generate ( salt, count, length ) {
         var l = ( i < blocks ? 0 : length % this.hmac.HMAC_SIZE ) || this.hmac.HMAC_SIZE;
 
         this.hmac.reset().process(salt);
-        this.hmac.hash.asm.pbkdf2_block( this.hmac.hash.pos, this.hmac.hash.len, i, count, 0 );
+        this.hmac.hash.asm.pbkdf2_generate_block( this.hmac.hash.pos, this.hmac.hash.len, i, count, 0 );
 
         this.result.set( this.hmac.hash.heap.subarray( 0, l ), j );
     }

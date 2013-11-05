@@ -28,6 +28,8 @@ function hmac_sha256_constructor ( password, options ) {
 }
 
 function _hmac_key ( hash, password ) {
+    var key;
+
     if ( password instanceof ArrayBuffer || password instanceof Uint8Array ) {
         key = new Uint8Array(hash.BLOCK_SIZE);
 
