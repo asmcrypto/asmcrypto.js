@@ -1,14 +1,14 @@
-asmcrypto.js
-============
+asmCrypto
+=========
 
-Asm.js implementation of popular cryptographic utilities.
+JavaScript implementation of popular cryptographic utilities with performance in mind.
 
 [UglifyJS2](https://github.com/mishoo/UglifyJS2) is required to build this.
 
 Synopsis
 --------
 
-Add `<script src="path/to/asmcrypto.js"></script>` to your page.
+Add `<script src="path/to/asmcrypto.js"></script>` into your page.
 
     // Hash whole string at once
     digest = asmCrypto.SHA256.hex("The quick brown fox jumps over the lazy dog");
@@ -19,6 +19,19 @@ Add `<script src="path/to/asmcrypto.js"></script>` to your page.
     hash.process(" fox jumps over the ");
     hash.process("lazy dog");
     digest = hash.finish().asHex(); // also you can chain method calls
+
+Index
+-----
+
+* [Build & Test](#build--test)
+* [API Reference](#api-reference)
+    * [SHA256](#sha256)
+    * [HMAC](#hmac)
+    * [HMAC-SHA256](#hmac_sha256)
+    * [PBKDF2](#pbkdf2)
+    * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
+* [Performance](#performance)
+* [Bugs & TODO](#bugs--todo)
 
 Build & Test
 ------------
@@ -37,8 +50,8 @@ After build is complete open `test.html` in your browser and check that all test
 
 Congratulations! Now you have your `asmcrypto.js` and `asmcrypto.js.map` ready to use ☺
 
-API
----
+API Reference
+-------------
 
 ### SHA256
 
@@ -149,11 +162,14 @@ This stuff is pretty fast under Firefox and Chrome.
 See benchmarks:
 * [SHA256](http://jsperf.com/sha256/30),
 * [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
-* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256).
+* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2).
 
-TODO
-----
+Bugs & TODO
+-----------
 
-* aes, cbc, ctr, gcm
-* scrypt
-* rsa, dsa, ecdsa
+* PBKDF2-HMAC-SHA256: probable OOB write during first iteration of a block
+
+Not yet implemented:
+* aes, cbc, ctr, gcm,
+* scrypt,
+* rsa, dsa, ecdsa.
