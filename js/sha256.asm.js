@@ -2,7 +2,7 @@
 function sha256_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
-    // SHA256 state
+    // SHA256 const
     var H00 = 0x6A09E667, H01 = 0xBB67AE85, H02 = 0x3C6EF372, H03 = 0xA54FF53A, H04 = 0x510E527F, H05 = 0x9B05688C, H06 = 0x1F83D9AB, H07 = 0x5BE0CD19;
 
     var K00 = 0x428A2F98, K01 = 0x71374491, K02 = 0xB5C0FBCF, K03 = 0xE9B5DBA5, K04 = 0x3956C25B, K05 = 0x59F111F1, K06 = 0x923F82A4, K07 = 0xAB1C5ED5,
@@ -14,25 +14,37 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         K48 = 0x19A4C116, K49 = 0x1E376C08, K50 = 0x2748774C, K51 = 0x34B0BCB5, K52 = 0x391C0CB3, K53 = 0x4ED8AA4A, K54 = 0x5B9CCA4F, K55 = 0x682E6FF3,
         K56 = 0x748F82EE, K57 = 0x78A5636F, K58 = 0x84C87814, K59 = 0x8CC70208, K60 = 0x90BEFFFA, K61 = 0xA4506CEB, K62 = 0xBEF9A3F7, K63 = 0xC67178F2;
 
-    var ST0 = 0, ST1 = 0, ST2 = 0, ST3 = 0, ST4 = 0, ST5 = 0, ST6 = 0, ST7 = 0;
-
-    var TOTAL = 0;
+    // SHA256 state
+    var ST0 = 0, ST1 = 0, ST2 = 0, ST3 = 0, ST4 = 0, ST5 = 0, ST6 = 0, ST7 = 0,
+        TOTAL = 0;
 
     // HMAC state
     var I0 = 0, I1 = 0, I2 = 0, I3 = 0, I4 = 0, I5 = 0, I6 = 0, I7 = 0,
         O0 = 0, O1 = 0, O2 = 0, O3 = 0, O4 = 0, O5 = 0, O6 = 0, O7 = 0;
 
-    // PBKDF2 state
-    var D0 = 0, D1 = 0, D2 = 0, D3 = 0, D4 = 0, D5 = 0, D6 = 0, D7 = 0;
-
     // I/O buffer
     var HEAP = new stdlib.Uint8Array(buffer);
 
-    function _core ( offset ) {
+    function _core ( offset, w00, w01, w02, w03, w04, w05, w06, w07, w08, w09, w10, w11, w12, w13, w14, w15 ) {
         offset = offset|0;
+        w00 = w00|0;
+        w01 = w01|0;
+        w02 = w02|0;
+        w03 = w03|0;
+        w04 = w04|0;
+        w05 = w05|0;
+        w06 = w06|0;
+        w07 = w07|0;
+        w08 = w08|0;
+        w09 = w09|0;
+        w10 = w10|0;
+        w11 = w11|0;
+        w12 = w12|0;
+        w13 = w13|0;
+        w14 = w14|0;
+        w15 = w15|0;
 
-        var W00 = 0, W01 = 0, W02 = 0, W03 = 0, W04 = 0, W05 = 0, W06 = 0, W07 = 0,
-            W08 = 0, W09 = 0, W10 = 0, W11 = 0, W12 = 0, W13 = 0, W14 = 0, W15 = 0,
+        var W00 = 0, W01 = 0, W02 = 0, W03 = 0, W04 = 0, W05 = 0, W06 = 0, W07 = 0, W08 = 0, W09 = 0, W10 = 0, W11 = 0, W12 = 0, W13 = 0, W14 = 0, W15 = 0,
             A = 0, B = 0, C = 0, D = 0, E = 0, F = 0, G = 0, H = 0,
             T = 0;
 
@@ -45,99 +57,120 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         G = ST6;
         H = ST7;
 
+        if ( (offset|0) == -1 ) {
+            W00 = w00;
+            W01 = w01;
+            W02 = w02;
+            W03 = w03;
+            W04 = w04;
+            W05 = w05;
+            W06 = w06;
+            W07 = w07;
+            W08 = w08;
+            W09 = w09;
+            W10 = w10;
+            W11 = w11;
+            W12 = w12;
+            W13 = w13;
+            W14 = w14;
+            W15 = w15;
+        }
+        else {
+            W00 = ( HEAP[offset]<<24 | HEAP[(offset+1)|0]<<16 | HEAP[(offset+2)|0]<<8 | HEAP[(offset+3)|0] )|0;
+            W01 = ( HEAP[(offset+4)|0]<<24 | HEAP[(offset+5)|0]<<16 | HEAP[(offset+6)|0]<<8 | HEAP[(offset+7)|0] )|0;
+            W02 = ( HEAP[(offset+8)|0]<<24 | HEAP[(offset+9)|0]<<16 | HEAP[(offset+10)|0]<<8 | HEAP[(offset+11)|0] )|0;
+            W03 = ( HEAP[(offset+12)|0]<<24 | HEAP[(offset+13)|0]<<16 | HEAP[(offset+14)|0]<<8 | HEAP[(offset+15)|0] )|0;
+            W04 = ( HEAP[(offset+16)|0]<<24 | HEAP[(offset+17)|0]<<16 | HEAP[(offset+18)|0]<<8 | HEAP[(offset+19)|0] )|0;
+            W05 = ( HEAP[(offset+20)|0]<<24 | HEAP[(offset+21)|0]<<16 | HEAP[(offset+22)|0]<<8 | HEAP[(offset+23)|0] )|0;
+            W06 = ( HEAP[(offset+24)|0]<<24 | HEAP[(offset+25)|0]<<16 | HEAP[(offset+26)|0]<<8 | HEAP[(offset+27)|0] )|0;
+            W07 = ( HEAP[(offset+28)|0]<<24 | HEAP[(offset+29)|0]<<16 | HEAP[(offset+30)|0]<<8 | HEAP[(offset+31)|0] )|0;
+            W08 = ( HEAP[(offset+32)|0]<<24 | HEAP[(offset+33)|0]<<16 | HEAP[(offset+34)|0]<<8 | HEAP[(offset+35)|0] )|0;
+            W09 = ( HEAP[(offset+36)|0]<<24 | HEAP[(offset+37)|0]<<16 | HEAP[(offset+38)|0]<<8 | HEAP[(offset+39)|0] )|0;
+            W10 = ( HEAP[(offset+40)|0]<<24 | HEAP[(offset+41)|0]<<16 | HEAP[(offset+42)|0]<<8 | HEAP[(offset+43)|0] )|0;
+            W11 = ( HEAP[(offset+44)|0]<<24 | HEAP[(offset+45)|0]<<16 | HEAP[(offset+46)|0]<<8 | HEAP[(offset+47)|0] )|0;
+            W12 = ( HEAP[(offset+48)|0]<<24 | HEAP[(offset+49)|0]<<16 | HEAP[(offset+50)|0]<<8 | HEAP[(offset+51)|0] )|0;
+            W13 = ( HEAP[(offset+52)|0]<<24 | HEAP[(offset+53)|0]<<16 | HEAP[(offset+54)|0]<<8 | HEAP[(offset+55)|0] )|0;
+            W14 = ( HEAP[(offset+56)|0]<<24 | HEAP[(offset+57)|0]<<16 | HEAP[(offset+58)|0]<<8 | HEAP[(offset+59)|0] )|0;
+            W15 = ( HEAP[(offset+60)|0]<<24 | HEAP[(offset+61)|0]<<16 | HEAP[(offset+62)|0]<<8 | HEAP[(offset+63)|0] )|0;
+        }
+
         // 0
-        W00 = T = ( HEAP[offset]<<24 | HEAP[(offset+1)|0]<<16 | HEAP[(offset+2)|0]<<8 | HEAP[(offset+3)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K00 )|0;
+        T = ( W00 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K00 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 1
-        W01 = T = ( HEAP[(offset+4)|0]<<24 | HEAP[(offset+5)|0]<<16 | HEAP[(offset+6)|0]<<8 | HEAP[(offset+7)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K01 )|0;
+        T = ( W01 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K01 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 2
-        W02 = T = ( HEAP[(offset+8)|0]<<24 | HEAP[(offset+9)|0]<<16 | HEAP[(offset+10)|0]<<8 | HEAP[(offset+11)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K02 )|0;
+        T = ( W02 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K02 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 3
-        W03 = T = ( HEAP[(offset+12)|0]<<24 | HEAP[(offset+13)|0]<<16 | HEAP[(offset+14)|0]<<8 | HEAP[(offset+15)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K03 )|0;
+        T = ( W03 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K03 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 4
-        W04 = T = ( HEAP[(offset+16)|0]<<24 | HEAP[(offset+17)|0]<<16 | HEAP[(offset+18)|0]<<8 | HEAP[(offset+19)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K04 )|0;
+        T = ( W04 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K04 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 5
-        W05 = T = ( HEAP[(offset+20)|0]<<24 | HEAP[(offset+21)|0]<<16 | HEAP[(offset+22)|0]<<8 | HEAP[(offset+23)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K05 )|0;
+        T = ( W05 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K05 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 6
-        W06 = T = ( HEAP[(offset+24)|0]<<24 | HEAP[(offset+25)|0]<<16 | HEAP[(offset+26)|0]<<8 | HEAP[(offset+27)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K06 )|0;
+        T = ( W06 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K06 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 7
-        W07 = T = ( HEAP[(offset+28)|0]<<24 | HEAP[(offset+29)|0]<<16 | HEAP[(offset+30)|0]<<8 | HEAP[(offset+31)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K07 )|0;
+        T = ( W07 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K07 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 8
-        W08 = T = ( HEAP[(offset+32)|0]<<24 | HEAP[(offset+33)|0]<<16 | HEAP[(offset+34)|0]<<8 | HEAP[(offset+35)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K08 )|0;
+        T = ( W08 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K08 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 9
-        W09 = T = ( HEAP[(offset+36)|0]<<24 | HEAP[(offset+37)|0]<<16 | HEAP[(offset+38)|0]<<8 | HEAP[(offset+39)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K09 )|0;
+        T = ( W09 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K09 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 10
-        W10 = T = ( HEAP[(offset+40)|0]<<24 | HEAP[(offset+41)|0]<<16 | HEAP[(offset+42)|0]<<8 | HEAP[(offset+43)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K10 )|0;
+        T = ( W10 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K10 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 11
-        W11 = T = ( HEAP[(offset+44)|0]<<24 | HEAP[(offset+45)|0]<<16 | HEAP[(offset+46)|0]<<8 | HEAP[(offset+47)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K11 )|0;
+        T = ( W11 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K11 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 12
-        W12 = T = ( HEAP[(offset+48)|0]<<24 | HEAP[(offset+49)|0]<<16 | HEAP[(offset+50)|0]<<8 | HEAP[(offset+51)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K12 )|0;
+        T = ( W12 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K12 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 13
-        W13 = T = ( HEAP[(offset+52)|0]<<24 | HEAP[(offset+53)|0]<<16 | HEAP[(offset+54)|0]<<8 | HEAP[(offset+55)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K13 )|0;
+        T = ( W13 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K13 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 14
-        W14 = T = ( HEAP[(offset+56)|0]<<24 | HEAP[(offset+57)|0]<<16 | HEAP[(offset+58)|0]<<8 | HEAP[(offset+59)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K14 )|0;
+        T = ( W14 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K14 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
         // 15
-        W15 = T = ( HEAP[(offset+60)|0]<<24 | HEAP[(offset+61)|0]<<16 | HEAP[(offset+62)|0]<<8 | HEAP[(offset+63)|0] )|0;
-        T = ( T + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K15 )|0;
+        T = ( W15 + H + ( E>>>6 ^ E>>>11 ^ E>>>25 ^ E<<26 ^ E<<21 ^ E<<7 ) +  ( G ^ E & (F^G) ) + K15 )|0;
         H = G; G = F; F = E; E = ( D + T )|0; D = C; C = B; B = A;
         A = ( T + ( (B & C) ^ ( D & (B ^ C) ) ) + ( B>>>2 ^ B>>>13 ^ B>>>22 ^ B<<30 ^ B<<19 ^ B<<10 ) )|0;
 
@@ -520,7 +553,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
             return -1;
 
         while ( (length|0) >= 64 ) {
-            _core(offset);
+            _core( offset, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 );
             offset = (offset+64)|0;
             length = (length-64)|0;
             hashed = (hashed+64)|0;
@@ -531,6 +564,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         return hashed|0;
     }
 
+    // FIXME make it free of side effects
     function finish ( offset, length, out ) {
         offset = offset|0;
         length = length|0;
@@ -556,7 +590,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         if ( (length|0) >= 56 ) {
             for ( i = (length+1)|0; (i|0) < 64; i = (i+1)|0 )
                 HEAP[(offset+i)|0] = 0x00;
-            _core(offset);
+            _core( offset, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 );
             length = 0;
 
             HEAP[offset|0] = 0x00;
@@ -570,7 +604,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         HEAP[(offset+61)|0] = (TOTAL>>>13) & 0xff
         HEAP[(offset+62)|0] = (TOTAL>>>5) & 0xff
         HEAP[(offset+63)|0] = (TOTAL<<3) & 0xff;
-        _core(offset);
+        _core( offset, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 );
 
         if ( (out|0) == -1 ) return hashed|0;
 
@@ -622,72 +656,25 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         p15 = p15|0;
 
         // opad
-        HEAP[0]  = 0x5c^(p0>>>24);
-        HEAP[1]  = 0x5c^(p0>>>16)&0xff;
-        HEAP[2]  = 0x5c^(p0>>>8)&0xff;
-        HEAP[3]  = 0x5c^p0&0xff;
-        HEAP[4]  = 0x5c^(p1>>>24);
-        HEAP[5]  = 0x5c^(p1>>>16)&0xff;
-        HEAP[6]  = 0x5c^(p1>>>8)&0xff;
-        HEAP[7]  = 0x5c^p1&0xff;
-        HEAP[8]  = 0x5c^(p2>>>24);
-        HEAP[9]  = 0x5c^(p2>>>16)&0xff;
-        HEAP[10] = 0x5c^(p2>>>8)&0xff;
-        HEAP[11] = 0x5c^p2&0xff;
-        HEAP[12] = 0x5c^(p3>>>24);
-        HEAP[13] = 0x5c^(p3>>>16)&0xff;
-        HEAP[14] = 0x5c^(p3>>>8)&0xff;
-        HEAP[15] = 0x5c^p3&0xff;
-        HEAP[16] = 0x5c^(p4>>>24);
-        HEAP[17] = 0x5c^(p4>>>16)&0xff;
-        HEAP[18] = 0x5c^(p4>>>8)&0xff;
-        HEAP[19] = 0x5c^p4&0xff;
-        HEAP[20] = 0x5c^(p5>>>24);
-        HEAP[21] = 0x5c^(p5>>>16)&0xff;
-        HEAP[22] = 0x5c^(p5>>>8)&0xff;
-        HEAP[23] = 0x5c^p5&0xff;
-        HEAP[24] = 0x5c^(p6>>>24);
-        HEAP[25] = 0x5c^(p6>>>16)&0xff;
-        HEAP[26] = 0x5c^(p6>>>8)&0xff;
-        HEAP[27] = 0x5c^p6&0xff;
-        HEAP[28] = 0x5c^(p7>>>24);
-        HEAP[29] = 0x5c^(p7>>>16)&0xff;
-        HEAP[30] = 0x5c^(p7>>>8)&0xff;
-        HEAP[31] = 0x5c^p7&0xff;
-        HEAP[32] = 0x5c^(p8>>>24);
-        HEAP[33] = 0x5c^(p8>>>16)&0xff;
-        HEAP[34] = 0x5c^(p8>>>8)&0xff;
-        HEAP[35] = 0x5c^p8&0xff;
-        HEAP[36] = 0x5c^(p9>>>24);
-        HEAP[37] = 0x5c^(p9>>>16)&0xff;
-        HEAP[38] = 0x5c^(p9>>>8)&0xff;
-        HEAP[39] = 0x5c^p9&0xff;
-        HEAP[40] = 0x5c^(p10>>>24);
-        HEAP[41] = 0x5c^(p10>>>16)&0xff;
-        HEAP[42] = 0x5c^(p10>>>8)&0xff;
-        HEAP[43] = 0x5c^p10&0xff;
-        HEAP[44] = 0x5c^(p11>>>24);
-        HEAP[45] = 0x5c^(p11>>>16)&0xff;
-        HEAP[46] = 0x5c^(p11>>>8)&0xff;
-        HEAP[47] = 0x5c^p11&0xff;
-        HEAP[48] = 0x5c^(p12>>>24);
-        HEAP[49] = 0x5c^(p12>>>16)&0xff;
-        HEAP[50] = 0x5c^(p12>>>8)&0xff;
-        HEAP[51] = 0x5c^p12&0xff;
-        HEAP[52] = 0x5c^(p13>>>24);
-        HEAP[53] = 0x5c^(p13>>>16)&0xff;
-        HEAP[54] = 0x5c^(p13>>>8)&0xff;
-        HEAP[55] = 0x5c^p13&0xff;
-        HEAP[56] = 0x5c^(p14>>>24);
-        HEAP[57] = 0x5c^(p14>>>16)&0xff;
-        HEAP[58] = 0x5c^(p14>>>8)&0xff;
-        HEAP[59] = 0x5c^p14&0xff;
-        HEAP[60] = 0x5c^(p15>>>24);
-        HEAP[61] = 0x5c^(p15>>>16)&0xff;
-        HEAP[62] = 0x5c^(p15>>>8)&0xff;
-        HEAP[63] = 0x5c^p15&0xff;
         reset();
-        _core(0);
+        _core( -1,
+            p0 ^ 0x5c5c5c5c,
+            p1 ^ 0x5c5c5c5c,
+            p2 ^ 0x5c5c5c5c,
+            p3 ^ 0x5c5c5c5c,
+            p4 ^ 0x5c5c5c5c,
+            p5 ^ 0x5c5c5c5c,
+            p6 ^ 0x5c5c5c5c,
+            p7 ^ 0x5c5c5c5c,
+            p8 ^ 0x5c5c5c5c,
+            p9 ^ 0x5c5c5c5c,
+            p10 ^ 0x5c5c5c5c,
+            p11 ^ 0x5c5c5c5c,
+            p12 ^ 0x5c5c5c5c,
+            p13 ^ 0x5c5c5c5c,
+            p14 ^ 0x5c5c5c5c,
+            p15 ^ 0x5c5c5c5c
+        );
         O0 = ST0;
         O1 = ST1;
         O2 = ST2;
@@ -698,72 +685,25 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         O7 = ST7;
 
         // ipad
-        HEAP[0]  = 0x36^(p0>>>24);
-        HEAP[1]  = 0x36^(p0>>>16)&0xff;
-        HEAP[2]  = 0x36^(p0>>>8)&0xff;
-        HEAP[3]  = 0x36^p0&0xff;
-        HEAP[4]  = 0x36^(p1>>>24);
-        HEAP[5]  = 0x36^(p1>>>16)&0xff;
-        HEAP[6]  = 0x36^(p1>>>8)&0xff;
-        HEAP[7]  = 0x36^p1&0xff;
-        HEAP[8]  = 0x36^(p2>>>24);
-        HEAP[9]  = 0x36^(p2>>>16)&0xff;
-        HEAP[10] = 0x36^(p2>>>8)&0xff;
-        HEAP[11] = 0x36^p2&0xff;
-        HEAP[12] = 0x36^(p3>>>24);
-        HEAP[13] = 0x36^(p3>>>16)&0xff;
-        HEAP[14] = 0x36^(p3>>>8)&0xff;
-        HEAP[15] = 0x36^p3&0xff;
-        HEAP[16] = 0x36^(p4>>>24);
-        HEAP[17] = 0x36^(p4>>>16)&0xff;
-        HEAP[18] = 0x36^(p4>>>8)&0xff;
-        HEAP[19] = 0x36^p4&0xff;
-        HEAP[20] = 0x36^(p5>>>24);
-        HEAP[21] = 0x36^(p5>>>16)&0xff;
-        HEAP[22] = 0x36^(p5>>>8)&0xff;
-        HEAP[23] = 0x36^p5&0xff;
-        HEAP[24] = 0x36^(p6>>>24);
-        HEAP[25] = 0x36^(p6>>>16)&0xff;
-        HEAP[26] = 0x36^(p6>>>8)&0xff;
-        HEAP[27] = 0x36^p6&0xff;
-        HEAP[28] = 0x36^(p7>>>24);
-        HEAP[29] = 0x36^(p7>>>16)&0xff;
-        HEAP[30] = 0x36^(p7>>>8)&0xff;
-        HEAP[31] = 0x36^p7&0xff;
-        HEAP[32] = 0x36^(p8>>>24);
-        HEAP[33] = 0x36^(p8>>>16)&0xff;
-        HEAP[34] = 0x36^(p8>>>8)&0xff;
-        HEAP[35] = 0x36^p8&0xff;
-        HEAP[36] = 0x36^(p9>>>24);
-        HEAP[37] = 0x36^(p9>>>16)&0xff;
-        HEAP[38] = 0x36^(p9>>>8)&0xff;
-        HEAP[39] = 0x36^p9&0xff;
-        HEAP[40] = 0x36^(p10>>>24);
-        HEAP[41] = 0x36^(p10>>>16)&0xff;
-        HEAP[42] = 0x36^(p10>>>8)&0xff;
-        HEAP[43] = 0x36^p10&0xff;
-        HEAP[44] = 0x36^(p11>>>24);
-        HEAP[45] = 0x36^(p11>>>16)&0xff;
-        HEAP[46] = 0x36^(p11>>>8)&0xff;
-        HEAP[47] = 0x36^p11&0xff;
-        HEAP[48] = 0x36^(p12>>>24);
-        HEAP[49] = 0x36^(p12>>>16)&0xff;
-        HEAP[50] = 0x36^(p12>>>8)&0xff;
-        HEAP[51] = 0x36^p12&0xff;
-        HEAP[52] = 0x36^(p13>>>24);
-        HEAP[53] = 0x36^(p13>>>16)&0xff;
-        HEAP[54] = 0x36^(p13>>>8)&0xff;
-        HEAP[55] = 0x36^p13&0xff;
-        HEAP[56] = 0x36^(p14>>>24);
-        HEAP[57] = 0x36^(p14>>>16)&0xff;
-        HEAP[58] = 0x36^(p14>>>8)&0xff;
-        HEAP[59] = 0x36^p14&0xff;
-        HEAP[60] = 0x36^(p15>>>24);
-        HEAP[61] = 0x36^(p15>>>16)&0xff;
-        HEAP[62] = 0x36^(p15>>>8)&0xff;
-        HEAP[63] = 0x36^p15&0xff;
         reset();
-        _core(0);
+        _core( -1,
+            p0 ^ 0x36363636,
+            p1 ^ 0x36363636,
+            p2 ^ 0x36363636,
+            p3 ^ 0x36363636,
+            p4 ^ 0x36363636,
+            p5 ^ 0x36363636,
+            p6 ^ 0x36363636,
+            p7 ^ 0x36363636,
+            p8 ^ 0x36363636,
+            p9 ^ 0x36363636,
+            p10 ^ 0x36363636,
+            p11 ^ 0x36363636,
+            p12 ^ 0x36363636,
+            p13 ^ 0x36363636,
+            p14 ^ 0x36363636,
+            p15 ^ 0x36363636
+        );
         I0 = ST0;
         I1 = ST1;
         I2 = ST2;
@@ -775,6 +715,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         TOTAL = 64;
     }
 
+    // FIXME make it free of side effects
     function hmac_finish ( offset, length, out ) {
         offset = offset|0;
         length = length|0;
@@ -798,62 +739,73 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         count = count|0
         out  = out|0;
 
-        var i = 0;
+        var st0 = 0, st1 = 0, st2 = 0, st3 = 0, st4 = 0, st5 = 0, st6 = 0, st7 = 0,
+            h0 = 0, h1 = 0, h2 = 0, h3 = 0, h4 = 0, h5 = 0, h6 = 0, h7 = 0,
+            i = 0;
 
         // pad block number into heap
         // FIXME probable OOB write
-        HEAP[(offset+length)|0]   = block>>>24&0xff;
-        HEAP[(offset+length+1)|0] = block>>>16&0xff;
-        HEAP[(offset+length+2)|0] = block>>>8&0xff;
-        HEAP[(offset+length+3)|0] = block&0xff;
+        HEAP[(offset+length)|0]   = (block>>>24) & 0xff;
+        HEAP[(offset+length+1)|0] = (block>>>16) & 0xff;
+        HEAP[(offset+length+2)|0] = (block>>>8)  & 0xff;
+        HEAP[(offset+length+3)|0] = (block)      & 0xff;
 
         // finish first iteration
-        hmac_finish( offset, (length+4)|0, 0 )|0;
-        D0 = ST0;
-        D1 = ST1;
-        D2 = ST2;
-        D3 = ST3;
-        D4 = ST4;
-        D5 = ST5;
-        D6 = ST6;
-        D7 = ST7;
+        hmac_finish( offset, (length+4)|0, -1 )|0;
+        st0 = h0 = ST0;
+        st1 = h1 = ST1;
+        st2 = h2 = ST2;
+        st3 = h3 = ST3;
+        st4 = h4 = ST4;
+        st5 = h5 = ST5;
+        st6 = h6 = ST6;
+        st7 = h7 = ST7;
         count = (count-1)|0;
-
-        // prepare hash block
-        for ( i = 32; (i|0) < 64; i = (i+1)|0 ) HEAP[i|0] = 0;
-        HEAP[32] = 0x80;   // terminating bit
-        HEAP[62] = 3;      // size of hmac-ed data is 96 bytes
 
         // perform the rest iterations
         while ( (count|0) > 0 ) {
             hmac_reset();
-            _core(0);
-            _state_to_heap(0);
+            _core( -1, h0, h1, h2, h3, h4, h5, h6, h7, 0x80000000, 0, 0, 0, 0, 0, 0, 0x00000300 );
+            h0 = ST0;
+            h1 = ST1;
+            h2 = ST2;
+            h3 = ST3;
+            h4 = ST4;
+            h5 = ST5;
+            h6 = ST6;
+            h7 = ST7;
 
             _hmac_opad();
-            _core(0);
-            _state_to_heap(0);
+            _core( -1, h0, h1, h2, h3, h4, h5, h6, h7, 0x80000000, 0, 0, 0, 0, 0, 0, 0x00000300 );
+            h0 = ST0;
+            h1 = ST1;
+            h2 = ST2;
+            h3 = ST3;
+            h4 = ST4;
+            h5 = ST5;
+            h6 = ST6;
+            h7 = ST7;
 
-            D0 = D0^ST0;
-            D1 = D1^ST1;
-            D2 = D2^ST2;
-            D3 = D3^ST3;
-            D4 = D4^ST4;
-            D5 = D5^ST5;
-            D6 = D6^ST6;
-            D7 = D7^ST7;
+            st0 = st0^ST0;
+            st1 = st1^ST1;
+            st2 = st2^ST2;
+            st3 = st3^ST3;
+            st4 = st4^ST4;
+            st5 = st5^ST5;
+            st6 = st6^ST6;
+            st7 = st7^ST7;
 
             count = (count-1)|0;
         }
 
-        ST0 = D0;
-        ST1 = D1;
-        ST2 = D2;
-        ST3 = D3;
-        ST4 = D4;
-        ST5 = D5;
-        ST6 = D6;
-        ST7 = D7;
+        ST0 = st0;
+        ST1 = st1;
+        ST2 = st2;
+        ST3 = st3;
+        ST4 = st4;
+        ST5 = st5;
+        ST6 = st6;
+        ST7 = st7;
         _state_to_heap(out);
     }
 
@@ -876,5 +828,5 @@ function sha256_asm ( stdlib, foreign, buffer ) {
 */
 // Workaround Firefox bug, uglified from sha256_asm above with little manual changes
 function sha256_asm ( stdlib, foreign, buffer ) {
-    return (new Function('e,t,n','"use asm";var r=1779033703,i=3144134277,s=1013904242,o=2773480762,u=1359893119,a=2600822924,f=528734635,l=1541459225;var c=1116352408,h=1899447441,p=3049323471,d=3921009573,v=961987163,m=1508970993,g=2453635748,y=2870763221,b=3624381080,w=310598401,E=607225278,S=1426881987,x=1925078388,T=2162078206,N=2614888103,C=3248222580,k=3835390401,L=4022224774,A=264347078,O=604807628,M=770255983,_=1249150122,D=1555081692,P=1996064986,H=2554220882,B=2821834349,j=2952996808,F=3210313671,I=3336571891,q=3584528711,R=113926993,U=338241895,z=666307205,W=773529912,X=1294757372,V=1396182291,$=1695183700,J=1986661051,K=2177026350,Q=2456956037,G=2730485921,Y=2820302411,Z=3259730800,et=3345764771,tt=3516065817,nt=3600352804,rt=4094571909,it=275423344,st=430227734,ot=506948616,ut=659060556,at=883997877,ft=958139571,lt=1322822218,ct=1537002063,ht=1747873779,pt=1955562222,dt=2024104815,vt=2227730452,mt=2361852424,gt=2428436474,yt=2756734187,bt=3204031479,wt=3329325298;var Et=0,St=0,xt=0,Tt=0,Nt=0,Ct=0,kt=0,Lt=0;var At=0;var Ot=0,Mt=0,_t=0,Dt=0,Pt=0,Ht=0,Bt=0,jt=0,Ft=0,It=0,qt=0,Rt=0,Ut=0,zt=0,Wt=0,Xt=0;var Vt=0,$t=0,Jt=0,Kt=0,Qt=0,Gt=0,Yt=0,Zt=0;var en=new e.Uint8Array(n);function tn(e){e=e|0;var t=0,n=0,r=0,i=0,s=0,o=0,u=0,a=0,f=0,l=0,At=0,Ot=0,Mt=0,_t=0,Dt=0,Pt=0,Ht=0,Bt=0,jt=0,Ft=0,It=0,qt=0,Rt=0,Ut=0,zt=0;Ht=Et;Bt=St;jt=xt;Ft=Tt;It=Nt;qt=Ct;Rt=kt;Ut=Lt;t=zt=en[e]<<24|en[e+1|0]<<16|en[e+2|0]<<8|en[e+3|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+c|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;n=zt=en[e+4|0]<<24|en[e+5|0]<<16|en[e+6|0]<<8|en[e+7|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+h|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;r=zt=en[e+8|0]<<24|en[e+9|0]<<16|en[e+10|0]<<8|en[e+11|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+p|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;i=zt=en[e+12|0]<<24|en[e+13|0]<<16|en[e+14|0]<<8|en[e+15|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+d|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;s=zt=en[e+16|0]<<24|en[e+17|0]<<16|en[e+18|0]<<8|en[e+19|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+v|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;o=zt=en[e+20|0]<<24|en[e+21|0]<<16|en[e+22|0]<<8|en[e+23|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+m|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;u=zt=en[e+24|0]<<24|en[e+25|0]<<16|en[e+26|0]<<8|en[e+27|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+g|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;a=zt=en[e+28|0]<<24|en[e+29|0]<<16|en[e+30|0]<<8|en[e+31|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+y|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;f=zt=en[e+32|0]<<24|en[e+33|0]<<16|en[e+34|0]<<8|en[e+35|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+b|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;l=zt=en[e+36|0]<<24|en[e+37|0]<<16|en[e+38|0]<<8|en[e+39|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+w|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;At=zt=en[e+40|0]<<24|en[e+41|0]<<16|en[e+42|0]<<8|en[e+43|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+E|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Ot=zt=en[e+44|0]<<24|en[e+45|0]<<16|en[e+46|0]<<8|en[e+47|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+S|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Mt=zt=en[e+48|0]<<24|en[e+49|0]<<16|en[e+50|0]<<8|en[e+51|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+x|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;_t=zt=en[e+52|0]<<24|en[e+53|0]<<16|en[e+54|0]<<8|en[e+55|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+T|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Dt=zt=en[e+56|0]<<24|en[e+57|0]<<16|en[e+58|0]<<8|en[e+59|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+N|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Pt=zt=en[e+60|0]<<24|en[e+61|0]<<16|en[e+62|0]<<8|en[e+63|0]|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+C|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;t=zt=(n>>>7^n>>>18^n>>>3^n<<25^n<<14)+(Dt>>>17^Dt>>>19^Dt>>>10^Dt<<15^Dt<<13)+t+l|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+k|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;n=zt=(r>>>7^r>>>18^r>>>3^r<<25^r<<14)+(Pt>>>17^Pt>>>19^Pt>>>10^Pt<<15^Pt<<13)+n+At|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+L|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;r=zt=(i>>>7^i>>>18^i>>>3^i<<25^i<<14)+(t>>>17^t>>>19^t>>>10^t<<15^t<<13)+r+Ot|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+A|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;i=zt=(s>>>7^s>>>18^s>>>3^s<<25^s<<14)+(n>>>17^n>>>19^n>>>10^n<<15^n<<13)+i+Mt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+O|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;s=zt=(o>>>7^o>>>18^o>>>3^o<<25^o<<14)+(r>>>17^r>>>19^r>>>10^r<<15^r<<13)+s+_t|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+M|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;o=zt=(u>>>7^u>>>18^u>>>3^u<<25^u<<14)+(i>>>17^i>>>19^i>>>10^i<<15^i<<13)+o+Dt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+_|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;u=zt=(a>>>7^a>>>18^a>>>3^a<<25^a<<14)+(s>>>17^s>>>19^s>>>10^s<<15^s<<13)+u+Pt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+D|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;a=zt=(f>>>7^f>>>18^f>>>3^f<<25^f<<14)+(o>>>17^o>>>19^o>>>10^o<<15^o<<13)+a+t|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+P|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;f=zt=(l>>>7^l>>>18^l>>>3^l<<25^l<<14)+(u>>>17^u>>>19^u>>>10^u<<15^u<<13)+f+n|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+H|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;l=zt=(At>>>7^At>>>18^At>>>3^At<<25^At<<14)+(a>>>17^a>>>19^a>>>10^a<<15^a<<13)+l+r|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+B|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;At=zt=(Ot>>>7^Ot>>>18^Ot>>>3^Ot<<25^Ot<<14)+(f>>>17^f>>>19^f>>>10^f<<15^f<<13)+At+i|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+j|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Ot=zt=(Mt>>>7^Mt>>>18^Mt>>>3^Mt<<25^Mt<<14)+(l>>>17^l>>>19^l>>>10^l<<15^l<<13)+Ot+s|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+F|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Mt=zt=(_t>>>7^_t>>>18^_t>>>3^_t<<25^_t<<14)+(At>>>17^At>>>19^At>>>10^At<<15^At<<13)+Mt+o|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+I|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;_t=zt=(Dt>>>7^Dt>>>18^Dt>>>3^Dt<<25^Dt<<14)+(Ot>>>17^Ot>>>19^Ot>>>10^Ot<<15^Ot<<13)+_t+u|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+q|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Dt=zt=(Pt>>>7^Pt>>>18^Pt>>>3^Pt<<25^Pt<<14)+(Mt>>>17^Mt>>>19^Mt>>>10^Mt<<15^Mt<<13)+Dt+a|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+R|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Pt=zt=(t>>>7^t>>>18^t>>>3^t<<25^t<<14)+(_t>>>17^_t>>>19^_t>>>10^_t<<15^_t<<13)+Pt+f|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+U|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;t=zt=(n>>>7^n>>>18^n>>>3^n<<25^n<<14)+(Dt>>>17^Dt>>>19^Dt>>>10^Dt<<15^Dt<<13)+t+l|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+z|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;n=zt=(r>>>7^r>>>18^r>>>3^r<<25^r<<14)+(Pt>>>17^Pt>>>19^Pt>>>10^Pt<<15^Pt<<13)+n+At|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+W|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;r=zt=(i>>>7^i>>>18^i>>>3^i<<25^i<<14)+(t>>>17^t>>>19^t>>>10^t<<15^t<<13)+r+Ot|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+X|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;i=zt=(s>>>7^s>>>18^s>>>3^s<<25^s<<14)+(n>>>17^n>>>19^n>>>10^n<<15^n<<13)+i+Mt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+V|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;s=zt=(o>>>7^o>>>18^o>>>3^o<<25^o<<14)+(r>>>17^r>>>19^r>>>10^r<<15^r<<13)+s+_t|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+$|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;o=zt=(u>>>7^u>>>18^u>>>3^u<<25^u<<14)+(i>>>17^i>>>19^i>>>10^i<<15^i<<13)+o+Dt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+J|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;u=zt=(a>>>7^a>>>18^a>>>3^a<<25^a<<14)+(s>>>17^s>>>19^s>>>10^s<<15^s<<13)+u+Pt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+K|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;a=zt=(f>>>7^f>>>18^f>>>3^f<<25^f<<14)+(o>>>17^o>>>19^o>>>10^o<<15^o<<13)+a+t|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+Q|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;f=zt=(l>>>7^l>>>18^l>>>3^l<<25^l<<14)+(u>>>17^u>>>19^u>>>10^u<<15^u<<13)+f+n|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+G|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;l=zt=(At>>>7^At>>>18^At>>>3^At<<25^At<<14)+(a>>>17^a>>>19^a>>>10^a<<15^a<<13)+l+r|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+Y|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;At=zt=(Ot>>>7^Ot>>>18^Ot>>>3^Ot<<25^Ot<<14)+(f>>>17^f>>>19^f>>>10^f<<15^f<<13)+At+i|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+Z|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Ot=zt=(Mt>>>7^Mt>>>18^Mt>>>3^Mt<<25^Mt<<14)+(l>>>17^l>>>19^l>>>10^l<<15^l<<13)+Ot+s|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+et|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Mt=zt=(_t>>>7^_t>>>18^_t>>>3^_t<<25^_t<<14)+(At>>>17^At>>>19^At>>>10^At<<15^At<<13)+Mt+o|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+tt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;_t=zt=(Dt>>>7^Dt>>>18^Dt>>>3^Dt<<25^Dt<<14)+(Ot>>>17^Ot>>>19^Ot>>>10^Ot<<15^Ot<<13)+_t+u|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+nt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Dt=zt=(Pt>>>7^Pt>>>18^Pt>>>3^Pt<<25^Pt<<14)+(Mt>>>17^Mt>>>19^Mt>>>10^Mt<<15^Mt<<13)+Dt+a|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+rt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Pt=zt=(t>>>7^t>>>18^t>>>3^t<<25^t<<14)+(_t>>>17^_t>>>19^_t>>>10^_t<<15^_t<<13)+Pt+f|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+it|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;t=zt=(n>>>7^n>>>18^n>>>3^n<<25^n<<14)+(Dt>>>17^Dt>>>19^Dt>>>10^Dt<<15^Dt<<13)+t+l|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+st|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;n=zt=(r>>>7^r>>>18^r>>>3^r<<25^r<<14)+(Pt>>>17^Pt>>>19^Pt>>>10^Pt<<15^Pt<<13)+n+At|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+ot|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;r=zt=(i>>>7^i>>>18^i>>>3^i<<25^i<<14)+(t>>>17^t>>>19^t>>>10^t<<15^t<<13)+r+Ot|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+ut|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;i=zt=(s>>>7^s>>>18^s>>>3^s<<25^s<<14)+(n>>>17^n>>>19^n>>>10^n<<15^n<<13)+i+Mt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+at|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;s=zt=(o>>>7^o>>>18^o>>>3^o<<25^o<<14)+(r>>>17^r>>>19^r>>>10^r<<15^r<<13)+s+_t|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+ft|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;o=zt=(u>>>7^u>>>18^u>>>3^u<<25^u<<14)+(i>>>17^i>>>19^i>>>10^i<<15^i<<13)+o+Dt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+lt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;u=zt=(a>>>7^a>>>18^a>>>3^a<<25^a<<14)+(s>>>17^s>>>19^s>>>10^s<<15^s<<13)+u+Pt|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+ct|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;a=zt=(f>>>7^f>>>18^f>>>3^f<<25^f<<14)+(o>>>17^o>>>19^o>>>10^o<<15^o<<13)+a+t|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+ht|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;f=zt=(l>>>7^l>>>18^l>>>3^l<<25^l<<14)+(u>>>17^u>>>19^u>>>10^u<<15^u<<13)+f+n|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+pt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;l=zt=(At>>>7^At>>>18^At>>>3^At<<25^At<<14)+(a>>>17^a>>>19^a>>>10^a<<15^a<<13)+l+r|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+dt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;At=zt=(Ot>>>7^Ot>>>18^Ot>>>3^Ot<<25^Ot<<14)+(f>>>17^f>>>19^f>>>10^f<<15^f<<13)+At+i|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+vt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Ot=zt=(Mt>>>7^Mt>>>18^Mt>>>3^Mt<<25^Mt<<14)+(l>>>17^l>>>19^l>>>10^l<<15^l<<13)+Ot+s|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+mt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Mt=zt=(_t>>>7^_t>>>18^_t>>>3^_t<<25^_t<<14)+(At>>>17^At>>>19^At>>>10^At<<15^At<<13)+Mt+o|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+gt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;_t=zt=(Dt>>>7^Dt>>>18^Dt>>>3^Dt<<25^Dt<<14)+(Ot>>>17^Ot>>>19^Ot>>>10^Ot<<15^Ot<<13)+_t+u|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+yt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Dt=zt=(Pt>>>7^Pt>>>18^Pt>>>3^Pt<<25^Pt<<14)+(Mt>>>17^Mt>>>19^Mt>>>10^Mt<<15^Mt<<13)+Dt+a|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+bt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Pt=zt=(t>>>7^t>>>18^t>>>3^t<<25^t<<14)+(_t>>>17^_t>>>19^_t>>>10^_t<<15^_t<<13)+Pt+f|0;zt=zt+Ut+(It>>>6^It>>>11^It>>>25^It<<26^It<<21^It<<7)+(Rt^It&(qt^Rt))+wt|0;Ut=Rt;Rt=qt;qt=It;It=Ft+zt|0;Ft=jt;jt=Bt;Bt=Ht;Ht=zt+(Bt&jt^Ft&(Bt^jt))+(Bt>>>2^Bt>>>13^Bt>>>22^Bt<<30^Bt<<19^Bt<<10)|0;Et=Et+Ht|0;St=St+Bt|0;xt=xt+jt|0;Tt=Tt+Ft|0;Nt=Nt+It|0;Ct=Ct+qt|0;kt=kt+Rt|0;Lt=Lt+Ut|0}function nn(e){e=e|0;en[e|0]=Et>>>24|0;en[e+1|0]=Et>>>16&255;en[e+2|0]=Et>>>8&255;en[e+3|0]=Et&255;en[e+4|0]=St>>>24|0;en[e+5|0]=St>>>16&255;en[e+6|0]=St>>>8&255;en[e+7|0]=St&255;en[e+8|0]=xt>>>24|0;en[e+9|0]=xt>>>16&255;en[e+10|0]=xt>>>8&255;en[e+11|0]=xt&255;en[e+12|0]=Tt>>>24|0;en[e+13|0]=Tt>>>16&255;en[e+14|0]=Tt>>>8&255;en[e+15|0]=Tt&255;en[e+16|0]=Nt>>>24|0;en[e+17|0]=Nt>>>16&255;en[e+18|0]=Nt>>>8&255;en[e+19|0]=Nt&255;en[e+20|0]=Ct>>>24|0;en[e+21|0]=Ct>>>16&255;en[e+22|0]=Ct>>>8&255;en[e+23|0]=Ct&255;en[e+24|0]=kt>>>24|0;en[e+25|0]=kt>>>16&255;en[e+26|0]=kt>>>8&255;en[e+27|0]=kt&255;en[e+28|0]=Lt>>>24|0;en[e+29|0]=Lt>>>16&255;en[e+30|0]=Lt>>>8&255;en[e+31|0]=Lt&255}function rn(){Et=r;St=i;xt=s;Tt=o;Nt=u;Ct=a;kt=f;Lt=l;At=0}function sn(e,t,n,r,i,s,o,u,a){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;Et=e;St=t;xt=n;Tt=r;Nt=i;Ct=s;kt=o;Lt=u;At=a}function on(e,t){e=e|0;t=t|0;var n=0;if(((e|0)%64|0)!=0)return-1;while((t|0)>=64){tn(e);e=e+64|0;t=t-64|0;n=n+64|0}At=At+n|0;return n|0}function un(e,t,n){e=e|0;t=t|0;n=n|0;var r=0,i=0;if((t|0)>=64){r=on(e,t)|0;if((r|0)==-1)return-1;e=e+r|0;t=t-r|0}r=r+t|0;At=At+t|0;en[e+t|0]=128;if((t|0)>=56){for(i=t+1|0;(i|0)<64;i=i+1|0)en[e+i|0]=0;tn(e);t=0;en[e|0]=0}for(i=t+1|0;(i|0)<59;i=i+1|0)en[e+i|0]=0;en[e+59|0]=At>>>29&255;en[e+60|0]=At>>>21&255;en[e+61|0]=At>>>13&255;en[e+62|0]=At>>>5&255;en[e+63|0]=At<<3&255;tn(e);if((n|0)==-1)return r|0;nn(n);return r|0}function an(){Et=Ot;St=Mt;xt=_t;Tt=Dt;Nt=Pt;Ct=Ht;kt=Bt;Lt=jt;At=64}function fn(){Et=Ft;St=It;xt=qt;Tt=Rt;Nt=Ut;Ct=zt;kt=Wt;Lt=Xt;At=64}function ln(e,t,n,r,i,s,o,u,a,f,l,c,h,p,d,v){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;c=c|0;h=h|0;p=p|0;d=d|0;v=v|0;en[0]=92^e>>>24;en[1]=92^e>>>16&255;en[2]=92^e>>>8&255;en[3]=92^e&255;en[4]=92^t>>>24;en[5]=92^t>>>16&255;en[6]=92^t>>>8&255;en[7]=92^t&255;en[8]=92^n>>>24;en[9]=92^n>>>16&255;en[10]=92^n>>>8&255;en[11]=92^n&255;en[12]=92^r>>>24;en[13]=92^r>>>16&255;en[14]=92^r>>>8&255;en[15]=92^r&255;en[16]=92^i>>>24;en[17]=92^i>>>16&255;en[18]=92^i>>>8&255;en[19]=92^i&255;en[20]=92^s>>>24;en[21]=92^s>>>16&255;en[22]=92^s>>>8&255;en[23]=92^s&255;en[24]=92^o>>>24;en[25]=92^o>>>16&255;en[26]=92^o>>>8&255;en[27]=92^o&255;en[28]=92^u>>>24;en[29]=92^u>>>16&255;en[30]=92^u>>>8&255;en[31]=92^u&255;en[32]=92^a>>>24;en[33]=92^a>>>16&255;en[34]=92^a>>>8&255;en[35]=92^a&255;en[36]=92^f>>>24;en[37]=92^f>>>16&255;en[38]=92^f>>>8&255;en[39]=92^f&255;en[40]=92^l>>>24;en[41]=92^l>>>16&255;en[42]=92^l>>>8&255;en[43]=92^l&255;en[44]=92^c>>>24;en[45]=92^c>>>16&255;en[46]=92^c>>>8&255;en[47]=92^c&255;en[48]=92^h>>>24;en[49]=92^h>>>16&255;en[50]=92^h>>>8&255;en[51]=92^h&255;en[52]=92^p>>>24;en[53]=92^p>>>16&255;en[54]=92^p>>>8&255;en[55]=92^p&255;en[56]=92^d>>>24;en[57]=92^d>>>16&255;en[58]=92^d>>>8&255;en[59]=92^d&255;en[60]=92^v>>>24;en[61]=92^v>>>16&255;en[62]=92^v>>>8&255;en[63]=92^v&255;rn();tn(0);Ft=Et;It=St;qt=xt;Rt=Tt;Ut=Nt;zt=Ct;Wt=kt;Xt=Lt;en[0]=54^e>>>24;en[1]=54^e>>>16&255;en[2]=54^e>>>8&255;en[3]=54^e&255;en[4]=54^t>>>24;en[5]=54^t>>>16&255;en[6]=54^t>>>8&255;en[7]=54^t&255;en[8]=54^n>>>24;en[9]=54^n>>>16&255;en[10]=54^n>>>8&255;en[11]=54^n&255;en[12]=54^r>>>24;en[13]=54^r>>>16&255;en[14]=54^r>>>8&255;en[15]=54^r&255;en[16]=54^i>>>24;en[17]=54^i>>>16&255;en[18]=54^i>>>8&255;en[19]=54^i&255;en[20]=54^s>>>24;en[21]=54^s>>>16&255;en[22]=54^s>>>8&255;en[23]=54^s&255;en[24]=54^o>>>24;en[25]=54^o>>>16&255;en[26]=54^o>>>8&255;en[27]=54^o&255;en[28]=54^u>>>24;en[29]=54^u>>>16&255;en[30]=54^u>>>8&255;en[31]=54^u&255;en[32]=54^a>>>24;en[33]=54^a>>>16&255;en[34]=54^a>>>8&255;en[35]=54^a&255;en[36]=54^f>>>24;en[37]=54^f>>>16&255;en[38]=54^f>>>8&255;en[39]=54^f&255;en[40]=54^l>>>24;en[41]=54^l>>>16&255;en[42]=54^l>>>8&255;en[43]=54^l&255;en[44]=54^c>>>24;en[45]=54^c>>>16&255;en[46]=54^c>>>8&255;en[47]=54^c&255;en[48]=54^h>>>24;en[49]=54^h>>>16&255;en[50]=54^h>>>8&255;en[51]=54^h&255;en[52]=54^p>>>24;en[53]=54^p>>>16&255;en[54]=54^p>>>8&255;en[55]=54^p&255;en[56]=54^d>>>24;en[57]=54^d>>>16&255;en[58]=54^d>>>8&255;en[59]=54^d&255;en[60]=54^v>>>24;en[61]=54^v>>>16&255;en[62]=54^v>>>8&255;en[63]=54^v&255;rn();tn(0);Ot=Et;Mt=St;_t=xt;Dt=Tt;Pt=Nt;Ht=Ct;Bt=kt;jt=Lt;At=64}function cn(e,t,n){e=e|0;t=t|0;n=n|0;var r=0;r=un(e,t,0)|0;fn();un(0,32,n)|0;return r|0}function hn(e,t,n,r,i){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;var s=0;en[e+t|0]=n>>>24&255;en[e+t+1|0]=n>>>16&255;en[e+t+2|0]=n>>>8&255;en[e+t+3|0]=n&255;cn(e,t+4|0,0)|0;Vt=Et;$t=St;Jt=xt;Kt=Tt;Qt=Nt;Gt=Ct;Yt=kt;Zt=Lt;r=r-1|0;for(s=32;(s|0)<64;s=s+1|0)en[s|0]=0;en[32]=128;en[62]=3;while((r|0)>0){an();tn(0);nn(0);fn();tn(0);nn(0);Vt=Vt^Et;$t=$t^St;Jt=Jt^xt;Kt=Kt^Tt;Qt=Qt^Nt;Gt=Gt^Ct;Yt=Yt^kt;Zt=Zt^Lt;r=r-1|0}Et=Vt;St=$t;xt=Jt;Tt=Kt;Nt=Qt;Ct=Gt;kt=Yt;Lt=Zt;nn(i)}return{reset:rn,init:sn,process:on,finish:un,hmac_reset:an,hmac_init:ln,hmac_finish:cn,pbkdf2_generate_block:hn}'))( stdlib, foreign, buffer );
+    return (new Function('e,t,n','"use asm";var r=1779033703,i=3144134277,s=1013904242,o=2773480762,u=1359893119,a=2600822924,f=528734635,l=1541459225;var c=1116352408,h=1899447441,p=3049323471,d=3921009573,v=961987163,m=1508970993,g=2453635748,y=2870763221,b=3624381080,w=310598401,E=607225278,S=1426881987,x=1925078388,T=2162078206,N=2614888103,C=3248222580,k=3835390401,L=4022224774,A=264347078,O=604807628,M=770255983,_=1249150122,D=1555081692,P=1996064986,H=2554220882,B=2821834349,j=2952996808,F=3210313671,I=3336571891,q=3584528711,R=113926993,U=338241895,z=666307205,W=773529912,X=1294757372,V=1396182291,$=1695183700,J=1986661051,K=2177026350,Q=2456956037,G=2730485921,Y=2820302411,Z=3259730800,et=3345764771,tt=3516065817,nt=3600352804,rt=4094571909,it=275423344,st=430227734,ot=506948616,ut=659060556,at=883997877,ft=958139571,lt=1322822218,ct=1537002063,ht=1747873779,pt=1955562222,dt=2024104815,vt=2227730452,mt=2361852424,gt=2428436474,yt=2756734187,bt=3204031479,wt=3329325298;var Et=0,St=0,xt=0,Tt=0,Nt=0,Ct=0,kt=0,Lt=0,At=0;var Ot=0,Mt=0,_t=0,Dt=0,Pt=0,Ht=0,Bt=0,jt=0,Ft=0,It=0,qt=0,Rt=0,Ut=0,zt=0,Wt=0,Xt=0;var Vt=new e.Uint8Array(n);function $t(e,t,n,r,i,s,o,u,a,f,l,At,Ot,Mt,_t,Dt,Pt){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;At=At|0;Ot=Ot|0;Mt=Mt|0;_t=_t|0;Dt=Dt|0;Pt=Pt|0;var Ht=0,Bt=0,jt=0,Ft=0,It=0,qt=0,Rt=0,Ut=0,zt=0,Wt=0,Xt=0,$t=0,Jt=0,Kt=0,Qt=0,Gt=0,Yt=0,Zt=0,en=0,tn=0,nn=0,rn=0,sn=0,on=0,un=0;Yt=Et;Zt=St;en=xt;tn=Tt;nn=Nt;rn=Ct;sn=kt;on=Lt;if((e|0)==-1){Ht=t;Bt=n;jt=r;Ft=i;It=s;qt=o;Rt=u;Ut=a;zt=f;Wt=l;Xt=At;$t=Ot;Jt=Mt;Kt=_t;Qt=Dt;Gt=Pt}else{Ht=Vt[e]<<24|Vt[e+1|0]<<16|Vt[e+2|0]<<8|Vt[e+3|0]|0;Bt=Vt[e+4|0]<<24|Vt[e+5|0]<<16|Vt[e+6|0]<<8|Vt[e+7|0]|0;jt=Vt[e+8|0]<<24|Vt[e+9|0]<<16|Vt[e+10|0]<<8|Vt[e+11|0]|0;Ft=Vt[e+12|0]<<24|Vt[e+13|0]<<16|Vt[e+14|0]<<8|Vt[e+15|0]|0;It=Vt[e+16|0]<<24|Vt[e+17|0]<<16|Vt[e+18|0]<<8|Vt[e+19|0]|0;qt=Vt[e+20|0]<<24|Vt[e+21|0]<<16|Vt[e+22|0]<<8|Vt[e+23|0]|0;Rt=Vt[e+24|0]<<24|Vt[e+25|0]<<16|Vt[e+26|0]<<8|Vt[e+27|0]|0;Ut=Vt[e+28|0]<<24|Vt[e+29|0]<<16|Vt[e+30|0]<<8|Vt[e+31|0]|0;zt=Vt[e+32|0]<<24|Vt[e+33|0]<<16|Vt[e+34|0]<<8|Vt[e+35|0]|0;Wt=Vt[e+36|0]<<24|Vt[e+37|0]<<16|Vt[e+38|0]<<8|Vt[e+39|0]|0;Xt=Vt[e+40|0]<<24|Vt[e+41|0]<<16|Vt[e+42|0]<<8|Vt[e+43|0]|0;$t=Vt[e+44|0]<<24|Vt[e+45|0]<<16|Vt[e+46|0]<<8|Vt[e+47|0]|0;Jt=Vt[e+48|0]<<24|Vt[e+49|0]<<16|Vt[e+50|0]<<8|Vt[e+51|0]|0;Kt=Vt[e+52|0]<<24|Vt[e+53|0]<<16|Vt[e+54|0]<<8|Vt[e+55|0]|0;Qt=Vt[e+56|0]<<24|Vt[e+57|0]<<16|Vt[e+58|0]<<8|Vt[e+59|0]|0;Gt=Vt[e+60|0]<<24|Vt[e+61|0]<<16|Vt[e+62|0]<<8|Vt[e+63|0]|0}un=Ht+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+c|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Bt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+h|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=jt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+p|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Ft+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+d|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=It+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+v|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=qt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+m|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Rt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+g|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Ut+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+y|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=zt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+b|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Wt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+w|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Xt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+E|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=$t+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+S|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Jt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+x|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Kt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+T|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Qt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+N|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;un=Gt+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+C|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ht=un=(Bt>>>7^Bt>>>18^Bt>>>3^Bt<<25^Bt<<14)+(Qt>>>17^Qt>>>19^Qt>>>10^Qt<<15^Qt<<13)+Ht+Wt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+k|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Bt=un=(jt>>>7^jt>>>18^jt>>>3^jt<<25^jt<<14)+(Gt>>>17^Gt>>>19^Gt>>>10^Gt<<15^Gt<<13)+Bt+Xt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+L|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;jt=un=(Ft>>>7^Ft>>>18^Ft>>>3^Ft<<25^Ft<<14)+(Ht>>>17^Ht>>>19^Ht>>>10^Ht<<15^Ht<<13)+jt+$t|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+A|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ft=un=(It>>>7^It>>>18^It>>>3^It<<25^It<<14)+(Bt>>>17^Bt>>>19^Bt>>>10^Bt<<15^Bt<<13)+Ft+Jt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+O|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;It=un=(qt>>>7^qt>>>18^qt>>>3^qt<<25^qt<<14)+(jt>>>17^jt>>>19^jt>>>10^jt<<15^jt<<13)+It+Kt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+M|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;qt=un=(Rt>>>7^Rt>>>18^Rt>>>3^Rt<<25^Rt<<14)+(Ft>>>17^Ft>>>19^Ft>>>10^Ft<<15^Ft<<13)+qt+Qt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+_|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Rt=un=(Ut>>>7^Ut>>>18^Ut>>>3^Ut<<25^Ut<<14)+(It>>>17^It>>>19^It>>>10^It<<15^It<<13)+Rt+Gt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+D|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ut=un=(zt>>>7^zt>>>18^zt>>>3^zt<<25^zt<<14)+(qt>>>17^qt>>>19^qt>>>10^qt<<15^qt<<13)+Ut+Ht|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+P|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;zt=un=(Wt>>>7^Wt>>>18^Wt>>>3^Wt<<25^Wt<<14)+(Rt>>>17^Rt>>>19^Rt>>>10^Rt<<15^Rt<<13)+zt+Bt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+H|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Wt=un=(Xt>>>7^Xt>>>18^Xt>>>3^Xt<<25^Xt<<14)+(Ut>>>17^Ut>>>19^Ut>>>10^Ut<<15^Ut<<13)+Wt+jt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+B|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Xt=un=($t>>>7^$t>>>18^$t>>>3^$t<<25^$t<<14)+(zt>>>17^zt>>>19^zt>>>10^zt<<15^zt<<13)+Xt+Ft|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+j|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;$t=un=(Jt>>>7^Jt>>>18^Jt>>>3^Jt<<25^Jt<<14)+(Wt>>>17^Wt>>>19^Wt>>>10^Wt<<15^Wt<<13)+$t+It|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+F|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Jt=un=(Kt>>>7^Kt>>>18^Kt>>>3^Kt<<25^Kt<<14)+(Xt>>>17^Xt>>>19^Xt>>>10^Xt<<15^Xt<<13)+Jt+qt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+I|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Kt=un=(Qt>>>7^Qt>>>18^Qt>>>3^Qt<<25^Qt<<14)+($t>>>17^$t>>>19^$t>>>10^$t<<15^$t<<13)+Kt+Rt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+q|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Qt=un=(Gt>>>7^Gt>>>18^Gt>>>3^Gt<<25^Gt<<14)+(Jt>>>17^Jt>>>19^Jt>>>10^Jt<<15^Jt<<13)+Qt+Ut|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+R|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Gt=un=(Ht>>>7^Ht>>>18^Ht>>>3^Ht<<25^Ht<<14)+(Kt>>>17^Kt>>>19^Kt>>>10^Kt<<15^Kt<<13)+Gt+zt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+U|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ht=un=(Bt>>>7^Bt>>>18^Bt>>>3^Bt<<25^Bt<<14)+(Qt>>>17^Qt>>>19^Qt>>>10^Qt<<15^Qt<<13)+Ht+Wt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+z|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Bt=un=(jt>>>7^jt>>>18^jt>>>3^jt<<25^jt<<14)+(Gt>>>17^Gt>>>19^Gt>>>10^Gt<<15^Gt<<13)+Bt+Xt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+W|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;jt=un=(Ft>>>7^Ft>>>18^Ft>>>3^Ft<<25^Ft<<14)+(Ht>>>17^Ht>>>19^Ht>>>10^Ht<<15^Ht<<13)+jt+$t|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+X|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ft=un=(It>>>7^It>>>18^It>>>3^It<<25^It<<14)+(Bt>>>17^Bt>>>19^Bt>>>10^Bt<<15^Bt<<13)+Ft+Jt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+V|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;It=un=(qt>>>7^qt>>>18^qt>>>3^qt<<25^qt<<14)+(jt>>>17^jt>>>19^jt>>>10^jt<<15^jt<<13)+It+Kt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+$|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;qt=un=(Rt>>>7^Rt>>>18^Rt>>>3^Rt<<25^Rt<<14)+(Ft>>>17^Ft>>>19^Ft>>>10^Ft<<15^Ft<<13)+qt+Qt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+J|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Rt=un=(Ut>>>7^Ut>>>18^Ut>>>3^Ut<<25^Ut<<14)+(It>>>17^It>>>19^It>>>10^It<<15^It<<13)+Rt+Gt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+K|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ut=un=(zt>>>7^zt>>>18^zt>>>3^zt<<25^zt<<14)+(qt>>>17^qt>>>19^qt>>>10^qt<<15^qt<<13)+Ut+Ht|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+Q|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;zt=un=(Wt>>>7^Wt>>>18^Wt>>>3^Wt<<25^Wt<<14)+(Rt>>>17^Rt>>>19^Rt>>>10^Rt<<15^Rt<<13)+zt+Bt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+G|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Wt=un=(Xt>>>7^Xt>>>18^Xt>>>3^Xt<<25^Xt<<14)+(Ut>>>17^Ut>>>19^Ut>>>10^Ut<<15^Ut<<13)+Wt+jt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+Y|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Xt=un=($t>>>7^$t>>>18^$t>>>3^$t<<25^$t<<14)+(zt>>>17^zt>>>19^zt>>>10^zt<<15^zt<<13)+Xt+Ft|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+Z|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;$t=un=(Jt>>>7^Jt>>>18^Jt>>>3^Jt<<25^Jt<<14)+(Wt>>>17^Wt>>>19^Wt>>>10^Wt<<15^Wt<<13)+$t+It|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+et|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Jt=un=(Kt>>>7^Kt>>>18^Kt>>>3^Kt<<25^Kt<<14)+(Xt>>>17^Xt>>>19^Xt>>>10^Xt<<15^Xt<<13)+Jt+qt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+tt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Kt=un=(Qt>>>7^Qt>>>18^Qt>>>3^Qt<<25^Qt<<14)+($t>>>17^$t>>>19^$t>>>10^$t<<15^$t<<13)+Kt+Rt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+nt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Qt=un=(Gt>>>7^Gt>>>18^Gt>>>3^Gt<<25^Gt<<14)+(Jt>>>17^Jt>>>19^Jt>>>10^Jt<<15^Jt<<13)+Qt+Ut|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+rt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Gt=un=(Ht>>>7^Ht>>>18^Ht>>>3^Ht<<25^Ht<<14)+(Kt>>>17^Kt>>>19^Kt>>>10^Kt<<15^Kt<<13)+Gt+zt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+it|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ht=un=(Bt>>>7^Bt>>>18^Bt>>>3^Bt<<25^Bt<<14)+(Qt>>>17^Qt>>>19^Qt>>>10^Qt<<15^Qt<<13)+Ht+Wt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+st|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Bt=un=(jt>>>7^jt>>>18^jt>>>3^jt<<25^jt<<14)+(Gt>>>17^Gt>>>19^Gt>>>10^Gt<<15^Gt<<13)+Bt+Xt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+ot|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;jt=un=(Ft>>>7^Ft>>>18^Ft>>>3^Ft<<25^Ft<<14)+(Ht>>>17^Ht>>>19^Ht>>>10^Ht<<15^Ht<<13)+jt+$t|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+ut|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ft=un=(It>>>7^It>>>18^It>>>3^It<<25^It<<14)+(Bt>>>17^Bt>>>19^Bt>>>10^Bt<<15^Bt<<13)+Ft+Jt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+at|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;It=un=(qt>>>7^qt>>>18^qt>>>3^qt<<25^qt<<14)+(jt>>>17^jt>>>19^jt>>>10^jt<<15^jt<<13)+It+Kt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+ft|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;qt=un=(Rt>>>7^Rt>>>18^Rt>>>3^Rt<<25^Rt<<14)+(Ft>>>17^Ft>>>19^Ft>>>10^Ft<<15^Ft<<13)+qt+Qt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+lt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Rt=un=(Ut>>>7^Ut>>>18^Ut>>>3^Ut<<25^Ut<<14)+(It>>>17^It>>>19^It>>>10^It<<15^It<<13)+Rt+Gt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+ct|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Ut=un=(zt>>>7^zt>>>18^zt>>>3^zt<<25^zt<<14)+(qt>>>17^qt>>>19^qt>>>10^qt<<15^qt<<13)+Ut+Ht|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+ht|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;zt=un=(Wt>>>7^Wt>>>18^Wt>>>3^Wt<<25^Wt<<14)+(Rt>>>17^Rt>>>19^Rt>>>10^Rt<<15^Rt<<13)+zt+Bt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+pt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Wt=un=(Xt>>>7^Xt>>>18^Xt>>>3^Xt<<25^Xt<<14)+(Ut>>>17^Ut>>>19^Ut>>>10^Ut<<15^Ut<<13)+Wt+jt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+dt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Xt=un=($t>>>7^$t>>>18^$t>>>3^$t<<25^$t<<14)+(zt>>>17^zt>>>19^zt>>>10^zt<<15^zt<<13)+Xt+Ft|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+vt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;$t=un=(Jt>>>7^Jt>>>18^Jt>>>3^Jt<<25^Jt<<14)+(Wt>>>17^Wt>>>19^Wt>>>10^Wt<<15^Wt<<13)+$t+It|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+mt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Jt=un=(Kt>>>7^Kt>>>18^Kt>>>3^Kt<<25^Kt<<14)+(Xt>>>17^Xt>>>19^Xt>>>10^Xt<<15^Xt<<13)+Jt+qt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+gt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Kt=un=(Qt>>>7^Qt>>>18^Qt>>>3^Qt<<25^Qt<<14)+($t>>>17^$t>>>19^$t>>>10^$t<<15^$t<<13)+Kt+Rt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+yt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Qt=un=(Gt>>>7^Gt>>>18^Gt>>>3^Gt<<25^Gt<<14)+(Jt>>>17^Jt>>>19^Jt>>>10^Jt<<15^Jt<<13)+Qt+Ut|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+bt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Gt=un=(Ht>>>7^Ht>>>18^Ht>>>3^Ht<<25^Ht<<14)+(Kt>>>17^Kt>>>19^Kt>>>10^Kt<<15^Kt<<13)+Gt+zt|0;un=un+on+(nn>>>6^nn>>>11^nn>>>25^nn<<26^nn<<21^nn<<7)+(sn^nn&(rn^sn))+wt|0;on=sn;sn=rn;rn=nn;nn=tn+un|0;tn=en;en=Zt;Zt=Yt;Yt=un+(Zt&en^tn&(Zt^en))+(Zt>>>2^Zt>>>13^Zt>>>22^Zt<<30^Zt<<19^Zt<<10)|0;Et=Et+Yt|0;St=St+Zt|0;xt=xt+en|0;Tt=Tt+tn|0;Nt=Nt+nn|0;Ct=Ct+rn|0;kt=kt+sn|0;Lt=Lt+on|0}function Jt(e){e=e|0;Vt[e|0]=Et>>>24|0;Vt[e+1|0]=Et>>>16&255;Vt[e+2|0]=Et>>>8&255;Vt[e+3|0]=Et&255;Vt[e+4|0]=St>>>24|0;Vt[e+5|0]=St>>>16&255;Vt[e+6|0]=St>>>8&255;Vt[e+7|0]=St&255;Vt[e+8|0]=xt>>>24|0;Vt[e+9|0]=xt>>>16&255;Vt[e+10|0]=xt>>>8&255;Vt[e+11|0]=xt&255;Vt[e+12|0]=Tt>>>24|0;Vt[e+13|0]=Tt>>>16&255;Vt[e+14|0]=Tt>>>8&255;Vt[e+15|0]=Tt&255;Vt[e+16|0]=Nt>>>24|0;Vt[e+17|0]=Nt>>>16&255;Vt[e+18|0]=Nt>>>8&255;Vt[e+19|0]=Nt&255;Vt[e+20|0]=Ct>>>24|0;Vt[e+21|0]=Ct>>>16&255;Vt[e+22|0]=Ct>>>8&255;Vt[e+23|0]=Ct&255;Vt[e+24|0]=kt>>>24|0;Vt[e+25|0]=kt>>>16&255;Vt[e+26|0]=kt>>>8&255;Vt[e+27|0]=kt&255;Vt[e+28|0]=Lt>>>24|0;Vt[e+29|0]=Lt>>>16&255;Vt[e+30|0]=Lt>>>8&255;Vt[e+31|0]=Lt&255}function Kt(){Et=r;St=i;xt=s;Tt=o;Nt=u;Ct=a;kt=f;Lt=l;At=0}function Qt(e,t,n,r,i,s,o,u,a){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;Et=e;St=t;xt=n;Tt=r;Nt=i;Ct=s;kt=o;Lt=u;At=a}function Gt(e,t){e=e|0;t=t|0;var n=0;if(((e|0)%64|0)!=0)return-1;while((t|0)>=64){$t(e,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1);e=e+64|0;t=t-64|0;n=n+64|0}At=At+n|0;return n|0}function Yt(e,t,n){e=e|0;t=t|0;n=n|0;var r=0,i=0;if((t|0)>=64){r=Gt(e,t)|0;if((r|0)==-1)return-1;e=e+r|0;t=t-r|0}r=r+t|0;At=At+t|0;Vt[e+t|0]=128;if((t|0)>=56){for(i=t+1|0;(i|0)<64;i=i+1|0)Vt[e+i|0]=0;$t(e,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1);t=0;Vt[e|0]=0}for(i=t+1|0;(i|0)<59;i=i+1|0)Vt[e+i|0]=0;Vt[e+59|0]=At>>>29&255;Vt[e+60|0]=At>>>21&255;Vt[e+61|0]=At>>>13&255;Vt[e+62|0]=At>>>5&255;Vt[e+63|0]=At<<3&255;$t(e,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1);if((n|0)==-1)return r|0;Jt(n);return r|0}function Zt(){Et=Ot;St=Mt;xt=_t;Tt=Dt;Nt=Pt;Ct=Ht;kt=Bt;Lt=jt;At=64}function en(){Et=Ft;St=It;xt=qt;Tt=Rt;Nt=Ut;Ct=zt;kt=Wt;Lt=Xt;At=64}function tn(e,t,n,r,i,s,o,u,a,f,l,c,h,p,d,v){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;c=c|0;h=h|0;p=p|0;d=d|0;v=v|0;Kt();$t(-1,e^1549556828,t^1549556828,n^1549556828,r^1549556828,i^1549556828,s^1549556828,o^1549556828,u^1549556828,a^1549556828,f^1549556828,l^1549556828,c^1549556828,h^1549556828,p^1549556828,d^1549556828,v^1549556828);Ft=Et;It=St;qt=xt;Rt=Tt;Ut=Nt;zt=Ct;Wt=kt;Xt=Lt;Kt();$t(-1,e^909522486,t^909522486,n^909522486,r^909522486,i^909522486,s^909522486,o^909522486,u^909522486,a^909522486,f^909522486,l^909522486,c^909522486,h^909522486,p^909522486,d^909522486,v^909522486);Ot=Et;Mt=St;_t=xt;Dt=Tt;Pt=Nt;Ht=Ct;Bt=kt;jt=Lt;At=64}function nn(e,t,n){e=e|0;t=t|0;n=n|0;var r=0;r=Yt(e,t,0)|0;en();Yt(0,32,n)|0;return r|0}function rn(e,t,n,r,i){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;var s=0,o=0,u=0,a=0,f=0,l=0,c=0,h=0,p=0,d=0,v=0,m=0,g=0,y=0,b=0,w=0,E=0;Vt[e+t|0]=n>>>24&255;Vt[e+t+1|0]=n>>>16&255;Vt[e+t+2|0]=n>>>8&255;Vt[e+t+3|0]=n&255;nn(e,t+4|0,-1)|0;s=p=Et;o=d=St;u=v=xt;a=m=Tt;f=g=Nt;l=y=Ct;c=b=kt;h=w=Lt;r=r-1|0;while((r|0)>0){Zt();$t(-1,p,d,v,m,g,y,b,w,2147483648,0,0,0,0,0,0,768);p=Et;d=St;v=xt;m=Tt;g=Nt;y=Ct;b=kt;w=Lt;en();$t(-1,p,d,v,m,g,y,b,w,2147483648,0,0,0,0,0,0,768);p=Et;d=St;v=xt;m=Tt;g=Nt;y=Ct;b=kt;w=Lt;s=s^Et;o=o^St;u=u^xt;a=a^Tt;f=f^Nt;l=l^Ct;c=c^kt;h=h^Lt;r=r-1|0}Et=s;St=o;xt=u;Tt=a;Nt=f;Ct=l;kt=c;Lt=h;Jt(i)}return{reset:Kt,init:Qt,process:Gt,finish:Yt,hmac_reset:Zt,hmac_init:tn,hmac_finish:nn,pbkdf2_generate_block:rn}'))( stdlib, foreign, buffer );
 }
