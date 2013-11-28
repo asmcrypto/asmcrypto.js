@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>AES test suite</title>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.12.0.css">
+<script src="http://code.jquery.com/qunit/qunit-1.12.0.js"></script>
+<script>asmCrypto = exports = {}</script>
+<script src="js/aes.asm.js"></script>
+<script src="js/aes.js"></script>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script>
+
+test( "dummy test", function () {
+    ok( true, "Passed!" );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
+module("AES");
+
+var aes_init_vectors = [
+    [ 0x193de3be, 0xa0f4e22b, 0x9ac68d2a, 0xe9f84808 ]
+];
+
+test( "_init_state / _test_state", function () {
+    var aes = new asmCrypto.AES;
+    for ( var i = 0; i < aes_init_vectors.length; ++i ) {
+        aes.asm._init_state.apply( aes.asm, aes_init_vectors[i] );
+        ok(
+            aes.asm._test_state.apply( aes.asm, aes_init_vectors[i] ),
+            "_init_state / _test_state vector " + i
+        );
+    }
+});
+
+test( "_init_key_128 / _test_key_128", function () {
+    var aes = new asmCrypto.AES;
+    for ( var i = 0; i < aes_init_vectors.length; ++i ) {
+        aes.asm._init_key_128.apply( aes.asm, aes_init_vectors[i] );
+        var args = [ i ]; args.push.apply( args, aes_init_vectors[i] );
+        ok(
+            aes.asm._test_key_128.apply( aes.asm, args ),
+            "_init_key_128 / _test_key_128 vector " + i
+        );
+    }
+});
+
+var aes_sub_shift_vectors = [
+    [ [ 0x193de3be, 0xa0f4e22b, 0x9ac68d2a, 0xe9f84808 ], [ 0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5 ] ]
+];
+
+test( "_sub_shift / _inv_sub_shift", function () {
+    var aes = new asmCrypto.AES;
+    for ( var i = 0; i < aes_sub_shift_vectors.length; ++i ) {
+        aes.asm._init_state.apply( aes.asm, aes_sub_shift_vectors[i][0] );
+        aes.asm._sub_shift();
+        ok(
+            aes.asm._test_state.apply( aes.asm, aes_sub_shift_vectors[i][1] ),
+            "_sub_shift vector " + i
+        );
+        aes.asm._inv_sub_shift();
+        ok(
+            aes.asm._test_state.apply( aes.asm, aes_sub_shift_vectors[i][0] ),
+            "_inv_sub_shift vector " + i
+        );
+    }
+});
+
+var aes_sub_shift_mix_vectors = [
+    [ [ 0xaa8f5f03, 0x61dde3ef, 0x82d24ad2, 0x6832469a ], [ 0x75ec0993, 0x200b6333, 0x53c0cf7c, 0xbb25d0dc ] ]
+];
+
+test( "_sub_shift_mix / _inv_sub_shift_mix", function () {
+    for ( var i = 0; i < aes_sub_shift_mix_vectors.length; ++i ) {
+        var aes = new asmCrypto.AES;
+        aes.asm._init_state.apply( aes.asm, aes_sub_shift_mix_vectors[i][0] );
+        aes.asm._sub_shift_mix();
+        ok(
+            aes.asm._test_state.apply( aes.asm, aes_sub_shift_mix_vectors[i][1] ),
+            "_sub_shift_mix vector " + i
+        );
+        aes.asm._inv_sub_shift_mix();
+        ok(
+            aes.asm._test_state.apply( aes.asm, aes_sub_shift_mix_vectors[i][0] ),
+            "_inv_sub_shift_mix vector " + i
+        );
+    }
+});
+
+var aes_expand_key_vector = [
+    [ 0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c ],
+    [ 0xa0fafe17, 0x88542cb1, 0x23a33939, 0x2a6c7605 ],
+    [ 0xf2c295f2, 0x7a96b943, 0x5935807a, 0x7359f67f ]
+];
+
+test( "_expand_key_128", function () {
+    var aes = new asmCrypto.AES;
+    aes.asm._init_key_128.apply( aes.asm, aes_expand_key_vector[0] );
+    aes.asm._expand_key_128();
+    for ( var i = 1; i < aes_expand_key_vector.length; ++i ) {
+        var args = [ i ]; args.push.apply( args, aes_expand_key_vector[i] );
+        ok(
+            aes.asm._test_key_128.apply( aes.asm, args ),
+            "_expand_key_128 " + i
+        );
+    }
+});
+
+var aes_encrypt_vectors = [
+    [ [ 0x3243f6a8, 0x885a308d, 0x313198a2, 0xe0370734 ], [ 0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c ], [ 0x3925841d, 0x02dc09fb, 0xdc118597, 0x196a0b32 ] ]
+];
+
+test( "_encrypt_128", function () {
+    var aes = new asmCrypto.AES;
+    for ( var i = 0; i < aes_encrypt_vectors.length; ++i ) {
+        aes.asm._init_state.apply( aes.asm, aes_encrypt_vectors[i][0] );
+        aes.asm._init_key_128.apply( aes.asm, aes_encrypt_vectors[i][1] );
+        aes.asm._expand_key_128();
+        aes.asm._encrypt_128();
+        ok(
+            aes.asm._test_state.apply( aes.asm, aes_encrypt_vectors[i][2] ),
+            "_encrypt_128 vector " + i
+        );
+    }
+});
+
+test( "_decrypt_128", function () {
+    var aes = new asmCrypto.AES;
+    for ( var i = 0; i < aes_encrypt_vectors.length; ++i ) {
+        aes.asm._init_state.apply( aes.asm, aes_encrypt_vectors[i][2] );
+        aes.asm._init_key_128.apply( aes.asm, aes_encrypt_vectors[i][1] );
+        aes.asm._expand_key_128();
+        aes.asm._decrypt_128();
+        ok(
+            aes.asm._test_state.apply( aes.asm, aes_encrypt_vectors[i][0] ),
+            "_decrypt_128 vector " + i
+        );
+    }
+});
+
+</script>
+</body>
