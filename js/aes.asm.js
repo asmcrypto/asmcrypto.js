@@ -1,3 +1,4 @@
+/*
 function aes_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
@@ -29,31 +30,31 @@ function aes_asm ( stdlib, foreign, buffer ) {
         var t = 0;
 
         // row 0
-        S0 = HEAP[SBOX|S0];
-        S4 = HEAP[SBOX|S4];
-        S8 = HEAP[SBOX|S8];
-        SC = HEAP[SBOX|SC];
+        S0 = HEAP[SBOX|S0]|0;
+        S4 = HEAP[SBOX|S4]|0;
+        S8 = HEAP[SBOX|S8]|0;
+        SC = HEAP[SBOX|SC]|0;
 
         // row 1
-        t = HEAP[SBOX|S1];
-        S1 = HEAP[SBOX|S5];
-        S5 = HEAP[SBOX|S9];
-        S9 = HEAP[SBOX|SD];
+        t = HEAP[SBOX|S1]|0;
+        S1 = HEAP[SBOX|S5]|0;
+        S5 = HEAP[SBOX|S9]|0;
+        S9 = HEAP[SBOX|SD]|0;
         SD = t;
 
         // row 2
-        t = HEAP[SBOX|S2];
-        S2 = HEAP[SBOX|SA];
+        t = HEAP[SBOX|S2]|0;
+        S2 = HEAP[SBOX|SA]|0;
         SA = t;
-        t = HEAP[SBOX|S6];
-        S6 = HEAP[SBOX|SE];
+        t = HEAP[SBOX|S6]|0;
+        S6 = HEAP[SBOX|SE]|0;
         SE = t;
 
         // row 3
-        t = HEAP[SBOX|SF];
-        SF = HEAP[SBOX|SB];
-        SB = HEAP[SBOX|S7];
-        S7 = HEAP[SBOX|S3];
+        t = HEAP[SBOX|SF]|0;
+        SF = HEAP[SBOX|SB]|0;
+        SB = HEAP[SBOX|S7]|0;
+        S7 = HEAP[SBOX|S3]|0;
         S3 = t;
     }
 
@@ -61,31 +62,31 @@ function aes_asm ( stdlib, foreign, buffer ) {
         var t = 0;
 
         // row 0
-        S0 = HEAP[INV_SBOX|S0];
-        S4 = HEAP[INV_SBOX|S4];
-        S8 = HEAP[INV_SBOX|S8];
-        SC = HEAP[INV_SBOX|SC];
+        S0 = HEAP[INV_SBOX|S0]|0;
+        S4 = HEAP[INV_SBOX|S4]|0;
+        S8 = HEAP[INV_SBOX|S8]|0;
+        SC = HEAP[INV_SBOX|SC]|0;
 
         // row 1
-        t = HEAP[INV_SBOX|SD];
-        SD = HEAP[INV_SBOX|S9];
-        S9 = HEAP[INV_SBOX|S5];
-        S5 = HEAP[INV_SBOX|S1];
+        t = HEAP[INV_SBOX|SD]|0;
+        SD = HEAP[INV_SBOX|S9]|0;
+        S9 = HEAP[INV_SBOX|S5]|0;
+        S5 = HEAP[INV_SBOX|S1]|0;
         S1 = t;
 
         // row 2
-        t = HEAP[INV_SBOX|S2]
-        S2 = HEAP[INV_SBOX|SA]
+        t = HEAP[INV_SBOX|S2]|0;
+        S2 = HEAP[INV_SBOX|SA]|0;
         SA = t;
-        t = HEAP[INV_SBOX|S6]
-        S6 = HEAP[INV_SBOX|SE]
+        t = HEAP[INV_SBOX|S6]|0;
+        S6 = HEAP[INV_SBOX|SE]|0;
         SE = t;
 
         // row 3
-        t = HEAP[INV_SBOX|S3];
-        S3 = HEAP[INV_SBOX|S7];
-        S7 = HEAP[INV_SBOX|SB];
-        SB = HEAP[INV_SBOX|SF];
+        t = HEAP[INV_SBOX|S3]|0;
+        S3 = HEAP[INV_SBOX|S7]|0;
+        S7 = HEAP[INV_SBOX|SB]|0;
+        SB = HEAP[INV_SBOX|SF]|0;
         SF = t;
     }
 
@@ -116,22 +117,22 @@ function aes_asm ( stdlib, foreign, buffer ) {
         sE = HEAP[SBOX|SC] ^ HEAP[SBOX|S1] ^ HEAP[X2_SBOX|S6] ^ HEAP[X3_SBOX|SB];
         sF = HEAP[X3_SBOX|SC] ^ HEAP[SBOX|S1] ^ HEAP[SBOX|S6] ^ HEAP[X2_SBOX|SB];
 
-        S0 = s0;
-        S1 = s1;
-        S2 = s2;
-        S3 = s3;
-        S4 = s4;
-        S5 = s5;
-        S6 = s6;
-        S7 = s7;
-        S8 = s8;
-        S9 = s9;
-        SA = sA;
-        SB = sB;
-        SC = sC;
-        SD = sD;
-        SE = sE;
-        SF = sF;
+        S0 = s0|0;
+        S1 = s1|0;
+        S2 = s2|0;
+        S3 = s3|0;
+        S4 = s4|0;
+        S5 = s5|0;
+        S6 = s6|0;
+        S7 = s7|0;
+        S8 = s8|0;
+        S9 = s9|0;
+        SA = sA|0;
+        SB = sB|0;
+        SC = sC|0;
+        SD = sD|0;
+        SE = sE|0;
+        SF = sF|0;
     }
 
     function _inv_sub_shift_mix () {
@@ -161,22 +162,22 @@ function aes_asm ( stdlib, foreign, buffer ) {
         t6 = HEAP[XD|SC] ^ HEAP[X9|SD] ^ HEAP[XE|SE] ^ HEAP[XB|SF];
         tB = HEAP[XB|SC] ^ HEAP[XD|SD] ^ HEAP[X9|SE] ^ HEAP[XE|SF];
 
-        S0 = HEAP[INV_SBOX|t0];
-        S1 = HEAP[INV_SBOX|t1];
-        S2 = HEAP[INV_SBOX|t2];
-        S3 = HEAP[INV_SBOX|t3];
-        S4 = HEAP[INV_SBOX|t4];
-        S5 = HEAP[INV_SBOX|t5];
-        S6 = HEAP[INV_SBOX|t6];
-        S7 = HEAP[INV_SBOX|t7];
-        S8 = HEAP[INV_SBOX|t8];
-        S9 = HEAP[INV_SBOX|t9];
-        SA = HEAP[INV_SBOX|tA];
-        SB = HEAP[INV_SBOX|tB];
-        SC = HEAP[INV_SBOX|tC];
-        SD = HEAP[INV_SBOX|tD];
-        SE = HEAP[INV_SBOX|tE];
-        SF = HEAP[INV_SBOX|tF];
+        S0 = HEAP[INV_SBOX|t0]|0;
+        S1 = HEAP[INV_SBOX|t1]|0;
+        S2 = HEAP[INV_SBOX|t2]|0;
+        S3 = HEAP[INV_SBOX|t3]|0;
+        S4 = HEAP[INV_SBOX|t4]|0;
+        S5 = HEAP[INV_SBOX|t5]|0;
+        S6 = HEAP[INV_SBOX|t6]|0;
+        S7 = HEAP[INV_SBOX|t7]|0;
+        S8 = HEAP[INV_SBOX|t8]|0;
+        S9 = HEAP[INV_SBOX|t9]|0;
+        SA = HEAP[INV_SBOX|tA]|0;
+        SB = HEAP[INV_SBOX|tB]|0;
+        SC = HEAP[INV_SBOX|tC]|0;
+        SD = HEAP[INV_SBOX|tD]|0;
+        SE = HEAP[INV_SBOX|tE]|0;
+        SF = HEAP[INV_SBOX|tF]|0;
     }
 
     function _expand_key_128 () {
@@ -522,8 +523,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         sE = sE ^ SE;
         sF = sF ^ SF;
 
-        return (s0|s1|s2|s3|s4|s5|s6|s7|s8|s9|sA|sB|sC|sD|sE|sF)
-                ? 0 : 1;
+        return ~(s0|s1|s2|s3|s4|s5|s6|s7|s8|s9|sA|sB|sC|sD|sE|sF)|0;
     }
 
     function init_key_128 ( k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, kA, kB, kC, kD, kE, kF ) {
@@ -583,7 +583,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         kE = kE|0;
         kF = kF|0;
 
-        switch ( i ) {
+        switch ( i|0 ) {
             case 1:
                 k0 = k0 ^ R10;
                 k1 = k1 ^ R11;
@@ -639,8 +639,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
                 kF = kF ^ R0F;
         }
 
-        return (k0|k1|k2|k3|k4|k5|k6|k7|k8|k9|kA|kB|kC|kD|kE|kF)
-                ? 0 : 1;
+        return ~(k0|k1|k2|k3|k4|k5|k6|k7|k8|k9|kA|kB|kC|kD|kE|kF)|0;
     }
 
     // offset, length — multiple of 16
@@ -648,26 +647,26 @@ function aes_asm ( stdlib, foreign, buffer ) {
         offset = offset|0;
         length = length|0;
 
-        if ( (offset & 15) != 0 || (length & 15) != 0 )
+        if ( (offset & 15) | (length & 15 ) )
             return -1;
 
         while ( (length|0) > 0 ) {
-            S0 = HEAP[offset|0];
-            S1 = HEAP[offset|1];
-            S2 = HEAP[offset|2];
-            S3 = HEAP[offset|3];
-            S4 = HEAP[offset|4];
-            S5 = HEAP[offset|5];
-            S6 = HEAP[offset|6];
-            S7 = HEAP[offset|7];
-            S8 = HEAP[offset|8];
-            S9 = HEAP[offset|9];
-            SA = HEAP[offset|10];
-            SB = HEAP[offset|11];
-            SC = HEAP[offset|12];
-            SD = HEAP[offset|13];
-            SE = HEAP[offset|14];
-            SF = HEAP[offset|15];
+            S0 = HEAP[offset|0]|0;
+            S1 = HEAP[offset|1]|0;
+            S2 = HEAP[offset|2]|0;
+            S3 = HEAP[offset|3]|0;
+            S4 = HEAP[offset|4]|0;
+            S5 = HEAP[offset|5]|0;
+            S6 = HEAP[offset|6]|0;
+            S7 = HEAP[offset|7]|0;
+            S8 = HEAP[offset|8]|0;
+            S9 = HEAP[offset|9]|0;
+            SA = HEAP[offset|10]|0;
+            SB = HEAP[offset|11]|0;
+            SC = HEAP[offset|12]|0;
+            SD = HEAP[offset|13]|0;
+            SE = HEAP[offset|14]|0;
+            SF = HEAP[offset|15]|0;
 
             _encrypt_128();
 
@@ -698,26 +697,26 @@ function aes_asm ( stdlib, foreign, buffer ) {
         offset = offset|0;
         length = length|0;
 
-        if ( (offset & 15) != 0 || (length & 15) != 0 )
+        if ( (offset & 15) | (length & 15 ) )
             return -1;
 
         while ( (length|0) > 0 ) {
-            S0 = HEAP[offset|0];
-            S1 = HEAP[offset|1];
-            S2 = HEAP[offset|2];
-            S3 = HEAP[offset|3];
-            S4 = HEAP[offset|4];
-            S5 = HEAP[offset|5];
-            S6 = HEAP[offset|6];
-            S7 = HEAP[offset|7];
-            S8 = HEAP[offset|8];
-            S9 = HEAP[offset|9];
-            SA = HEAP[offset|10];
-            SB = HEAP[offset|11];
-            SC = HEAP[offset|12];
-            SD = HEAP[offset|13];
-            SE = HEAP[offset|14];
-            SF = HEAP[offset|15];
+            S0 = HEAP[offset|0]|0;
+            S1 = HEAP[offset|1]|0;
+            S2 = HEAP[offset|2]|0;
+            S3 = HEAP[offset|3]|0;
+            S4 = HEAP[offset|4]|0;
+            S5 = HEAP[offset|5]|0;
+            S6 = HEAP[offset|6]|0;
+            S7 = HEAP[offset|7]|0;
+            S8 = HEAP[offset|8]|0;
+            S9 = HEAP[offset|9]|0;
+            SA = HEAP[offset|10]|0;
+            SB = HEAP[offset|11]|0;
+            SC = HEAP[offset|12]|0;
+            SD = HEAP[offset|13]|0;
+            SE = HEAP[offset|14]|0;
+            SF = HEAP[offset|15]|0;
 
             _decrypt_128();
 
@@ -748,7 +747,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         offset = offset|0;
         length = length|0;
 
-        if ( (offset & 15) != 0 || (length & 15) != 0 )
+        if ( (offset & 15) | (length & 15 ) )
             return -1;
 
         while ( (length|0) > 0 ) {
@@ -800,47 +799,47 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
         var iv0 = 0, iv1 = 0, iv2 = 0, iv3 = 0, iv4 = 0, iv5 = 0, iv6 = 0, iv7 = 0, iv8 = 0, iv9 = 0, ivA = 0, ivB = 0, ivC = 0, ivD = 0, ivE = 0, ivF = 0;
 
-        if ( (offset & 15) != 0 || (length & 15) != 0 )
+        if ( (offset & 15) | (length & 15 ) )
             return -1;
 
         iv0 = S0; iv1 = S1; iv2 = S2; iv3 = S3; iv4 = S4; iv5 = S5; iv6 = S6; iv7 = S7; iv8 = S8; iv9 = S9; ivA = SA; ivB = SB; ivC = SC; ivD = SD; ivE = SE; ivF = SF;
 
         while ( (length|0) > 0 ) {
-            S0 = HEAP[offset|0];
-            S1 = HEAP[offset|1];
-            S2 = HEAP[offset|2];
-            S3 = HEAP[offset|3];
-            S4 = HEAP[offset|4];
-            S5 = HEAP[offset|5];
-            S6 = HEAP[offset|6];
-            S7 = HEAP[offset|7];
-            S8 = HEAP[offset|8];
-            S9 = HEAP[offset|9];
-            SA = HEAP[offset|10];
-            SB = HEAP[offset|11];
-            SC = HEAP[offset|12];
-            SD = HEAP[offset|13];
-            SE = HEAP[offset|14];
-            SF = HEAP[offset|15];
+            S0 = HEAP[offset|0]|0;
+            S1 = HEAP[offset|1]|0;
+            S2 = HEAP[offset|2]|0;
+            S3 = HEAP[offset|3]|0;
+            S4 = HEAP[offset|4]|0;
+            S5 = HEAP[offset|5]|0;
+            S6 = HEAP[offset|6]|0;
+            S7 = HEAP[offset|7]|0;
+            S8 = HEAP[offset|8]|0;
+            S9 = HEAP[offset|9]|0;
+            SA = HEAP[offset|10]|0;
+            SB = HEAP[offset|11]|0;
+            SC = HEAP[offset|12]|0;
+            SD = HEAP[offset|13]|0;
+            SE = HEAP[offset|14]|0;
+            SF = HEAP[offset|15]|0;
 
             _decrypt_128();
 
-            S0 = S0 ^ iv0; iv0 = HEAP[offset|0];
-            S1 = S1 ^ iv1; iv1 = HEAP[offset|1];
-            S2 = S2 ^ iv2; iv2 = HEAP[offset|2];
-            S3 = S3 ^ iv3; iv3 = HEAP[offset|3];
-            S4 = S4 ^ iv4; iv4 = HEAP[offset|4];
-            S5 = S5 ^ iv5; iv5 = HEAP[offset|5];
-            S6 = S6 ^ iv6; iv6 = HEAP[offset|6];
-            S7 = S7 ^ iv7; iv7 = HEAP[offset|7];
-            S8 = S8 ^ iv8; iv8 = HEAP[offset|8];
-            S9 = S9 ^ iv9; iv9 = HEAP[offset|9];
-            SA = SA ^ ivA; ivA = HEAP[offset|10];
-            SB = SB ^ ivB; ivB = HEAP[offset|11];
-            SC = SC ^ ivC; ivC = HEAP[offset|12];
-            SD = SD ^ ivD; ivD = HEAP[offset|13];
-            SE = SE ^ ivE; ivE = HEAP[offset|14];
-            SF = SF ^ ivF; ivF = HEAP[offset|15];
+            S0 = S0 ^ iv0; iv0 = HEAP[offset|0]|0;
+            S1 = S1 ^ iv1; iv1 = HEAP[offset|1]|0;
+            S2 = S2 ^ iv2; iv2 = HEAP[offset|2]|0;
+            S3 = S3 ^ iv3; iv3 = HEAP[offset|3]|0;
+            S4 = S4 ^ iv4; iv4 = HEAP[offset|4]|0;
+            S5 = S5 ^ iv5; iv5 = HEAP[offset|5]|0;
+            S6 = S6 ^ iv6; iv6 = HEAP[offset|6]|0;
+            S7 = S7 ^ iv7; iv7 = HEAP[offset|7]|0;
+            S8 = S8 ^ iv8; iv8 = HEAP[offset|8]|0;
+            S9 = S9 ^ iv9; iv9 = HEAP[offset|9]|0;
+            SA = SA ^ ivA; ivA = HEAP[offset|10]|0;
+            SB = SB ^ ivB; ivB = HEAP[offset|11]|0;
+            SC = SC ^ ivC; ivC = HEAP[offset|12]|0;
+            SD = SD ^ ivD; ivD = HEAP[offset|13]|0;
+            SE = SE ^ ivE; ivE = HEAP[offset|14]|0;
+            SF = SF ^ ivF; ivF = HEAP[offset|15]|0;
 
             HEAP[offset|0] = S0;
             HEAP[offset|1] = S1;
@@ -883,4 +882,9 @@ function aes_asm ( stdlib, foreign, buffer ) {
         cbc_encrypt: cbc_encrypt,
         cbc_decrypt: cbc_decrypt,
     };
+}
+*/
+// Workaround Firefox bug, uglified from aes_asm above with little manual changes
+function aes_asm ( stdlib, foreign, buffer ) {
+    return (new Function('e,t,n','"use asm";var r=0,i=256,s=512,o=768,u=1024,a=1280,f=1536,l=1792,c=2048;var h=0,p=0,d=0,v=0,m=0,g=0,y=0,b=0,w=0,E=0,S=0,x=0,T=0,N=0,C=0,k=0;var L=0,A=0,O=0,M=0,_=0,D=0,P=0,H=0,B=0,j=0,F=0,I=0,q=0,R=0,U=0,z=0,W=0,X=0,V=0,$=0,J=0,K=0,Q=0,G=0,Y=0,Z=0,et=0,tt=0,nt=0,rt=0,it=0,st=0,ot=0,ut=0,at=0,ft=0,lt=0,ct=0,ht=0,pt=0,dt=0,vt=0,mt=0,gt=0,yt=0,bt=0,wt=0,Et=0,St=0,xt=0,Tt=0,Nt=0,Ct=0,kt=0,Lt=0,At=0,Ot=0,Mt=0,_t=0,Dt=0,Pt=0,Ht=0,Bt=0,jt=0,Ft=0,It=0,qt=0,Rt=0,Ut=0,zt=0,Wt=0,Xt=0,Vt=0,$t=0,Jt=0,Kt=0,Qt=0,Gt=0,Yt=0,Zt=0,en=0,tn=0,nn=0,rn=0,sn=0,on=0,un=0,an=0,fn=0,ln=0,cn=0,hn=0,pn=0,dn=0,vn=0,mn=0,gn=0,yn=0,bn=0,wn=0,En=0,Sn=0,xn=0,Tn=0,Nn=0,Cn=0,kn=0,Ln=0,An=0,On=0,Mn=0,_n=0,Dn=0,Pn=0,Hn=0,Bn=0,jn=0,Fn=0,In=0,qn=0,Rn=0,Un=0,zn=0,Wn=0,Xn=0,Vn=0,$n=0,Jn=0,Kn=0,Qn=0,Gn=0,Yn=0,Zn=0,er=0,tr=0,nr=0,rr=0,ir=0,sr=0,or=0,ur=0,ar=0,fr=0,lr=0,cr=0,hr=0,pr=0,dr=0,vr=0,mr=0,gr=0,yr=0,br=0,wr=0,Er=0,Sr=0,xr=0,Tr=0,Nr=0,Cr=0,kr=0,Lr=0,Ar=0,Or=0,Mr=0,_r=0,Dr=0,Pr=0,Hr=0,Br=0,jr=0,Fr=0,Ir=0,qr=0,Rr=0,Ur=0;var zr=new e.Uint8Array(n);function Wr(){var e=0;h=zr[r|h]|0;m=zr[r|m]|0;w=zr[r|w]|0;T=zr[r|T]|0;e=zr[r|p]|0;p=zr[r|g]|0;g=zr[r|E]|0;E=zr[r|N]|0;N=e;e=zr[r|d]|0;d=zr[r|S]|0;S=e;e=zr[r|y]|0;y=zr[r|C]|0;C=e;e=zr[r|k]|0;k=zr[r|x]|0;x=zr[r|b]|0;b=zr[r|v]|0;v=e}function Xr(){var e=0;h=zr[i|h]|0;m=zr[i|m]|0;w=zr[i|w]|0;T=zr[i|T]|0;e=zr[i|N]|0;N=zr[i|E]|0;E=zr[i|g]|0;g=zr[i|p]|0;p=e;e=zr[i|d]|0;d=zr[i|S]|0;S=e;e=zr[i|y]|0;y=zr[i|C]|0;C=e;e=zr[i|v]|0;v=zr[i|b]|0;b=zr[i|x]|0;x=zr[i|k]|0;k=e}function Vr(){var e=0,t=0,n=0,i=0,u=0,a=0,f=0,l=0,c=0,L=0,A=0,O=0,M=0,_=0,D=0,P=0;e=zr[s|h]^zr[o|g]^zr[r|S]^zr[r|k];t=zr[r|h]^zr[s|g]^zr[o|S]^zr[r|k];n=zr[r|h]^zr[r|g]^zr[s|S]^zr[o|k];i=zr[o|h]^zr[r|g]^zr[r|S]^zr[s|k];u=zr[s|m]^zr[o|E]^zr[r|C]^zr[r|v];a=zr[r|m]^zr[s|E]^zr[o|C]^zr[r|v];f=zr[r|m]^zr[r|E]^zr[s|C]^zr[o|v];l=zr[o|m]^zr[r|E]^zr[r|C]^zr[s|v];c=zr[s|w]^zr[o|N]^zr[r|d]^zr[r|b];L=zr[r|w]^zr[s|N]^zr[o|d]^zr[r|b];A=zr[r|w]^zr[r|N]^zr[s|d]^zr[o|b];O=zr[o|w]^zr[r|N]^zr[r|d]^zr[s|b];M=zr[s|T]^zr[o|p]^zr[r|y]^zr[r|x];_=zr[r|T]^zr[s|p]^zr[o|y]^zr[r|x];D=zr[r|T]^zr[r|p]^zr[s|y]^zr[o|x];P=zr[o|T]^zr[r|p]^zr[r|y]^zr[s|x];h=e|0;p=t|0;d=n|0;v=i|0;m=u|0;g=a|0;y=f|0;b=l|0;w=c|0;E=L|0;S=A|0;x=O|0;T=M|0;N=_|0;C=D|0;k=P|0}function $r(){var e=0,t=0,n=0,r=0,s=0,o=0,c=0,L=0,A=0,O=0,M=0,_=0,D=0,P=0,H=0,B=0;e=zr[l|h]^zr[a|p]^zr[f|d]^zr[u|v];o=zr[u|h]^zr[l|p]^zr[a|d]^zr[f|v];M=zr[f|h]^zr[u|p]^zr[l|d]^zr[a|v];B=zr[a|h]^zr[f|p]^zr[u|d]^zr[l|v];s=zr[l|m]^zr[a|g]^zr[f|y]^zr[u|b];O=zr[u|m]^zr[l|g]^zr[a|y]^zr[f|b];H=zr[f|m]^zr[u|g]^zr[l|y]^zr[a|b];r=zr[a|m]^zr[f|g]^zr[u|y]^zr[l|b];A=zr[l|w]^zr[a|E]^zr[f|S]^zr[u|x];P=zr[u|w]^zr[l|E]^zr[a|S]^zr[f|x];n=zr[f|w]^zr[u|E]^zr[l|S]^zr[a|x];L=zr[a|w]^zr[f|E]^zr[u|S]^zr[l|x];D=zr[l|T]^zr[a|N]^zr[f|C]^zr[u|k];t=zr[u|T]^zr[l|N]^zr[a|C]^zr[f|k];c=zr[f|T]^zr[u|N]^zr[l|C]^zr[a|k];_=zr[a|T]^zr[f|N]^zr[u|C]^zr[l|k];h=zr[i|e]|0;p=zr[i|t]|0;d=zr[i|n]|0;v=zr[i|r]|0;m=zr[i|s]|0;g=zr[i|o]|0;y=zr[i|c]|0;b=zr[i|L]|0;w=zr[i|A]|0;E=zr[i|O]|0;S=zr[i|M]|0;x=zr[i|_]|0;T=zr[i|D]|0;N=zr[i|P]|0;C=zr[i|H]|0;k=zr[i|B]|0}function Jr(){W=L^zr[r|R]^zr[c|1];X=A^zr[r|U];V=O^zr[r|z];$=M^zr[r|q];J=_^W;K=D^X;Q=P^V;G=H^$;Y=B^J;Z=j^K;et=F^Q;tt=I^G;nt=q^Y;rt=R^Z;it=U^et;st=z^tt;ot=W^zr[r|rt]^zr[c|2];ut=X^zr[r|it];at=V^zr[r|st];ft=$^zr[r|nt];lt=J^ot;ct=K^ut;ht=Q^at;pt=G^ft;dt=Y^lt;vt=Z^ct;mt=et^ht;gt=tt^pt;yt=nt^dt;bt=rt^vt;wt=it^mt;Et=st^gt;St=ot^zr[r|bt]^zr[c|3];xt=ut^zr[r|wt];Tt=at^zr[r|Et];Nt=ft^zr[r|yt];Ct=lt^St;kt=ct^xt;Lt=ht^Tt;At=pt^Nt;Ot=dt^Ct;Mt=vt^kt;_t=mt^Lt;Dt=gt^At;Pt=yt^Ot;Ht=bt^Mt;Bt=wt^_t;jt=Et^Dt;Ft=St^zr[r|Ht]^zr[c|4];It=xt^zr[r|Bt];qt=Tt^zr[r|jt];Rt=Nt^zr[r|Pt];Ut=Ct^Ft;zt=kt^It;Wt=Lt^qt;Xt=At^Rt;Vt=Ot^Ut;$t=Mt^zt;Jt=_t^Wt;Kt=Dt^Xt;Qt=Pt^Vt;Gt=Ht^$t;Yt=Bt^Jt;Zt=jt^Kt;en=Ft^zr[r|Gt]^zr[c|5];tn=It^zr[r|Yt];nn=qt^zr[r|Zt];rn=Rt^zr[r|Qt];sn=Ut^en;on=zt^tn;un=Wt^nn;an=Xt^rn;fn=Vt^sn;ln=$t^on;cn=Jt^un;hn=Kt^an;pn=Qt^fn;dn=Gt^ln;vn=Yt^cn;mn=Zt^hn;gn=en^zr[r|dn]^zr[c|6];yn=tn^zr[r|vn];bn=nn^zr[r|mn];wn=rn^zr[r|pn];En=sn^gn;Sn=on^yn;xn=un^bn;Tn=an^wn;Nn=fn^En;Cn=ln^Sn;kn=cn^xn;Ln=hn^Tn;An=pn^Nn;On=dn^Cn;Mn=vn^kn;_n=mn^Ln;Dn=gn^zr[r|On]^zr[c|7];Pn=yn^zr[r|Mn];Hn=bn^zr[r|_n];Bn=wn^zr[r|An];jn=En^Dn;Fn=Sn^Pn;In=xn^Hn;qn=Tn^Bn;Rn=Nn^jn;Un=Cn^Fn;zn=kn^In;Wn=Ln^qn;Xn=An^Rn;Vn=On^Un;$n=Mn^zn;Jn=_n^Wn;Kn=Dn^zr[r|Vn]^zr[c|8];Qn=Pn^zr[r|$n];Gn=Hn^zr[r|Jn];Yn=Bn^zr[r|Xn];Zn=jn^Kn;er=Fn^Qn;tr=In^Gn;nr=qn^Yn;rr=Rn^Zn;ir=Un^er;sr=zn^tr;or=Wn^nr;ur=Xn^rr;ar=Vn^ir;fr=$n^sr;lr=Jn^or;cr=Kn^zr[r|ar]^zr[c|9];hr=Qn^zr[r|fr];pr=Gn^zr[r|lr];dr=Yn^zr[r|ur];vr=Zn^cr;mr=er^hr;gr=tr^pr;yr=nr^dr;br=rr^vr;wr=ir^mr;Er=sr^gr;Sr=or^yr;xr=ur^br;Tr=ar^wr;Nr=fr^Er;Cr=lr^Sr;kr=cr^zr[r|Tr]^zr[c|10];Lr=hr^zr[r|Nr];Ar=pr^zr[r|Cr];Or=dr^zr[r|xr];Mr=vr^kr;_r=mr^Lr;Dr=gr^Ar;Pr=yr^Or;Hr=br^Mr;Br=wr^_r;jr=Er^Dr;Fr=Sr^Pr;Ir=xr^Hr;qr=Tr^Br;Rr=Nr^jr;Ur=Cr^Fr}function Kr(){h=h^L;p=p^A;d=d^O;v=v^M;m=m^_;g=g^D;y=y^P;b=b^H;w=w^B;E=E^j;S=S^F;x=x^I;T=T^q;N=N^R;C=C^U;k=k^z;Vr();h=h^W;p=p^X;d=d^V;v=v^$;m=m^J;g=g^K;y=y^Q;b=b^G;w=w^Y;E=E^Z;S=S^et;x=x^tt;T=T^nt;N=N^rt;C=C^it;k=k^st;Vr();h=h^ot;p=p^ut;d=d^at;v=v^ft;m=m^lt;g=g^ct;y=y^ht;b=b^pt;w=w^dt;E=E^vt;S=S^mt;x=x^gt;T=T^yt;N=N^bt;C=C^wt;k=k^Et;Vr();h=h^St;p=p^xt;d=d^Tt;v=v^Nt;m=m^Ct;g=g^kt;y=y^Lt;b=b^At;w=w^Ot;E=E^Mt;S=S^_t;x=x^Dt;T=T^Pt;N=N^Ht;C=C^Bt;k=k^jt;Vr();h=h^Ft;p=p^It;d=d^qt;v=v^Rt;m=m^Ut;g=g^zt;y=y^Wt;b=b^Xt;w=w^Vt;E=E^$t;S=S^Jt;x=x^Kt;T=T^Qt;N=N^Gt;C=C^Yt;k=k^Zt;Vr();h=h^en;p=p^tn;d=d^nn;v=v^rn;m=m^sn;g=g^on;y=y^un;b=b^an;w=w^fn;E=E^ln;S=S^cn;x=x^hn;T=T^pn;N=N^dn;C=C^vn;k=k^mn;Vr();h=h^gn;p=p^yn;d=d^bn;v=v^wn;m=m^En;g=g^Sn;y=y^xn;b=b^Tn;w=w^Nn;E=E^Cn;S=S^kn;x=x^Ln;T=T^An;N=N^On;C=C^Mn;k=k^_n;Vr();h=h^Dn;p=p^Pn;d=d^Hn;v=v^Bn;m=m^jn;g=g^Fn;y=y^In;b=b^qn;w=w^Rn;E=E^Un;S=S^zn;x=x^Wn;T=T^Xn;N=N^Vn;C=C^$n;k=k^Jn;Vr();h=h^Kn;p=p^Qn;d=d^Gn;v=v^Yn;m=m^Zn;g=g^er;y=y^tr;b=b^nr;w=w^rr;E=E^ir;S=S^sr;x=x^or;T=T^ur;N=N^ar;C=C^fr;k=k^lr;Vr();h=h^cr;p=p^hr;d=d^pr;v=v^dr;m=m^vr;g=g^mr;y=y^gr;b=b^yr;w=w^br;E=E^wr;S=S^Er;x=x^Sr;T=T^xr;N=N^Tr;C=C^Nr;k=k^Cr;Wr();h=h^kr;p=p^Lr;d=d^Ar;v=v^Or;m=m^Mr;g=g^_r;y=y^Dr;b=b^Pr;w=w^Hr;E=E^Br;S=S^jr;x=x^Fr;T=T^Ir;N=N^qr;C=C^Rr;k=k^Ur}function Qr(){h=h^kr;p=p^Lr;d=d^Ar;v=v^Or;m=m^Mr;g=g^_r;y=y^Dr;b=b^Pr;w=w^Hr;E=E^Br;S=S^jr;x=x^Fr;T=T^Ir;N=N^qr;C=C^Rr;k=k^Ur;Xr();h=h^cr;p=p^hr;d=d^pr;v=v^dr;m=m^vr;g=g^mr;y=y^gr;b=b^yr;w=w^br;E=E^wr;S=S^Er;x=x^Sr;T=T^xr;N=N^Tr;C=C^Nr;k=k^Cr;$r();h=h^Kn;p=p^Qn;d=d^Gn;v=v^Yn;m=m^Zn;g=g^er;y=y^tr;b=b^nr;w=w^rr;E=E^ir;S=S^sr;x=x^or;T=T^ur;N=N^ar;C=C^fr;k=k^lr;$r();h=h^Dn;p=p^Pn;d=d^Hn;v=v^Bn;m=m^jn;g=g^Fn;y=y^In;b=b^qn;w=w^Rn;E=E^Un;S=S^zn;x=x^Wn;T=T^Xn;N=N^Vn;C=C^$n;k=k^Jn;$r();h=h^gn;p=p^yn;d=d^bn;v=v^wn;m=m^En;g=g^Sn;y=y^xn;b=b^Tn;w=w^Nn;E=E^Cn;S=S^kn;x=x^Ln;T=T^An;N=N^On;C=C^Mn;k=k^_n;$r();h=h^en;p=p^tn;d=d^nn;v=v^rn;m=m^sn;g=g^on;y=y^un;b=b^an;w=w^fn;E=E^ln;S=S^cn;x=x^hn;T=T^pn;N=N^dn;C=C^vn;k=k^mn;$r();h=h^Ft;p=p^It;d=d^qt;v=v^Rt;m=m^Ut;g=g^zt;y=y^Wt;b=b^Xt;w=w^Vt;E=E^$t;S=S^Jt;x=x^Kt;T=T^Qt;N=N^Gt;C=C^Yt;k=k^Zt;$r();h=h^St;p=p^xt;d=d^Tt;v=v^Nt;m=m^Ct;g=g^kt;y=y^Lt;b=b^At;w=w^Ot;E=E^Mt;S=S^_t;x=x^Dt;T=T^Pt;N=N^Ht;C=C^Bt;k=k^jt;$r();h=h^ot;p=p^ut;d=d^at;v=v^ft;m=m^lt;g=g^ct;y=y^ht;b=b^pt;w=w^dt;E=E^vt;S=S^mt;x=x^gt;T=T^yt;N=N^bt;C=C^wt;k=k^Et;$r();h=h^W;p=p^X;d=d^V;v=v^$;m=m^J;g=g^K;y=y^Q;b=b^G;w=w^Y;E=E^Z;S=S^et;x=x^tt;T=T^nt;N=N^rt;C=C^it;k=k^st;$r();h=h^L;p=p^A;d=d^O;v=v^M;m=m^_;g=g^D;y=y^P;b=b^H;w=w^B;E=E^j;S=S^F;x=x^I;T=T^q;N=N^R;C=C^U;k=k^z}function Gr(e,t,n,r,i,s,o,u,a,f,l,c,L,A,O,M){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;c=c|0;L=L|0;A=A|0;O=O|0;M=M|0;h=e;p=t;d=n;v=r;m=i;g=s;y=o;b=u;w=a;E=f;S=l;x=c;T=L;N=A;C=O;k=M}function Yr(e,t,n,r,i,s,o,u,a,f,l,c,h,p,d,v){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;c=c|0;h=h|0;p=p|0;d=d|0;v=v|0;L=e;A=t;O=n;M=r;_=i;D=s;P=o;H=u;B=a;j=f;F=l;I=c;q=h;R=p;U=d;z=v;Jr()}function Zr(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){h=zr[e|0]|0;p=zr[e|1]|0;d=zr[e|2]|0;v=zr[e|3]|0;m=zr[e|4]|0;g=zr[e|5]|0;y=zr[e|6]|0;b=zr[e|7]|0;w=zr[e|8]|0;E=zr[e|9]|0;S=zr[e|10]|0;x=zr[e|11]|0;T=zr[e|12]|0;N=zr[e|13]|0;C=zr[e|14]|0;k=zr[e|15]|0;Kr();zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}}function ei(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){h=zr[e|0]|0;p=zr[e|1]|0;d=zr[e|2]|0;v=zr[e|3]|0;m=zr[e|4]|0;g=zr[e|5]|0;y=zr[e|6]|0;b=zr[e|7]|0;w=zr[e|8]|0;E=zr[e|9]|0;S=zr[e|10]|0;x=zr[e|11]|0;T=zr[e|12]|0;N=zr[e|13]|0;C=zr[e|14]|0;k=zr[e|15]|0;Qr();zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}}function ti(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){h=h^zr[e|0];p=p^zr[e|1];d=d^zr[e|2];v=v^zr[e|3];m=m^zr[e|4];g=g^zr[e|5];y=y^zr[e|6];b=b^zr[e|7];w=w^zr[e|8];E=E^zr[e|9];S=S^zr[e|10];x=x^zr[e|11];T=T^zr[e|12];N=N^zr[e|13];C=C^zr[e|14];k=k^zr[e|15];Kr();zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}}function ni(e,t){e=e|0;t=t|0;var n=0,r=0,i=0,s=0,o=0,u=0,a=0,f=0,l=0,c=0,L=0,A=0,O=0,M=0,_=0,D=0;if(e&15|t&15)return-1;n=h;r=p;i=d;s=v;o=m;u=g;a=y;f=b;l=w;c=E;L=S;A=x;O=T;M=N;_=C;D=k;while((t|0)>0){h=zr[e|0]|0;p=zr[e|1]|0;d=zr[e|2]|0;v=zr[e|3]|0;m=zr[e|4]|0;g=zr[e|5]|0;y=zr[e|6]|0;b=zr[e|7]|0;w=zr[e|8]|0;E=zr[e|9]|0;S=zr[e|10]|0;x=zr[e|11]|0;T=zr[e|12]|0;N=zr[e|13]|0;C=zr[e|14]|0;k=zr[e|15]|0;Qr();h=h^n;n=zr[e|0]|0;p=p^r;r=zr[e|1]|0;d=d^i;i=zr[e|2]|0;v=v^s;s=zr[e|3]|0;m=m^o;o=zr[e|4]|0;g=g^u;u=zr[e|5]|0;y=y^a;a=zr[e|6]|0;b=b^f;f=zr[e|7]|0;w=w^l;l=zr[e|8]|0;E=E^c;c=zr[e|9]|0;S=S^L;L=zr[e|10]|0;x=x^A;A=zr[e|11]|0;T=T^O;O=zr[e|12]|0;N=N^M;M=zr[e|13]|0;C=C^_;_=zr[e|14]|0;k=k^D;D=zr[e|15]|0;zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}h=n;p=r;d=i;v=s;m=o;g=u;y=a;b=f;w=l;E=c;S=L;x=A;T=O;N=M;C=_;k=D}return{init_state:Gr,init_key_128:Yr,ecb_encrypt:Zr,ecb_decrypt:ei,cbc_encrypt:ti,cbc_decrypt:ni}'))( stdlib, foreign, buffer );
 }

@@ -12,4 +12,4 @@ clean:
 	rm -f asmcrypto.js asmcrypto.js.map
 
 asmcrypto.js: $(JS_FILES)
-	uglifyjs $(JS_FILES) -b --wrap asmCrypto -o $@ --source-map $@.map
+	uglifyjs $(JS_FILES) -c -m --wrap asmCrypto -o $@ --source-map $@.map

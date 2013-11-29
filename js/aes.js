@@ -446,8 +446,8 @@ aes_static.BLOCK_SIZE = _aes_block_size;
 
 // static methods
 var cbc_aes_instance = new cbc_aes_constructor();
-aes_static.encrypt = function ( data, key, options ) { return new Uint8Array( cbc_aes_instance.reset(key,options).encrypt(data).result ); };
-aes_static.decrypt = function ( data, key, options ) { return new Uint8Array( cbc_aes_instance.reset(key,options).decrypt(data).result ); };
+aes_static.encrypt = function ( data, key, options ) { return cbc_aes_instance.reset(key,options).encrypt(data).result; };
+aes_static.decrypt = function ( data, key, options ) { return cbc_aes_instance.reset(key,options).decrypt(data).result; };
 
 // export
 exports.AES = aes_static;
