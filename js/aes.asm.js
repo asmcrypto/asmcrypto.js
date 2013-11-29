@@ -3,8 +3,8 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
     // AES precomputed tables
     var SBOX = 0, INV_SBOX = 0x100, X2_SBOX = 0x200, X3_SBOX = 0x300,
-        X2 = 0x400, X9 = 0x500, XB = 0x600, XD = 0x700, XE = 0x800,
-        RCON = 0x900;
+        X9 = 0x400, XB = 0x500, XD = 0x600, XE = 0x700,
+        RCON = 0x800;
 
     // AES state
     var S0 = 0, S1 = 0, S2 = 0, S3 = 0, S4 = 0, S5 = 0, S6 = 0, S7 = 0, S8 = 0, S9 = 0, SA = 0, SB = 0, SC = 0, SD = 0, SE = 0, SF = 0;
@@ -29,109 +29,109 @@ function aes_asm ( stdlib, foreign, buffer ) {
         var t = 0;
 
         // row 0
-	    S0 = HEAP[SBOX|S0];
-	    S4 = HEAP[SBOX|S4];
-	    S8 = HEAP[SBOX|S8];
-	    SC = HEAP[SBOX|SC];
+        S0 = HEAP[SBOX|S0];
+        S4 = HEAP[SBOX|S4];
+        S8 = HEAP[SBOX|S8];
+        SC = HEAP[SBOX|SC];
 
-	    // row 1
-	    t = HEAP[SBOX|S1];
-	    S1 = HEAP[SBOX|S5];
-	    S5 = HEAP[SBOX|S9];
-	    S9 = HEAP[SBOX|SD];
-	    SD = t;
+        // row 1
+        t = HEAP[SBOX|S1];
+        S1 = HEAP[SBOX|S5];
+        S5 = HEAP[SBOX|S9];
+        S9 = HEAP[SBOX|SD];
+        SD = t;
 
-	    // row 2
-	    t = HEAP[SBOX|S2];
-	    S2 = HEAP[SBOX|SA];
-	    SA = t;
-	    t = HEAP[SBOX|S6];
-	    S6 = HEAP[SBOX|SE];
-	    SE = t;
+        // row 2
+        t = HEAP[SBOX|S2];
+        S2 = HEAP[SBOX|SA];
+        SA = t;
+        t = HEAP[SBOX|S6];
+        S6 = HEAP[SBOX|SE];
+        SE = t;
 
-	    // row 3
-	    t = HEAP[SBOX|SF];
-	    SF = HEAP[SBOX|SB];
-	    SB = HEAP[SBOX|S7];
-	    S7 = HEAP[SBOX|S3];
-	    S3 = t;
+        // row 3
+        t = HEAP[SBOX|SF];
+        SF = HEAP[SBOX|SB];
+        SB = HEAP[SBOX|S7];
+        S7 = HEAP[SBOX|S3];
+        S3 = t;
     }
 
     function _inv_sub_shift () {
         var t = 0;
 
-	    // row 0
-	    S0 = HEAP[INV_SBOX|S0];
-	    S4 = HEAP[INV_SBOX|S4];
-	    S8 = HEAP[INV_SBOX|S8];
-	    SC = HEAP[INV_SBOX|SC];
+        // row 0
+        S0 = HEAP[INV_SBOX|S0];
+        S4 = HEAP[INV_SBOX|S4];
+        S8 = HEAP[INV_SBOX|S8];
+        SC = HEAP[INV_SBOX|SC];
 
-	    // row 1
-	    t = HEAP[INV_SBOX|SD];
-	    SD = HEAP[INV_SBOX|S9];
-	    S9 = HEAP[INV_SBOX|S5];
-	    S5 = HEAP[INV_SBOX|S1];
-	    S1 = t;
+        // row 1
+        t = HEAP[INV_SBOX|SD];
+        SD = HEAP[INV_SBOX|S9];
+        S9 = HEAP[INV_SBOX|S5];
+        S5 = HEAP[INV_SBOX|S1];
+        S1 = t;
 
-	    // row 2
-	    t = HEAP[INV_SBOX|S2]
-	    S2 = HEAP[INV_SBOX|SA]
-	    SA = t;
-	    t = HEAP[INV_SBOX|S6]
-	    S6 = HEAP[INV_SBOX|SE]
-	    SE = t;
+        // row 2
+        t = HEAP[INV_SBOX|S2]
+        S2 = HEAP[INV_SBOX|SA]
+        SA = t;
+        t = HEAP[INV_SBOX|S6]
+        S6 = HEAP[INV_SBOX|SE]
+        SE = t;
 
-	    // row 3
-	    t = HEAP[INV_SBOX|S3];
-	    S3 = HEAP[INV_SBOX|S7];
-	    S7 = HEAP[INV_SBOX|SB];
-	    SB = HEAP[INV_SBOX|SF];
-	    SF = t;
+        // row 3
+        t = HEAP[INV_SBOX|S3];
+        S3 = HEAP[INV_SBOX|S7];
+        S7 = HEAP[INV_SBOX|SB];
+        SB = HEAP[INV_SBOX|SF];
+        SF = t;
     }
 
     function _sub_shift_mix () {
-        var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, s8 = 0, s9 = 0, aA = 0, sB = 0, sC = 0, sD = 0, sE = 0, sF = 0;
+        var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, s8 = 0, s9 = 0, sA = 0, sB = 0, sC = 0, sD = 0, sE = 0, sF = 0;
 
-	    // column 0
-	    s0 = HEAP[X2_SBOX|S0] ^ HEAP[X3_SBOX|S5] ^ HEAP[SBOX|SA] ^ HEAP[SBOX|SF];
-	    s1 = HEAP[SBOX|S0] ^ HEAP[X2_SBOX|S5] ^ HEAP[X3_SBOX|SA] ^ HEAP[SBOX|SF];
-	    s2 = HEAP[SBOX|S0] ^ HEAP[SBOX|S5] ^ HEAP[X2_SBOX|SA] ^ HEAP[X3_SBOX|SF];
-	    s3 = HEAP[X3_SBOX|S0] ^ HEAP[SBOX|S5] ^ HEAP[SBOX|SA] ^ HEAP[X2_SBOX|SF];
+        // column 0
+        s0 = HEAP[X2_SBOX|S0] ^ HEAP[X3_SBOX|S5] ^ HEAP[SBOX|SA] ^ HEAP[SBOX|SF];
+        s1 = HEAP[SBOX|S0] ^ HEAP[X2_SBOX|S5] ^ HEAP[X3_SBOX|SA] ^ HEAP[SBOX|SF];
+        s2 = HEAP[SBOX|S0] ^ HEAP[SBOX|S5] ^ HEAP[X2_SBOX|SA] ^ HEAP[X3_SBOX|SF];
+        s3 = HEAP[X3_SBOX|S0] ^ HEAP[SBOX|S5] ^ HEAP[SBOX|SA] ^ HEAP[X2_SBOX|SF];
 
-	    // column 1
-	    s4 = HEAP[X2_SBOX|S4] ^ HEAP[X3_SBOX|S9] ^ HEAP[SBOX|SE] ^ HEAP[SBOX|S3];
-	    s5 = HEAP[SBOX|S4] ^ HEAP[X2_SBOX|S9] ^ HEAP[X3_SBOX|SE] ^ HEAP[SBOX|S3];
-	    s6 = HEAP[SBOX|S4] ^ HEAP[SBOX|S9] ^ HEAP[X2_SBOX|SE] ^ HEAP[X3_SBOX|S3];
-	    s7 = HEAP[X3_SBOX|S4] ^ HEAP[SBOX|S9] ^ HEAP[SBOX|SE] ^ HEAP[X2_SBOX|S3];
+        // column 1
+        s4 = HEAP[X2_SBOX|S4] ^ HEAP[X3_SBOX|S9] ^ HEAP[SBOX|SE] ^ HEAP[SBOX|S3];
+        s5 = HEAP[SBOX|S4] ^ HEAP[X2_SBOX|S9] ^ HEAP[X3_SBOX|SE] ^ HEAP[SBOX|S3];
+        s6 = HEAP[SBOX|S4] ^ HEAP[SBOX|S9] ^ HEAP[X2_SBOX|SE] ^ HEAP[X3_SBOX|S3];
+        s7 = HEAP[X3_SBOX|S4] ^ HEAP[SBOX|S9] ^ HEAP[SBOX|SE] ^ HEAP[X2_SBOX|S3];
 
-	    // column 2
-	    s8 = HEAP[X2_SBOX|S8] ^ HEAP[X3_SBOX|SD] ^ HEAP[SBOX|S2] ^ HEAP[SBOX|S7];
-	    s9 = HEAP[SBOX|S8] ^ HEAP[X2_SBOX|SD] ^ HEAP[X3_SBOX|S2] ^ HEAP[SBOX|S7];
-	    sA = HEAP[SBOX|S8] ^ HEAP[SBOX|SD] ^ HEAP[X2_SBOX|S2] ^ HEAP[X3_SBOX|S7];
-	    sB = HEAP[X3_SBOX|S8] ^ HEAP[SBOX|SD] ^ HEAP[SBOX|S2] ^ HEAP[X2_SBOX|S7];
+        // column 2
+        s8 = HEAP[X2_SBOX|S8] ^ HEAP[X3_SBOX|SD] ^ HEAP[SBOX|S2] ^ HEAP[SBOX|S7];
+        s9 = HEAP[SBOX|S8] ^ HEAP[X2_SBOX|SD] ^ HEAP[X3_SBOX|S2] ^ HEAP[SBOX|S7];
+        sA = HEAP[SBOX|S8] ^ HEAP[SBOX|SD] ^ HEAP[X2_SBOX|S2] ^ HEAP[X3_SBOX|S7];
+        sB = HEAP[X3_SBOX|S8] ^ HEAP[SBOX|SD] ^ HEAP[SBOX|S2] ^ HEAP[X2_SBOX|S7];
 
-	    // column 3
-	    sC = HEAP[X2_SBOX|SC] ^ HEAP[X3_SBOX|S1] ^ HEAP[SBOX|S6] ^ HEAP[SBOX|SB];
-	    sD = HEAP[SBOX|SC] ^ HEAP[X2_SBOX|S1] ^ HEAP[X3_SBOX|S6] ^ HEAP[SBOX|SB];
-	    sE = HEAP[SBOX|SC] ^ HEAP[SBOX|S1] ^ HEAP[X2_SBOX|S6] ^ HEAP[X3_SBOX|SB];
-	    sF = HEAP[X3_SBOX|SC] ^ HEAP[SBOX|S1] ^ HEAP[SBOX|S6] ^ HEAP[X2_SBOX|SB];
+        // column 3
+        sC = HEAP[X2_SBOX|SC] ^ HEAP[X3_SBOX|S1] ^ HEAP[SBOX|S6] ^ HEAP[SBOX|SB];
+        sD = HEAP[SBOX|SC] ^ HEAP[X2_SBOX|S1] ^ HEAP[X3_SBOX|S6] ^ HEAP[SBOX|SB];
+        sE = HEAP[SBOX|SC] ^ HEAP[SBOX|S1] ^ HEAP[X2_SBOX|S6] ^ HEAP[X3_SBOX|SB];
+        sF = HEAP[X3_SBOX|SC] ^ HEAP[SBOX|S1] ^ HEAP[SBOX|S6] ^ HEAP[X2_SBOX|SB];
 
-	    S0 = s0;
-	    S1 = s1;
-	    S2 = s2;
-	    S3 = s3;
-	    S4 = s4;
-	    S5 = s5;
-	    S6 = s6;
-	    S7 = s7;
-	    S8 = s8;
-	    S9 = s9;
-	    SA = sA;
-	    SB = sB;
-	    SC = sC;
-	    SD = sD;
-	    SE = sE;
-	    SF = sF;
+        S0 = s0;
+        S1 = s1;
+        S2 = s2;
+        S3 = s3;
+        S4 = s4;
+        S5 = s5;
+        S6 = s6;
+        S7 = s7;
+        S8 = s8;
+        S9 = s9;
+        SA = sA;
+        SB = sB;
+        SC = sC;
+        SD = sD;
+        SE = sE;
+        SF = sF;
     }
 
     function _inv_sub_shift_mix () {
@@ -180,8 +180,6 @@ function aes_asm ( stdlib, foreign, buffer ) {
     }
 
     function _expand_key_128 () {
-        var t = 0;
-
         // key 1
         R10 = R00 ^ HEAP[SBOX|R0D] ^ HEAP[RCON|1];
         R11 = R01 ^ HEAP[SBOX|R0E];
@@ -453,98 +451,419 @@ function aes_asm ( stdlib, foreign, buffer ) {
         S0 = S0 ^ R00; S1 = S1 ^ R01; S2 = S2 ^ R02; S3 = S3 ^ R03; S4 = S4 ^ R04; S5 = S5 ^ R05; S6 = S6 ^ R06; S7 = S7 ^ R07; S8 = S8 ^ R08; S9 = S9 ^ R09; SA = SA ^ R0A; SB = SB ^ R0B; SC = SC ^ R0C; SD = SD ^ R0D; SE = SE ^ R0E; SF = SF ^ R0F;
     }
 
-    function _init_state ( w0, w1, w2, w3 ) {
-        w0 = w0|0;
-        w1 = w1|0;
-        w2 = w2|0;
-        w3 = w3|0;
+    function init_state ( s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, sA, sB, sC, sD, sE, sF ) {
+        s0 = s0|0;
+        s1 = s1|0;
+        s2 = s2|0;
+        s3 = s3|0;
+        s4 = s4|0;
+        s5 = s5|0;
+        s6 = s6|0;
+        s7 = s7|0;
+        s8 = s8|0;
+        s9 = s9|0;
+        sA = sA|0;
+        sB = sB|0;
+        sC = sC|0;
+        sD = sD|0;
+        sE = sE|0;
+        sF = sF|0;
 
-	    S0 = w0>>>24;
-	    S1 = w0>>>16&255;
-	    S2 = w0>>>8&255;
-	    S3 = w0&255;
-	    S4 = w1>>>24;
-	    S5 = w1>>>16&255;
-	    S6 = w1>>>8&255;
-	    S7 = w1&255;
-	    S8 = w2>>>24;
-	    S9 = w2>>>16&255;
-	    SA = w2>>>8&255;
-	    SB = w2&255;
-	    SC = w3>>>24;
-	    SD = w3>>>16&255;
-	    SE = w3>>>8&255;
-	    SF = w3&255;
+        S0 = s0;
+        S1 = s1;
+        S2 = s2;
+        S3 = s3;
+        S4 = s4;
+        S5 = s5;
+        S6 = s6;
+        S7 = s7;
+        S8 = s8;
+        S9 = s9;
+        SA = sA;
+        SB = sB;
+        SC = sC;
+        SD = sD;
+        SE = sE;
+        SF = sF;
     }
 
-    function _test_state ( w0, w1, w2, w3 ) {
-        w0 = w0|0;
-        w1 = w1|0;
-        w2 = w2|0;
-        w3 = w3|0;
+    function _test_state ( s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, sA, sB, sC, sD, sE, sF ) {
+        s0 = s0|0;
+        s1 = s1|0;
+        s2 = s2|0;
+        s3 = s3|0;
+        s4 = s4|0;
+        s5 = s5|0;
+        s6 = s6|0;
+        s7 = s7|0;
+        s8 = s8|0;
+        s9 = s9|0;
+        sA = sA|0;
+        sB = sB|0;
+        sC = sC|0;
+        sD = sD|0;
+        sE = sE|0;
+        sF = sF|0;
 
-        return ( ( (S0<<24)|(S1<<16)|(S2<<8)|S3 ) ^ w0 )
-             | ( ( (S4<<24)|(S5<<16)|(S6<<8)|S7 ) ^ w1 )
-             | ( ( (S8<<24)|(S9<<16)|(SA<<8)|SB ) ^ w2 )
-             | ( ( (SC<<24)|(SD<<16)|(SE<<8)|SF ) ^ w3 )
-             ? 0 : 1;
+        s0 = s0 ^ S0;
+        s1 = s1 ^ S1;
+        s2 = s2 ^ S2;
+        s3 = s3 ^ S3;
+        s4 = s4 ^ S4;
+        s5 = s5 ^ S5;
+        s6 = s6 ^ S6;
+        s7 = s7 ^ S7;
+        s8 = s8 ^ S8;
+        s9 = s9 ^ S9;
+        sA = sA ^ SA;
+        sB = sB ^ SB;
+        sC = sC ^ SC;
+        sD = sD ^ SD;
+        sE = sE ^ SE;
+        sF = sF ^ SF;
+
+        return (s0|s1|s2|s3|s4|s5|s6|s7|s8|s9|sA|sB|sC|sD|sE|sF)
+                ? 0 : 1;
     }
 
-    function _init_key_128 ( w0, w1, w2, w3 ) {
-        w0 = w0|0;
-        w1 = w1|0;
-        w2 = w2|0;
-        w3 = w3|0;
+    function init_key_128 ( k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, kA, kB, kC, kD, kE, kF ) {
+        k0 = k0|0;
+        k1 = k1|0;
+        k2 = k2|0;
+        k3 = k3|0;
+        k4 = k4|0;
+        k5 = k5|0;
+        k6 = k6|0;
+        k7 = k7|0;
+        k8 = k8|0;
+        k9 = k9|0;
+        kA = kA|0;
+        kB = kB|0;
+        kC = kC|0;
+        kD = kD|0;
+        kE = kE|0;
+        kF = kF|0;
 
-	    R00 = w0>>>24;
-	    R01 = w0>>>16&255;
-	    R02 = w0>>>8&255;
-	    R03 = w0&255;
-	    R04 = w1>>>24;
-	    R05 = w1>>>16&255;
-	    R06 = w1>>>8&255;
-	    R07 = w1&255;
-	    R08 = w2>>>24;
-	    R09 = w2>>>16&255;
-	    R0A = w2>>>8&255;
-	    R0B = w2&255;
-	    R0C = w3>>>24;
-	    R0D = w3>>>16&255;
-	    R0E = w3>>>8&255;
-	    R0F = w3&255;
+        R00 = k0;
+        R01 = k1;
+        R02 = k2;
+        R03 = k3;
+        R04 = k4;
+        R05 = k5;
+        R06 = k6;
+        R07 = k7;
+        R08 = k8;
+        R09 = k9;
+        R0A = kA;
+        R0B = kB;
+        R0C = kC;
+        R0D = kD;
+        R0E = kE;
+        R0F = kF;
+
+        _expand_key_128();
     }
 
-    function _test_key_128 ( i, w0, w1, w2, w3 ) {
+    function _test_key_128 ( i, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, kA, kB, kC, kD, kE, kF ) {
         i = i|0;
-        w0 = w0|0;
-        w1 = w1|0;
-        w2 = w2|0;
-        w3 = w3|0;
-
-        var r0 = 0, r1 = 0, r2 = 0, r3 = 0;
+        k0 = k0|0;
+        k1 = k1|0;
+        k2 = k2|0;
+        k3 = k3|0;
+        k4 = k4|0;
+        k5 = k5|0;
+        k6 = k6|0;
+        k7 = k7|0;
+        k8 = k8|0;
+        k9 = k9|0;
+        kA = kA|0;
+        kB = kB|0;
+        kC = kC|0;
+        kD = kD|0;
+        kE = kE|0;
+        kF = kF|0;
 
         switch ( i ) {
             case 1:
-                r0 = (R10<<24)|(R11<<16)|(R12<<8)|R13;
-                r1 = (R14<<24)|(R15<<16)|(R16<<8)|R17;
-                r2 = (R18<<24)|(R19<<16)|(R1A<<8)|R1B;
-                r3 = (R1C<<24)|(R1D<<16)|(R1E<<8)|R1F;
+                k0 = k0 ^ R10;
+                k1 = k1 ^ R11;
+                k2 = k2 ^ R12;
+                k3 = k3 ^ R13;
+                k4 = k4 ^ R14;
+                k5 = k5 ^ R15;
+                k6 = k6 ^ R16;
+                k7 = k7 ^ R17;
+                k8 = k8 ^ R18;
+                k9 = k9 ^ R19;
+                kA = kA ^ R1A;
+                kB = kB ^ R1B;
+                kC = kC ^ R1C;
+                kD = kD ^ R1D;
+                kE = kE ^ R1E;
+                kF = kF ^ R1F;
                 break;
             case 2:
-                r0 = (R20<<24)|(R21<<16)|(R22<<8)|R23;
-                r1 = (R24<<24)|(R25<<16)|(R26<<8)|R27;
-                r2 = (R28<<24)|(R29<<16)|(R2A<<8)|R2B;
-                r3 = (R2C<<24)|(R2D<<16)|(R2E<<8)|R2F;
+                k0 = k0 ^ R20;
+                k1 = k1 ^ R21;
+                k2 = k2 ^ R22;
+                k3 = k3 ^ R23;
+                k4 = k4 ^ R24;
+                k5 = k5 ^ R25;
+                k6 = k6 ^ R26;
+                k7 = k7 ^ R27;
+                k8 = k8 ^ R28;
+                k9 = k9 ^ R29;
+                kA = kA ^ R2A;
+                kB = kB ^ R2B;
+                kC = kC ^ R2C;
+                kD = kD ^ R2D;
+                kE = kE ^ R2E;
+                kF = kF ^ R2F;
                 break;
             default:
-                r0 = (R00<<24)|(R01<<16)|(R02<<8)|R03;
-                r1 = (R04<<24)|(R05<<16)|(R06<<8)|R07;
-                r2 = (R08<<24)|(R09<<16)|(R0A<<8)|R0B;
-                r3 = (R0C<<24)|(R0D<<16)|(R0E<<8)|R0F;
+                k0 = k0 ^ R00;
+                k1 = k1 ^ R01;
+                k2 = k2 ^ R02;
+                k3 = k3 ^ R03;
+                k4 = k4 ^ R04;
+                k5 = k5 ^ R05;
+                k6 = k6 ^ R06;
+                k7 = k7 ^ R07;
+                k8 = k8 ^ R08;
+                k9 = k9 ^ R09;
+                kA = kA ^ R0A;
+                kB = kB ^ R0B;
+                kC = kC ^ R0C;
+                kD = kD ^ R0D;
+                kE = kE ^ R0E;
+                kF = kF ^ R0F;
         }
 
-        return (r0^w0)|(r1^w1)|(r2^w2)|(r3^w3)
+        return (k0|k1|k2|k3|k4|k5|k6|k7|k8|k9|kA|kB|kC|kD|kE|kF)
                 ? 0 : 1;
+    }
+
+    // offset, length — multiple of 16
+    function ecb_encrypt ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        if ( (offset & 15) != 0 || (length & 15) != 0 )
+            return -1;
+
+        while ( (length|0) > 0 ) {
+            S0 = HEAP[offset|0];
+            S1 = HEAP[offset|1];
+            S2 = HEAP[offset|2];
+            S3 = HEAP[offset|3];
+            S4 = HEAP[offset|4];
+            S5 = HEAP[offset|5];
+            S6 = HEAP[offset|6];
+            S7 = HEAP[offset|7];
+            S8 = HEAP[offset|8];
+            S9 = HEAP[offset|9];
+            SA = HEAP[offset|10];
+            SB = HEAP[offset|11];
+            SC = HEAP[offset|12];
+            SD = HEAP[offset|13];
+            SE = HEAP[offset|14];
+            SF = HEAP[offset|15];
+
+            _encrypt_128();
+
+            HEAP[offset|0] = S0;
+            HEAP[offset|1] = S1;
+            HEAP[offset|2] = S2;
+            HEAP[offset|3] = S3;
+            HEAP[offset|4] = S4;
+            HEAP[offset|5] = S5;
+            HEAP[offset|6] = S6;
+            HEAP[offset|7] = S7;
+            HEAP[offset|8] = S8;
+            HEAP[offset|9] = S9;
+            HEAP[offset|10] = SA;
+            HEAP[offset|11] = SB;
+            HEAP[offset|12] = SC;
+            HEAP[offset|13] = SD;
+            HEAP[offset|14] = SE;
+            HEAP[offset|15] = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+        }
+    }
+
+    // offset, length — multiple of 16
+    function ecb_decrypt ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        if ( (offset & 15) != 0 || (length & 15) != 0 )
+            return -1;
+
+        while ( (length|0) > 0 ) {
+            S0 = HEAP[offset|0];
+            S1 = HEAP[offset|1];
+            S2 = HEAP[offset|2];
+            S3 = HEAP[offset|3];
+            S4 = HEAP[offset|4];
+            S5 = HEAP[offset|5];
+            S6 = HEAP[offset|6];
+            S7 = HEAP[offset|7];
+            S8 = HEAP[offset|8];
+            S9 = HEAP[offset|9];
+            SA = HEAP[offset|10];
+            SB = HEAP[offset|11];
+            SC = HEAP[offset|12];
+            SD = HEAP[offset|13];
+            SE = HEAP[offset|14];
+            SF = HEAP[offset|15];
+
+            _decrypt_128();
+
+            HEAP[offset|0] = S0;
+            HEAP[offset|1] = S1;
+            HEAP[offset|2] = S2;
+            HEAP[offset|3] = S3;
+            HEAP[offset|4] = S4;
+            HEAP[offset|5] = S5;
+            HEAP[offset|6] = S6;
+            HEAP[offset|7] = S7;
+            HEAP[offset|8] = S8;
+            HEAP[offset|9] = S9;
+            HEAP[offset|10] = SA;
+            HEAP[offset|11] = SB;
+            HEAP[offset|12] = SC;
+            HEAP[offset|13] = SD;
+            HEAP[offset|14] = SE;
+            HEAP[offset|15] = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+        }
+    }
+
+    // offset, length — multiple of 16
+    function cbc_encrypt ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        if ( (offset & 15) != 0 || (length & 15) != 0 )
+            return -1;
+
+        while ( (length|0) > 0 ) {
+            S0 = S0 ^ HEAP[offset|0];
+            S1 = S1 ^ HEAP[offset|1];
+            S2 = S2 ^ HEAP[offset|2];
+            S3 = S3 ^ HEAP[offset|3];
+            S4 = S4 ^ HEAP[offset|4];
+            S5 = S5 ^ HEAP[offset|5];
+            S6 = S6 ^ HEAP[offset|6];
+            S7 = S7 ^ HEAP[offset|7];
+            S8 = S8 ^ HEAP[offset|8];
+            S9 = S9 ^ HEAP[offset|9];
+            SA = SA ^ HEAP[offset|10];
+            SB = SB ^ HEAP[offset|11];
+            SC = SC ^ HEAP[offset|12];
+            SD = SD ^ HEAP[offset|13];
+            SE = SE ^ HEAP[offset|14];
+            SF = SF ^ HEAP[offset|15];
+
+            _encrypt_128();
+
+            HEAP[offset|0] = S0;
+            HEAP[offset|1] = S1;
+            HEAP[offset|2] = S2;
+            HEAP[offset|3] = S3;
+            HEAP[offset|4] = S4;
+            HEAP[offset|5] = S5;
+            HEAP[offset|6] = S6;
+            HEAP[offset|7] = S7;
+            HEAP[offset|8] = S8;
+            HEAP[offset|9] = S9;
+            HEAP[offset|10] = SA;
+            HEAP[offset|11] = SB;
+            HEAP[offset|12] = SC;
+            HEAP[offset|13] = SD;
+            HEAP[offset|14] = SE;
+            HEAP[offset|15] = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+        }
+    }
+
+    // offset, length — multiple of 16
+    function cbc_decrypt ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        var iv0 = 0, iv1 = 0, iv2 = 0, iv3 = 0, iv4 = 0, iv5 = 0, iv6 = 0, iv7 = 0, iv8 = 0, iv9 = 0, ivA = 0, ivB = 0, ivC = 0, ivD = 0, ivE = 0, ivF = 0;
+
+        if ( (offset & 15) != 0 || (length & 15) != 0 )
+            return -1;
+
+        iv0 = S0; iv1 = S1; iv2 = S2; iv3 = S3; iv4 = S4; iv5 = S5; iv6 = S6; iv7 = S7; iv8 = S8; iv9 = S9; ivA = SA; ivB = SB; ivC = SC; ivD = SD; ivE = SE; ivF = SF;
+
+        while ( (length|0) > 0 ) {
+            S0 = HEAP[offset|0];
+            S1 = HEAP[offset|1];
+            S2 = HEAP[offset|2];
+            S3 = HEAP[offset|3];
+            S4 = HEAP[offset|4];
+            S5 = HEAP[offset|5];
+            S6 = HEAP[offset|6];
+            S7 = HEAP[offset|7];
+            S8 = HEAP[offset|8];
+            S9 = HEAP[offset|9];
+            SA = HEAP[offset|10];
+            SB = HEAP[offset|11];
+            SC = HEAP[offset|12];
+            SD = HEAP[offset|13];
+            SE = HEAP[offset|14];
+            SF = HEAP[offset|15];
+
+            _decrypt_128();
+
+            S0 = S0 ^ iv0; iv0 = HEAP[offset|0];
+            S1 = S1 ^ iv1; iv1 = HEAP[offset|1];
+            S2 = S2 ^ iv2; iv2 = HEAP[offset|2];
+            S3 = S3 ^ iv3; iv3 = HEAP[offset|3];
+            S4 = S4 ^ iv4; iv4 = HEAP[offset|4];
+            S5 = S5 ^ iv5; iv5 = HEAP[offset|5];
+            S6 = S6 ^ iv6; iv6 = HEAP[offset|6];
+            S7 = S7 ^ iv7; iv7 = HEAP[offset|7];
+            S8 = S8 ^ iv8; iv8 = HEAP[offset|8];
+            S9 = S9 ^ iv9; iv9 = HEAP[offset|9];
+            SA = SA ^ ivA; ivA = HEAP[offset|10];
+            SB = SB ^ ivB; ivB = HEAP[offset|11];
+            SC = SC ^ ivC; ivC = HEAP[offset|12];
+            SD = SD ^ ivD; ivD = HEAP[offset|13];
+            SE = SE ^ ivE; ivE = HEAP[offset|14];
+            SF = SF ^ ivF; ivF = HEAP[offset|15];
+
+            HEAP[offset|0] = S0;
+            HEAP[offset|1] = S1;
+            HEAP[offset|2] = S2;
+            HEAP[offset|3] = S3;
+            HEAP[offset|4] = S4;
+            HEAP[offset|5] = S5;
+            HEAP[offset|6] = S6;
+            HEAP[offset|7] = S7;
+            HEAP[offset|8] = S8;
+            HEAP[offset|9] = S9;
+            HEAP[offset|10] = SA;
+            HEAP[offset|11] = SB;
+            HEAP[offset|12] = SC;
+            HEAP[offset|13] = SD;
+            HEAP[offset|14] = SE;
+            HEAP[offset|15] = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+        }
+
+        S0 = iv0; S1 = iv1; S2 = iv2; S3 = iv3; S4 = iv4; S5 = iv5; S6 = iv6; S7 = iv7; S8 = iv8; S9 = iv9; SA = ivA; SB = ivB; SC = ivC; SD = ivD; SE = ivE; SF = ivF;
     }
 
     return {
@@ -555,9 +874,13 @@ function aes_asm ( stdlib, foreign, buffer ) {
         _expand_key_128: _expand_key_128,
         _encrypt_128: _encrypt_128,
         _decrypt_128: _decrypt_128,
-        _init_state: _init_state,
         _test_state: _test_state,
-        _init_key_128: _init_key_128,
-        _test_key_128: _test_key_128
+        _test_key_128: _test_key_128,
+        init_state: init_state,
+        init_key_128: init_key_128,
+        ecb_encrypt: ecb_encrypt,
+        ecb_decrypt: ecb_decrypt,
+        cbc_encrypt: cbc_encrypt,
+        cbc_decrypt: cbc_decrypt,
     };
 }
