@@ -198,7 +198,7 @@ function _aes_reset ( key, options ) {
             if ( key.length !== this.KEY_SIZE )
                 throw new Error("Illegal key size");
             var str = key;
-            key = new Uint8Array(this.KEY_LENGTH);
+            key = new Uint8Array(this.KEY_SIZE);
             for ( var i = 0; i < str.length; ++i )
                 key[i] = str.charCodeAt(i);
         }
@@ -284,12 +284,18 @@ function aes_encrypt ( data ) {
 
     padding = dlen < rlen;
     rlen = 0;
-    while ( dlen > 0 ) {
+    while ( dlen >= _aes_block_size ) {
         wlen = _aes_heap_write( this.heap, data, dpos, dlen );
         dlen -= wlen;
 
-        if ( padding )
-            wlen += _aes_heap_pkcs7pad( this.heap, wlen );
+        encrypt_fn.call( this.asm, _aes_heap_start, wlen );
+
+        result.set( this.heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
+        rlen += wlen;
+    }
+    if ( padding ) {
+        wlen = _aes_heap_write( this.heap, data, dpos, dlen );
+        wlen += _aes_heap_pkcs7pad( this.heap, wlen );
 
         encrypt_fn.call( this.asm, _aes_heap_start, wlen );
 
