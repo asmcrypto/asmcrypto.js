@@ -33,6 +33,7 @@ Index
     * [AES](#aes)
 * [Performance](#performance)
 * [Bugs & TODO](#bugs--todo)
+* [Donate](#donate)
 
 Build & Test
 ------------
@@ -179,3 +180,10 @@ Not yet implemented:
 * aes: ctr, ccm, gcm,
 * scrypt,
 * rsa, dsa, ecdsa.
+
+Donate
+------
+
+If you like this stuff feel free to donate some funds to:
+* [My Flattr account](https://flattr.com/submit/auto?user_id=vibornoff&url=https%3A%2F%2Fgithub.com%2Fvibornoff%2Fasmcrypto.js&title=asmCrypto.js&language=en_US&&category=software)
+* or Bitcoin address `1CiGzP1EFLTftqkfvVtbwvZ9Koiuoc4FSC`
