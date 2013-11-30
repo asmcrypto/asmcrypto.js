@@ -158,7 +158,104 @@ TODO
 
 ### AES
 
-TODO
+The Advanced Encryption Standard
+
+#### Static methods and constants
+
+##### AES.BLOCK_SIZE = 16
+
+##### AES.encrypt( data, key, options )
+
+Shorthand for `staticAesCbcInstance.reset(key, options).encrypt(input).result`.
+
+Encrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Additional `options` object can be passed to overried default settings ([see below](#aesencrypt-data-options-)).
+
+Returns encrypted data as `Uint8Array`.
+
+##### AES.decrypt( data, key, options )
+
+Shorthand for `staticAesCbcInstance.reset(key, options).dencrypt(input).result`.
+
+Decrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Additional `options` object can be passed to overried default settings ([see below](#aesdecrypt-data-options-)).
+
+Returns decrypted data as `Uint8Array` object.
+
+#### Constructors
+
+##### ECB_AES( key, options )
+
+Constructs an instance of AES cryptor in ECB mode.
+
+**Attention! Beware of using this mode to encrypt low-enthropy data. Read [wiki article about ECB mode](http://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Electronic_codebook_.28ECB.29) before you decide to use it.**
+
+If `key` is supplied creates new key schedule, `key` can be either a binary string or `Uint8Array` object or `ArrayBuffer` object.
+
+Additional `options` object can be passed:
+* `heapSize` — asm.js heap size to allocate for cryptor, must be multiple of 4096, default is 4096;
+* `padding` — boolean value to turn on/off PKCS#7 padding, default is `true`.
+
+##### CBC_AES( key, options )
+
+Constructs an instance of AES cryptor in CBC mode.
+
+If `key` is supplied creates new key schedule, `key` can be either a binary string or `Uint8Array` object or `ArrayBuffer` object.
+
+Additional `options` object can be passed:
+* `heapSize` — asm.js heap size to allocate for cryptor, must be multiple of 4096, default is 4096;
+* `iv` — initialization vector to be used, binary string/`Uint8Array`/`ArrayBuffer`, when ommited default all-zero-value is used;
+* `padding` — boolean value to turn on/off PKCS#7 padding, default is `true`.
+
+#### Methods and properties
+
+##### aes.BLOCK_SIZE = 16
+
+##### aes.KEY_SIZE = 16
+
+##### aes.result
+
+Encryption/decryption operation result as `Uint8Array` object.
+
+##### aes.reset( key, options )
+
+Reset internal state. Both arguments are optional.
+
+If `key` is supplied, creates new key schedule.
+
+If either `options.iv` or `options.padding` is supplied, replaces old/default values to new ones.
+
+Returns `this` object so method calls could be chained.
+
+Throws
+* `ReferenceError("Illegal argument")` in case of bizzarie stuff supplied instead of key
+* `Error("Illegal key size")` — obvious ☺
+
+##### aes.encrypt( data, options )
+
+Encrypts the supplied `data`, it can be either binary string or `Uint8Array` object or `ArrayBuffer` object.
+
+Additional `options` object can be passed to override `iv` or `padding` settings.
+
+Returns `this` object so method calls could be chained.
+
+Throws
+* `ReferenceError("Illegal argument")` in case of bizzarie stuff supplied instead of data
+* `Error("Data length must be multiple of …")` when padding is turned off and data length isn't multiple of block size
+
+##### aes.decrypt( data, options )
+
+Decrypts the supplied `data`, it can be either binary string or `Uint8Array` object or `ArrayBuffer` object.
+
+Additional `options` object can be passed to override `iv` or `padding` settings.
+
+Returns `this` object so method calls could be chained.
+
+Throws
+* `ReferenceError("Illegal argument")` in case of bizzarie stuff supplied instead of data
+* `Error("Data length must be multiple of …")` when data length isn't multiple of block size
 
 Performance
 -----------
@@ -185,5 +282,5 @@ Donate
 ------
 
 If you like this stuff feel free to donate some funds to:
+* My Bitcoin address `1CiGzP1EFLTftqkfvVtbwvZ9Koiuoc4FSC`
 * [My Flattr account](https://flattr.com/submit/auto?user_id=vibornoff&url=https%3A%2F%2Fgithub.com%2Fvibornoff%2Fasmcrypto.js&title=asmCrypto.js&language=en_US&&category=software)
-* or Bitcoin address `1CiGzP1EFLTftqkfvVtbwvZ9Koiuoc4FSC`
