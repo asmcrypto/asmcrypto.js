@@ -30,6 +30,7 @@ Index
     * [HMAC-SHA256](#hmac_sha256)
     * [PBKDF2](#pbkdf2)
     * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
+    * [AES](#aes)
 * [Performance](#performance)
 * [Bugs & TODO](#bugs--todo)
 
@@ -154,6 +155,10 @@ TODO
 
 TODO
 
+### AES
+
+TODO
+
 Performance
 -----------
 
@@ -162,7 +167,8 @@ This stuff is pretty fast under Firefox and Chrome.
 See benchmarks:
 * [SHA256](http://jsperf.com/sha256/30),
 * [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
-* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2).
+* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2),
+* [AES](http://jsperf.com/aes).
 
 Bugs & TODO
 -----------
@@ -170,6 +176,6 @@ Bugs & TODO
 * PBKDF2-HMAC-SHA256: probable OOB write during first iteration of a block
 
 Not yet implemented:
-* aes, cbc, ctr, gcm,
+* aes: ctr, ccm, gcm,
 * scrypt,
 * rsa, dsa, ecdsa.
