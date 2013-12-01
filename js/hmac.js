@@ -1,11 +1,11 @@
 function hmac_constructor ( password, options ) {
     options = options || {};
-    options.hashFunction = options.hashFunction || sha256_constructor;
+    options.hashFunction = options.hashFunction || new sha256_constructor(options);
 
     if ( !options.hashFunction.HASH_SIZE )
-        throw new ReferenceError("'hashFunction' supplied doesn't seem to be a valid hash function");
+        throw new TypeError("'hashFunction' supplied doesn't seem to be a valid hash function");
 
-    this.hash = new options.hashFunction(options);
+    this.hash = options.hashFunction;
     this.BLOCK_SIZE = this.hash.BLOCK_SIZE;
     this.HMAC_SIZE = this.hash.HASH_SIZE;
 
@@ -19,9 +19,6 @@ function hmac_constructor ( password, options ) {
 }
 
 function hmac_sha256_constructor ( password, options ) {
-    options = options || {};
-    options.hashFunction = sha256_constructor;
-
     hmac_constructor.call( this, password, options );
 
     return this;
@@ -55,7 +52,7 @@ function _hmac_key ( hash, password ) {
         }
     }
     else {
-        throw new ReferenceError("Illegal argument");
+        throw new TypeError("password isn't of expected type");
     }
 
     return key;
@@ -63,7 +60,7 @@ function _hmac_key ( hash, password ) {
 
 function hmac_reset ( password ) {
     if ( this.key === null && typeof password !== 'string' && !password )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("no key is associated with the instance");
 
     this.result = null;
     this.hash.reset();
@@ -82,7 +79,7 @@ function hmac_reset ( password ) {
 
 function hmac_sha256_reset ( password ) {
     if ( this.key === null && typeof password !== 'string' && !password )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("no key is associated with the instance");
 
     this.result = null;
     this.hash.reset();
@@ -116,8 +113,11 @@ function hmac_sha256_reset ( password ) {
 }
 
 function hmac_process ( data ) {
-    if ( this.key === null || this.result !== null )
-        throw new Error("Illegal state");
+    if ( this.key === null )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
 
     this.hash.process(data);
 
@@ -125,23 +125,29 @@ function hmac_process ( data ) {
 }
 
 function hmac_finish () {
-    if ( this.key === null || this.result !== null )
-        throw new Error("Illegal state");
+    if ( this.key === null )
+        throw new IllegalStateError("no key is associated with the instance");
 
-    var inner_result = this.hash.finish().asArrayBuffer();
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    var inner_result = this.hash.finish().result;
 
     var opad = new Uint8Array(this.key);
     for ( var i = 0; i < opad.length; ++i )
         opad[i] ^= 0x5c;
 
-    this.result = new Uint8Array( this.hash.reset().process(opad).process(inner_result).finish().asArrayBuffer() );
+    this.result = this.hash.reset().process(opad).process(inner_result).finish().result;
 
     return this;
 }
 
 function hmac_sha256_finish () {
-    if ( this.key === null || this.result !== null )
-        throw new Error("Illegal state");
+    if ( this.key === null )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
 
     this.hash.asm.hmac_finish( this.hash.pos, this.hash.len, 0 );
 
@@ -175,7 +181,7 @@ hmac_sha256_constructor.BLOCK_SIZE = sha256_constructor.BLOCK_SIZE;
 hmac_sha256_constructor.HMAC_SIZE = sha256_constructor.HASH_SIZE;
 
 // static methods
-var hmac_sha256_instance = new hmac_sha256_constructor;
+var hmac_sha256_instance = new hmac_sha256_constructor( undefined, { hashFunction: sha256_instance } );
 hmac_sha256_constructor.hex = function ( password, data ) { return hmac_sha256_instance.reset(password).process(data).finish().asHex() };
 hmac_sha256_constructor.base64 = function ( password, data ) { return hmac_sha256_instance.reset(password).process(data).finish().asBase64() };
 

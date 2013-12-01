@@ -156,14 +156,14 @@ var _aes_block_size = 16;
 var _ecb_aes_mode = 'ecb';
 var _cbc_aes_mode = 'cbc';
 
-var _aes_default_iv = new Uint8Array( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+var _aes_default_iv = new Uint8Array(_aes_block_size);
 
 function _aes_constructor ( key, options ) {
     options = options || {};
     options.heapSize = options.heapSize || 4096;
 
-    if ( options.heapSize % 4096 !== 0 )
-        throw new Error("heapSize must be a multiple of 4096");
+    if ( options.heapSize <= 0 || options.heapSize % 4096 )
+        throw new IllegalArgumentError("heapSize must be a positive number and multiple of 4096");
 
     this.heap = new Uint8Array(options.heapSize);
     this.heap.set(_aes_tables);
@@ -179,44 +179,29 @@ function _aes_constructor ( key, options ) {
     );
 }
 
-function _aes_reset ( key, options ) {
-    options = options || {};
-
+function _aes_reset ( key ) {
     this.result = null;
 
     if ( key !== undefined ) {
-        if ( key instanceof Uint8Array ) {
-            if ( key.byteLength !== this.KEY_SIZE )
-                throw new Error("Illegal key size");
-        }
-        else if ( key instanceof ArrayBuffer ) {
-            if ( key.byteLength !== this.KEY_SIZE )
-                throw new Error("Illegal key size");
+        if ( key instanceof ArrayBuffer || key instanceof Uint8Array ) {
             key = new Uint8Array(key);
         }
         else if ( typeof key === 'string' ) {
-            if ( key.length !== this.KEY_SIZE )
-                throw new Error("Illegal key size");
             var str = key;
-            key = new Uint8Array(this.KEY_SIZE);
+            key = new Uint8Array(str.length);
             for ( var i = 0; i < str.length; ++i )
                 key[i] = str.charCodeAt(i);
         }
         else {
-            throw new ReferenceError("Illegal argument");
+            throw new TypeError("key isn't of expected type");
         }
+
+        if ( key.byteLength !== this.KEY_SIZE )
+            throw new IllegalArgumentError("key isn't of expected size");
 
         this.key = key;
-    }
 
-    if ( this.key ) {
-        switch ( this.KEY_SIZE ) {
-            case 16:
-                this.asm.init_key_128.apply( this.asm, this.key );
-                break;
-            default:
-                throw new Error("Not yet implemented");
-        }
+        this.asm.init_key_128.apply( this.asm, this.key );
     }
 
     return this;
@@ -235,18 +220,9 @@ function _aes_heap_write ( heap, data, dpos, dlen ) {
     return wlen;
 }
 
-function _aes_heap_pkcs7pad ( heap, dlen ) {
-    var plen = _aes_block_size - dlen % _aes_block_size;
-
-    for ( var p = 0; p < plen; ++p )
-        heap[ _aes_heap_start + dlen + p ] = plen;
-
-    return plen;
-}
-
 function aes_encrypt ( data ) {
     if ( !this.key )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("no key is associated with the instance");
 
     var dpos = 0, dlen = 0;
 
@@ -258,7 +234,7 @@ function aes_encrypt ( data ) {
         dlen = data.length;
     }
     else {
-        throw new ReferenceError("Illegal argument");
+        throw new TypeError("data isn't of expected type");
     }
 
     var rlen = _aes_block_size * Math.ceil( dlen / _aes_block_size ),
@@ -268,19 +244,14 @@ function aes_encrypt ( data ) {
         if ( padding ) rlen += _aes_block_size;
     }
     else if ( !padding ) {
-        throw new Error("Data length must be multiple of " + _aes_block_size);
+        throw new IllegalArgumentError("data length must be multiple of " + _aes_block_size);
     }
 
     var result = new Uint8Array(rlen), wlen = 0;
 
-    var encrypt_fn;
-    switch ( this.mode ) {
-        case _ecb_aes_mode:
-            encrypt_fn = this.asm.ecb_encrypt;
-            break;
-        default:
-            encrypt_fn = this.asm.cbc_encrypt;
-    }
+    var encrypt_fn = this.asm[ this.mode + '_encrypt' ];
+    if ( typeof encrypt_fn !== 'function' )
+        throw new Error("block cipher mode is unsupported");
 
     padding = dlen < rlen;
     rlen = 0;
@@ -295,7 +266,10 @@ function aes_encrypt ( data ) {
     }
     if ( padding ) {
         wlen = _aes_heap_write( this.heap, data, dpos, dlen );
-        wlen += _aes_heap_pkcs7pad( this.heap, wlen );
+
+        var plen = _aes_block_size - wlen % _aes_block_size;
+        for ( var p = 0; p < plen; ++p ) this.heap[ _aes_heap_start + wlen + p ] = plen;
+        wlen += plen;
 
         encrypt_fn.call( this.asm, _aes_heap_start, wlen );
 
@@ -331,14 +305,9 @@ function aes_decrypt ( data ) {
     var rlen = 0, wlen = 0,
         result = new Uint8Array(dlen);
 
-    var decrypt_fn;
-    switch ( this.mode ) {
-        case _ecb_aes_mode:
-            decrypt_fn = this.asm.ecb_decrypt;
-            break;
-        default:
-            decrypt_fn = this.asm.cbc_decrypt;
-    }
+    var decrypt_fn = this.asm[ this.mode + '_decrypt' ];
+    if ( typeof decrypt_fn !== 'function' )
+        throw new Error("block cipher mode is unsupported");
 
     while ( dlen > 0 ) {
         wlen = _aes_heap_write( this.heap, data, dpos, dlen );
@@ -399,26 +368,21 @@ function cbc_aes_reset ( key, options ) {
     if ( options.iv !== undefined ) {
         var iv = options.iv;
 
-        if ( iv instanceof Uint8Array ) {
-            if ( iv.byteLength !== _aes_block_size )
-                throw new Error("Illegal IV size");
-        }
-        else if ( iv instanceof ArrayBuffer ) {
-            if ( iv.byteLength !== _aes_block_size )
-                throw new Error("Illegal IV size");
+        if ( iv instanceof Uint8Array || iv instanceof ArrayBuffer ) {
             iv = new Uint8Array(iv);
         }
         else if ( typeof iv === 'string' ) {
-            if ( iv.length !== _aes_block_size )
-                throw new Error("Illegal key size");
             var str = iv;
-            iv = new Uint8Array(_aes_block_size);
-            for ( var i = 0; i < _aes_block_size; ++i )
+            iv = new Uint8Array(str.length);
+            for ( var i = 0; i < str.length; ++i )
                 iv[i] = str.charCodeAt(i);
         }
         else {
-            throw new ReferenceError("Illegal argument");
+            throw new TypeError("iv isn't of expected type");
         }
+
+        if ( iv.byteLength !== _aes_block_size )
+            throw new IllegalArgumentError("iv isn't of expected size");
 
         this.iv = iv;
     }

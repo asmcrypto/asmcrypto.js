@@ -1,13 +1,13 @@
 function pbkdf2_constructor ( password, options ) {
     options = options || {};
-    options.hmacFunction = options.hmacFunction || hmac_sha256_constructor;
+    options.hmacFunction = options.hmacFunction || new hmac_sha256_constructor( password, options );
     options.count = options.count || 4096;
     options.length = options.length || options.hmacFunction.HMAC_SIZE;
 
     if ( !options.hmacFunction.HMAC_SIZE )
-        throw new ReferenceError("'hmacFunction' supplied doesn't seem to be a valid HMAC function");
+        throw new TypeError("'hmacFunction' supplied doesn't seem to be a valid HMAC function");
 
-    this.hmac = new options.hmacFunction( password, options );
+    this.hmac = options.hmacFunction;
     this.count = options.count;
     this.length = options.length;
 
@@ -17,9 +17,6 @@ function pbkdf2_constructor ( password, options ) {
 }
 
 function pbkdf2_hmac_sha256_constructor ( password, options ) {
-    options = options || {};
-    options.hmacFunction = options.hmacFunction || hmac_sha256_constructor;
-
     pbkdf2_constructor.call( this, password, options );
 
     return this;
@@ -27,16 +24,18 @@ function pbkdf2_hmac_sha256_constructor ( password, options ) {
 
 function pbkdf2_reset ( password ) {
     this.result = null;
+
     this.hmac.reset(password);
+
     return this;
 }
 
 function pbkdf2_generate ( salt, count, length ) {
     if ( this.result !== null )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("state must be reset before processing new data");
 
     if ( !salt && typeof salt !== 'string' )
-        throw new ReferenceError("Illegal 'salt' value");
+        throw new IllegalArgumentError("bad 'salt' value");
 
     count = count || this.count;
     length = length || this.length;
@@ -44,6 +43,7 @@ function pbkdf2_generate ( salt, count, length ) {
     this.result = new Uint8Array(length);
 
     var blocks = Math.ceil( length / this.hmac.HMAC_SIZE );
+
     for ( var i = 1; i <= blocks; ++i ) {
         var j = ( i - 1 ) * this.hmac.HMAC_SIZE;
         var l = ( i < blocks ? 0 : length % this.hmac.HMAC_SIZE ) || this.hmac.HMAC_SIZE;
@@ -60,10 +60,10 @@ function pbkdf2_generate ( salt, count, length ) {
 
 function pbkdf2_hmac_sha256_generate ( salt, count, length ) {
     if ( this.result !== null )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("state must be reset before processing new data");
 
     if ( !salt && typeof salt !== 'string' )
-        throw new ReferenceError("Illegal 'salt' value");
+        throw new IllegalArgumentError("bad 'salt' value");
 
     count = count || this.count;
     length = length || this.length;
@@ -103,7 +103,7 @@ pbkdf2_hmac_sha256_prototype.asBinaryString = resultAsBinaryString;
 pbkdf2_hmac_sha256_prototype.asArrayBuffer = resultAsArrayBuffer;
 
 // static methods
-var pbkdf2_hmac_sha256_instance = new pbkdf2_hmac_sha256_constructor;
+var pbkdf2_hmac_sha256_instance = new pbkdf2_hmac_sha256_constructor( undefined, { hmacFunction: hmac_sha256_instance } );
 pbkdf2_hmac_sha256_constructor.hex = function ( password, salt, count, length ) { return pbkdf2_hmac_sha256_instance.reset(password).generate(salt, count, length).asHex() };
 pbkdf2_hmac_sha256_constructor.base64 = function ( password, salt, count, length ) { return pbkdf2_hmac_sha256_instance.reset(password).generate(salt, count, length).asBase64() };
 

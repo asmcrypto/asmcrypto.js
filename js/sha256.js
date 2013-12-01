@@ -1,19 +1,22 @@
+var _sha256_block_size = 64,
+    _sha256_hash_size = 32;
+
 function sha256_constructor ( options ) {
     options = options || {};
     options.heapSize = options.heapSize || 4096
 
-    if ( options.heapSize % 4096 > 0 )
-        throw new Error("heapSize must be a multiple of 4096");
+    if ( options.heapSize <= 0 || options.heapSize % 4096 )
+        throw new IllegalArgumentError("heapSize must be a positive number and multiple of 4096");
 
-    this.heap = new Uint8Array( options.heapSize || 4096 );
+    this.heap = new Uint8Array(options.heapSize);
     this.pos = 0;
     this.len = 0;
 
     this.asm = sha256_asm( window, null, this.heap.buffer );
     this.asm.reset();
 
-    this.BLOCK_SIZE = 64;
-    this.HASH_SIZE = 32;
+    this.BLOCK_SIZE = _sha256_block_size;
+    this.HASH_SIZE = _sha256_hash_size;
 
     this.result = null;
 }
@@ -30,20 +33,19 @@ function sha256_reset () {
 
 function sha256_process ( data ) {
     if ( this.result !== null )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("state must be reset before processing new data");
 
-    var dpos, dlen, clen;
+    var dpos = 0, dlen = 0, clen = 0;
 
     if ( data instanceof ArrayBuffer || data instanceof Uint8Array ) {
         dpos = data.byteOffset||0;
         dlen = data.byteLength;
     }
     else if ( typeof data === 'string' ) {
-        dpos = 0;
         dlen = data.length;
     }
     else {
-        throw new ReferenceError("Illegal argument");
+        throw new TypeError("data isn't of expected type");
     }
 
     while ( dlen > 0 ) {
@@ -74,12 +76,12 @@ function sha256_process ( data ) {
 
 function sha256_finish () {
     if ( this.result !== null )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("state must be reset before processing new data");
 
     this.asm.finish( this.pos, this.len, 0 );
 
-    this.result = new Uint8Array(this.HASH_SIZE);
-    this.result.set( this.heap.subarray( 0, this.HASH_SIZE ) );
+    this.result = new Uint8Array(_sha256_hash_size);
+    this.result.set( this.heap.subarray( 0, _sha256_hash_size ) );
 
     this.pos = 0;
     this.len = 0;
@@ -98,8 +100,8 @@ sha256_prototype.asBinaryString = resultAsBinaryString;
 sha256_prototype.asArrayBuffer = resultAsArrayBuffer;
 
 // static constants
-sha256_constructor.BLOCK_SIZE = 64;
-sha256_constructor.HASH_SIZE = 32;
+sha256_constructor.BLOCK_SIZE = _sha256_block_size;
+sha256_constructor.HASH_SIZE = _sha256_hash_size;
 
 // static methods
 var sha256_instance = new sha256_constructor;

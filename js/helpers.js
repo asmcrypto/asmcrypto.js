@@ -1,15 +1,21 @@
 "use strict";
 
+function IllegalStateError () { Error.apply( this, arguments ); }
+IllegalStateError.prototype = new Error;
+
+function IllegalArgumentError () { Error.apply( this, arguments ); }
+IllegalArgumentError.prototype = new Error;
+
 function resultAsArrayBuffer () {
     if ( this.result === null )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("no result yet");
 
     return this.result.buffer;
 }
 
 function resultAsBinaryString () {
     if ( this.result === null )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("no result yet");
 
     var s = '';
     for ( var i = 0; i < this.result.length; i++ )
@@ -20,7 +26,7 @@ function resultAsBinaryString () {
 
 function resultAsHex () {
     if ( this.result === null )
-        throw new Error("Illegal state");
+        throw new IllegalStateError("no result yet");
 
     var s = '', h;
     for ( var i = 0; i < this.result.length; i++ ) {
