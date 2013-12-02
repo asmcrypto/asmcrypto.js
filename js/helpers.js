@@ -18,7 +18,7 @@ function resultAsBinaryString () {
         throw new IllegalStateError("no result yet");
 
     var s = '';
-    for ( var i = 0; i < this.result.length; i++ )
+    for ( var i = 0; i < this.result.byteLength; i++ )
         s += String.fromCharCode( this.result[i] );
 
     return s;
@@ -29,7 +29,7 @@ function resultAsHex () {
         throw new IllegalStateError("no result yet");
 
     var s = '', h;
-    for ( var i = 0; i < this.result.length; i++ ) {
+    for ( var i = 0; i < this.result.byteLength; i++ ) {
         h = this.result[i].toString(16);
         if ( h.length < 2 ) s += '0';
         s += h;
@@ -39,6 +39,6 @@ function resultAsHex () {
 }
 
 function resultAsBase64 () {
-    var s = resultAsBinaryString();
+    var s = resultAsBinaryString.call(this);
     return btoa(s);
 }
