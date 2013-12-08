@@ -23,6 +23,7 @@ Add `<script src="path/to/asmcrypto.js"></script>` into your page.
 Index
 -----
 
+* [Download] (#download)
 * [Build & Test](#build--test)
 * [API Reference](#api-reference)
     * [SHA256](#sha256)
@@ -34,6 +35,13 @@ Index
 * [Performance](#performance)
 * [Bugs & TODO](#bugs--todo)
 * [Donate](#donate)
+
+Download
+--------
+
+* [Compressed JS file](http://vibornoff.com/asmcrypto.js) ~56KB,
+* [Source Map file](http://vibornoff.com/asmcrypto.js.map) ~33KB,
+* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) ~53KB.
 
 Build & Test
 ------------
@@ -67,11 +75,11 @@ Implementation of Secure Hash 2 algorithm with 256-bit output length.
 
 ##### SHA256.hex(input)
 
-Same as `staticInstance.reset().process(input).finish().asHex()` (see below).
+Same as `staticSha256Instance.reset().process(input).finish().asHex()` (see below).
 
 ##### SHA256.base64(input)
 
-Same as `staticInstance.reset().process(input).finish().asBase64()` (see below).
+Same as `staticSha256Instance.reset().process(input).finish().asBase64()` (see below).
 
 #### Constructor
 
@@ -79,11 +87,8 @@ Same as `staticInstance.reset().process(input).finish().asBase64()` (see below).
 
 Constructs new instance of `SHA256` object.
 
-Optional `options` object can be passed. When ommited, next defaults are used:
-
-    {
-        heapSize: 4096  // must be a multiple of 4096 as asm.js requires
-    }
+Advanced `options`:
+* `heapSize` — asm.js heap size to allocate for hasher, must be multiple of 4096, default is 4096.
 
 #### Methods and properties
 
@@ -99,46 +104,46 @@ Resets internal state into initial.
 
 Updates internal state with the supplied `input` data.
 
-Input data can be a string or instance of `ArrayBuffer` or `ArrayBufferView`.
+Input data can be a string or instance of `ArrayBuffer` or `Uint8Array`.
 
 Throws
-* `new Error("Illegal state")` when trying to update `finish`'ed state,
-* `new ReferenceError("Illegal argument")` when something ridiculous is supplied as input data.
+* `IllegalStateError` when trying to update `finish`'ed state,
+* `TypeError` when something ridiculous is supplied as input data.
 
 ##### sha256.finish()
 
 Finishes hash calculation.
 
 Throws
-* `new Error("Illegal state")` when trying to finish already `finish`'ed state,
+* `IllegalStateError` when trying to finish already `finish`'ed state,
 
 ##### sha256.asHex()
 
 Returns string representing hex-encoded message digest.
 
 Throws
-* `new Error("Illegal state")` when trying to get non-`finish`'ed state.
+* `IllegalStateError` when trying to get non-`finish`'ed state.
 
 ##### sha256.asBase64()
 
 Returns string representing base64-encoded message digest.
 
 Throws
-* `new Error("Illegal state")` when trying to get non-`finish`'ed state.
+* `IllegalStateError` when trying to get non-`finish`'ed state.
 
 ##### sha256.asArrayBuffer()
 
 Returns raw message digest as an `ArrayBuffer` object.
 
 Throws
-* `new Error("Illegal state")` when trying to get non-`finish`'ed state.
+* `IllegalStateError` when trying to get non-`finish`'ed state.
 
 ##### sha256.asBinaryString()
 
 Returns raw message digest as a binary string.
 
 Throws
-* `new Error("Illegal state")` when trying to get non-`finish`'ed state.
+* `IllegalStateError` when trying to get non-`finish`'ed state.
 
 ### HMAC
 
@@ -160,6 +165,8 @@ TODO
 
 The Advanced Encryption Standard
 
+TODO progressive ciphering docs
+
 #### Static methods and constants
 
 ##### AES.BLOCK_SIZE = 16
@@ -170,7 +177,7 @@ Shorthand for `staticAesCbcInstance.reset(key, options).encrypt(input).result`.
 
 Encrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Additional `options` object can be passed to overried default settings ([see below](#aesencrypt-data-options-)).
+Additional `options` object can be passed to override default settings ([see below](#aesencrypt-data-options-)).
 
 Returns encrypted data as `Uint8Array`.
 
@@ -180,34 +187,50 @@ Shorthand for `staticAesCbcInstance.reset(key, options).dencrypt(input).result`.
 
 Decrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Additional `options` object can be passed to overried default settings ([see below](#aesdecrypt-data-options-)).
+Additional `options` object can be passed to override default settings ([see below](#aesdecrypt-data-options-)).
 
 Returns decrypted data as `Uint8Array` object.
 
 #### Constructors
 
-##### ECB_AES( key, options )
-
-Constructs an instance of AES cryptor in ECB mode.
-
-**Attention! Beware of using this mode to encrypt low-enthropy data. Read [wiki article about ECB mode](http://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Electronic_codebook_.28ECB.29) before you decide to use it.**
-
-If `key` is supplied creates new key schedule, `key` can be either a binary string or `Uint8Array` object or `ArrayBuffer` object.
-
-Additional `options` object can be passed:
-* `heapSize` — asm.js heap size to allocate for cryptor, must be multiple of 4096, default is 4096;
-* `padding` — boolean value to turn on/off PKCS#7 padding, default is `true`.
-
 ##### CBC_AES( key, options )
 
-Constructs an instance of AES cryptor in CBC mode.
+Constructs an instance of AES cipher in CBC mode.
 
 If `key` is supplied creates new key schedule, `key` can be either a binary string or `Uint8Array` object or `ArrayBuffer` object.
 
 Additional `options` object can be passed:
-* `heapSize` — asm.js heap size to allocate for cryptor, must be multiple of 4096, default is 4096;
-* `iv` — initialization vector to be used, binary string/`Uint8Array`/`ArrayBuffer`, when ommited default all-zero-value is used;
+* `iv` — initialization vector to be used, binary string/`Uint8Array`/`ArrayBuffer`, when ommited default all-zeros-value is used;
 * `padding` — boolean value to turn on/off PKCS#7 padding, default is `true`.
+
+Advanced options:
+* `heapSize` — asm.js heap size to allocate for cipher, must be multiple of 4096, default is 4096.
+
+##### CCM_AES( key, options )
+
+Constructs an instance of AES cipher in CCM mode.
+
+Due to JS limitations (counter is 32-bit unsigned) maximum encrypted message length is limited to near 64 GiB ( 2^36 - 16 )
+per `nonce`-`key` pair. That also limits `lengthSize` parameter maximum value to 5 (not 8 as described in RFC3610).
+
+Additional authenticated data `adata` maximum length is limited to 65279 bytes ( 2^16 - 2^8 ),
+wich is considered enough for the most of use-cases.
+
+If `key` is supplied creates new key schedule, `key` can be either a binary string or `Uint8Array` object or `ArrayBuffer` object.
+
+Additional `options` object can be passed:
+* `tagSize` — size of the authentication tag, allowed valued are 4, 6, 8, 12, 16 (default);
+* `lengthSize` — message length field size, allowed values are 2…5, default is 4;
+* `nonce` — nonce of length `(15-lengthSize)` to be used, **same nonce must not be used more than once with the same key**, can be a binary string or `Uint8Array`/`ArrayBuffer` object;
+* `adata` — additional authenticated data of length no more than 65279 bytes, can be a binary string or `Uint8Array`/`ArrayBuffer` object.
+
+Advanced options:
+* `heapSize` — asm.js heap size to allocate for cipher, must be multiple of 4096, default is 4096.
+
+Progressive ciphering options:
+* `iv` — initialization vector to be used, a binary string or `Uint8Array`/`ArrayBuffer` object, when ommited default all-zeros-value is used;
+* `counter` — initial internal counter value, default is 1,
+* `dataLength` — length of the ciphered data, maximum value is 68719476720 bytes.
 
 #### Methods and properties
 
@@ -217,7 +240,7 @@ Additional `options` object can be passed:
 
 ##### aes.result
 
-Encryption/decryption operation result as `Uint8Array` object.
+Cipher operation result as `Uint8Array` object.
 
 ##### aes.reset( key, options )
 
@@ -225,37 +248,39 @@ Reset internal state. Both arguments are optional.
 
 If `key` is supplied, creates new key schedule.
 
-If either `options.iv` or `options.padding` is supplied, replaces old/default values to new ones.
+If either `options.iv` or `options.padding` is supplied, replaces defaults.
 
 Returns `this` object so method calls could be chained.
 
 Throws
-* `ReferenceError("Illegal argument")` in case of bizzarie stuff supplied instead of key
-* `Error("Illegal key size")` — obvious ☺
+* `TypeError` when something ridiculous is supplied instead of the key/iv,
+* `IllegalArgumentError` when the key/iv of illegal or unsupported size is supplied.
 
 ##### aes.encrypt( data, options )
 
 Encrypts the supplied `data`, it can be either binary string or `Uint8Array` object or `ArrayBuffer` object.
 
-Additional `options` object can be passed to override `iv` or `padding` settings.
+Additional `options` object can be passed to override corresponding settings.
 
 Returns `this` object so method calls could be chained.
 
 Throws
-* `ReferenceError("Illegal argument")` in case of bizzarie stuff supplied instead of data
-* `Error("Data length must be multiple of …")` when padding is turned off and data length isn't multiple of block size
+* `TypeError` in case of bizzarie stuff supplied instead of the data,
+* `IllegalArgumentError` when padding is turned off and data length isn't multiple of block size,
+* `IllegalStateError` when trying to encrypt data without the key being initialized prior.
 
 ##### aes.decrypt( data, options )
 
 Decrypts the supplied `data`, it can be either binary string or `Uint8Array` object or `ArrayBuffer` object.
 
-Additional `options` object can be passed to override `iv` or `padding` settings.
+Additional `options` object can be passed to override corresponding settings.
 
 Returns `this` object so method calls could be chained.
 
 Throws
-* `ReferenceError("Illegal argument")` in case of bizzarie stuff supplied instead of data
-* `Error("Data length must be multiple of …")` when data length isn't multiple of block size
+* `TypeError` in case of bizzarie stuff supplied instead of data,
+* `IllegalArgumentError` when data length isn't multiple of block size,
+* `IllegalStateError` when trying to decrypt data without the key being initialized prior.
 
 Performance
 -----------
@@ -263,7 +288,7 @@ Performance
 This stuff is pretty fast under Firefox and Chrome.
 
 See benchmarks:
-* [SHA256](http://jsperf.com/sha256/30),
+* [SHA256](http://jsperf.com/sha256/34),
 * [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
 * [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2),
 * [AES](http://jsperf.com/aes).
@@ -271,10 +296,12 @@ See benchmarks:
 Bugs & TODO
 -----------
 
-* PBKDF2-HMAC-SHA256: probable OOB write during first iteration of a block
+* PBKDF2-HMAC-SHA256: probable OOB write during first iteration of a block;
+* AES: testing of progressive ciphering needed
+* Moar docs needed ☺
 
 Not yet implemented:
-* aes: ctr, ccm, gcm,
+* aes-gcm,
 * scrypt,
 * rsa, dsa, ecdsa.
 

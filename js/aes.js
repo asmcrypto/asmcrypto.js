@@ -150,10 +150,6 @@ var _aes_heap_start = 0x800; // multiple of 16
 
 var _aes_block_size = 16;
 
-var _ecb_aes_mode = 'ecb',
-    _cbc_aes_mode = 'cbc',
-    _ccm_aes_mode = 'ccm';
-
 var _aes_zero_iv = new Uint8Array(_aes_block_size);
 
 function _aes_constructor ( key, options ) {
@@ -181,6 +177,8 @@ function _aes_constructor ( key, options ) {
 function _aes_reset ( key ) {
     this.result = null;
 
+    var asm = this.asm;
+
     if ( key !== undefined ) {
         if ( key instanceof ArrayBuffer || key instanceof Uint8Array ) {
             key = new Uint8Array(key);
@@ -195,15 +193,44 @@ function _aes_reset ( key ) {
             throw new TypeError("expected key type");
         }
 
-        if ( key.byteLength !== this.KEY_SIZE )
+        if ( key.length !== this.KEY_SIZE )
             throw new IllegalArgumentError("illegal key size");
 
         this.key = key;
 
-        this.asm.init_key_128.apply( this.asm, this.key );
+        asm.init_key_128.apply( asm, key );
     }
 
     return this;
+}
+
+function _aes_init_iv ( iv ) {
+    var asm = this.asm;
+
+    if ( iv !== undefined ) {
+        if ( iv instanceof Uint8Array || iv instanceof ArrayBuffer ) {
+            iv = new Uint8Array(iv);
+        }
+        else if ( typeof iv === 'string' ) {
+            var str = iv;
+            iv = new Uint8Array(str.length);
+            for ( var i = 0; i < str.length; ++i )
+                iv[i] = str.charCodeAt(i);
+        }
+        else {
+            throw new TypeError("unexpected iv type");
+        }
+
+        if ( iv.length !== _aes_block_size )
+            throw new IllegalArgumentError("illegal iv size");
+
+        this.iv = iv;
+        asm.init_state.apply( asm, iv );
+    }
+    else {
+        this.iv = null;
+        asm.init_state.apply( asm, _aes_zero_iv );
+    }
 }
 
 function _aes_heap_write ( heap, hpos, data, dpos, dlen ) {
@@ -223,141 +250,13 @@ function _aes_heap_write ( heap, hpos, data, dpos, dlen ) {
     return wlen;
 }
 
-function aes_encrypt ( data ) {
-    if ( !this.key )
-        throw new IllegalStateError("no key is associated with the instance");
-
-    var dpos = 0, dlen = 0;
-
-    if ( data instanceof ArrayBuffer || data instanceof Uint8Array ) {
-        dpos = data.byteOffset||0;
-        dlen = data.byteLength;
-    }
-    else if ( typeof data === 'string' ) {
-        dlen = data.length;
-    }
-    else {
-        throw new TypeError("unexpected data type");
-    }
-
-    var rlen = _aes_block_size * Math.ceil( dlen / _aes_block_size ),
-        padding = this.padding;
-
-    if ( dlen % _aes_block_size === 0 ) {
-        if ( padding ) rlen += _aes_block_size;
-    }
-    else if ( !padding ) {
-        throw new IllegalArgumentError("data length must be a multiple of " + _aes_block_size);
-    }
-
-    var result = new Uint8Array(rlen), wlen = 0;
-
-    var encrypt_fn = this.asm[ this.mode + '_encrypt' ];
-    if ( typeof encrypt_fn !== 'function' )
-        throw new Error("unsupported block cipher mode");
-
-    padding = dlen < rlen;
-    rlen = 0;
-    while ( dlen >= _aes_block_size ) {
-        wlen = _aes_heap_write( this.heap, _aes_heap_start, data, dpos, dlen );
-        dpos += wlen;
-        dlen -= wlen;
-
-        encrypt_fn.call( this.asm, _aes_heap_start, wlen );
-
-        result.set( this.heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
-        rlen += wlen;
-    }
-    if ( padding ) {
-        wlen = _aes_heap_write( this.heap, _aes_heap_start, data, dpos, dlen );
-
-        var plen = _aes_block_size - wlen % _aes_block_size;
-        for ( var p = 0; p < plen; ++p ) this.heap[ _aes_heap_start + wlen + p ] = plen;
-        wlen += plen;
-
-        encrypt_fn.call( this.asm, _aes_heap_start, wlen );
-
-        result.set( this.heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
-    }
-
-    this.result = result;
-
-    return this;
-}
-
-function aes_decrypt ( data ) {
-    if ( !this.key )
-        throw new Error("Illegal state");
-
-    var dpos = 0, dlen = 0;
-
-    if ( data instanceof ArrayBuffer || data instanceof Uint8Array ) {
-        dpos = data.byteOffset||0;
-        dlen = data.byteLength;
-    }
-    else if ( typeof data === 'string' ) {
-        dlen = data.length;
-    }
-    else {
-        throw new TypeError("unexpected data type");
-    }
-
-    if ( dlen % _aes_block_size !== 0 )
-        throw new IllegalArgumentError("data length must be a multiple of " + _aes_block_size);
-
-    var rlen = 0, wlen = 0,
-        result = new Uint8Array(dlen);
-
-    var decrypt_fn = this.asm[ this.mode + '_decrypt' ];
-    if ( typeof decrypt_fn !== 'function' )
-        throw new Error("unsupported block cipher mode");
-
-    while ( dlen > 0 ) {
-        wlen = _aes_heap_write( this.heap, _aes_heap_start, data, dpos, dlen );
-        dpos += wlen;
-        dlen -= wlen;
-
-        decrypt_fn.call( this.asm, _aes_heap_start, wlen );
-
-        result.set( this.heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
-        rlen += wlen;
-    }
-
-    if ( this.padding ) {
-        var pad = result[ rlen - 1 ];
-        result = result.subarray( 0, rlen - pad );
-    }
-
-    this.result = result;
-
-    return this;
-}
-
-function ecb_aes_constructor ( key, options ) {
-    this.padding = true;
-    this.mode = _ecb_aes_mode;
-
-    _aes_constructor.call( this, key, options );
-}
-
-function ecb_aes_reset ( key, options ) {
-    options = options || {};
-
-    _aes_reset.call( this, key, options );
-
-    var padding = options.padding;
-    if ( padding !== undefined ) {
-        this.padding = !!padding;
-    } else {
-        this.padding = true;
-    }
-
-    return this;
-}
+/**
+ * Cipher-block chaining (CBC)
+ */
 
 function cbc_aes_constructor ( key, options ) {
     this.padding = true;
-    this.mode = _cbc_aes_mode;
+    this.mode = 'cbc';
     this.iv = null;
 
     _aes_constructor.call( this, key, options );
@@ -368,8 +267,6 @@ function cbc_aes_reset ( key, options ) {
 
     _aes_reset.call( this, key, options );
 
-    var asm = this.asm;
-
     var padding = options.padding;
     if ( padding !== undefined ) {
         this.padding = !!padding;
@@ -377,34 +274,103 @@ function cbc_aes_reset ( key, options ) {
         this.padding = true;
     }
 
-    var iv = options.iv;
-    if ( iv !== undefined ) {
-        if ( iv instanceof Uint8Array || iv instanceof ArrayBuffer ) {
-            iv = new Uint8Array(iv);
-        }
-        else if ( typeof iv === 'string' ) {
-            var str = iv;
-            iv = new Uint8Array(str.length);
-            for ( var i = 0; i < str.length; ++i )
-                iv[i] = str.charCodeAt(i);
-        }
-        else {
-            throw new TypeError("unexpected iv type");
-        }
-
-        if ( iv.byteLength !== _aes_block_size )
-            throw new IllegalArgumentError("illegal iv size");
-
-        this.iv = iv;
-        asm.init_state.apply( asm, iv );
-    }
-    else {
-        this.iv = null;
-        asm.init_state.apply( asm, _aes_zero_iv );
-    }
+    _aes_init_iv.call( this, options.iv );
 
     return this;
 }
+
+function cbc_aes_encrypt ( data ) {
+    if ( !this.key )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    var dpos = data.byteOffset || 0,
+        dlen = data.byteLength || data.length || 0,
+        asm = this.asm,
+        heap = this.heap,
+        padding = this.padding,
+        rlen = _aes_block_size * Math.ceil( dlen / _aes_block_size ),
+        wlen = 0;
+
+    if ( dlen % _aes_block_size === 0 ) {
+        if ( padding ) rlen += _aes_block_size;
+    }
+    else if ( !padding ) {
+        throw new IllegalArgumentError("data length must be a multiple of " + _aes_block_size);
+    }
+
+    var result = new Uint8Array(rlen);
+
+    padding = dlen < rlen;
+    rlen = 0;
+    while ( dlen >= _aes_block_size ) {
+        wlen = _aes_heap_write( heap, _aes_heap_start, data, dpos, dlen );
+        dpos += wlen;
+        dlen -= wlen;
+
+        asm.cbc_encrypt.call( asm, _aes_heap_start, wlen );
+
+        result.set( heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
+        rlen += wlen;
+    }
+    if ( padding ) {
+        wlen = _aes_heap_write( heap, _aes_heap_start, data, dpos, dlen );
+
+        var plen = _aes_block_size - wlen % _aes_block_size;
+        for ( var p = 0; p < plen; ++p ) heap[ _aes_heap_start + wlen + p ] = plen;
+        wlen += plen;
+
+        asm.cbc_encrypt.call( asm, _aes_heap_start, wlen );
+
+        result.set( heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
+    }
+
+    this.result = result;
+
+    return this;
+}
+
+function cbc_aes_decrypt ( data ) {
+    if ( !this.key )
+        throw new Error("Illegal state");
+
+    var dpos = data.byteOffset || 0,
+        dlen = data.byteLength || data.length || 0,
+        asm = this.asm,
+        heap = this.heap,
+        padding = this.padding,
+        rlen = 0,
+        wlen = 0;
+
+    if ( dlen % _aes_block_size !== 0 )
+        throw new IllegalArgumentError("data length must be a multiple of " + _aes_block_size);
+
+    var result = new Uint8Array(dlen);
+
+    while ( dlen > 0 ) {
+        wlen = _aes_heap_write( heap, _aes_heap_start, data, dpos, dlen );
+        dpos += wlen;
+        dlen -= wlen;
+
+        asm.cbc_decrypt.call( asm, _aes_heap_start, wlen );
+
+        result.set( heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
+        rlen += wlen;
+    }
+
+    if ( padding ) {
+        var pad = result[ rlen - 1 ];
+        result = result.subarray( 0, rlen - pad );
+    }
+
+    this.result = result;
+
+    return this;
+}
+
+var cbc_aes_prototype = cbc_aes_constructor.prototype;
+cbc_aes_prototype.reset = cbc_aes_reset;
+cbc_aes_prototype.encrypt = cbc_aes_encrypt;
+cbc_aes_prototype.decrypt = cbc_aes_decrypt;
 
 /**
  * Counter with CBC-MAC (CCM)
@@ -416,9 +382,9 @@ function cbc_aes_reset ( key, options ) {
  * Additional authenticated data `adata` maximum length is limited to 65279 bytes ( 2^16 - 2^8 ),
  * wich is considered enough for the wast majority of use-cases.
  *
- * And one more important thing: when using cryptor for deriving of a data stream (in other
- * words when data can't be held in-memory at a whole and are processed chunk-by-chunk),
- * you have to know the `dataLength` in advance and pass that value to the cryptor options.
+ * And one more important thing: in case of progressive ciphering of a data stream (in other
+ * words when data can't be held in-memory at a whole and are ciphered chunk-by-chunk)
+ * you have to know the `dataLength` in advance and pass that value to the cipher options.
  */
 
 function _cbc_mac_process ( data ) {
@@ -439,7 +405,7 @@ var _ccm_adata_maxLength = 65279,       // 2^16 - 2^8
 
 function ccm_aes_constructor ( key, options ) {
     this.padding    = false;
-    this.mode       = _ccm_aes_mode;
+    this.mode       = 'ccm';
 
     this.tagSize    = _aes_block_size;
     this.lengthSize = 4;
@@ -491,7 +457,9 @@ function _ccm_calculate_iv () {
 function ccm_aes_reset ( key, options ) {
     options = options || {};
 
-    cbc_aes_reset.call( this, key, options );
+    _aes_reset.call( this, key, options );
+
+    _aes_init_iv.call( this, options.iv );
 
     var tagSize = options.tagSize;
     if ( tagSize !== undefined ) {
@@ -512,7 +480,7 @@ function ccm_aes_reset ( key, options ) {
         if ( typeof lengthSize !== 'number' )
             throw new TypeError("lengthSize must be a number");
 
-        if ( lengthSize < 2 || lengthSize > 6 )
+        if ( lengthSize < 2 || lengthSize > 5 )
             throw new IllegalArgumentError("illegal lengthSize value");
 
         this.lengthSize = lengthSize;
@@ -536,7 +504,7 @@ function ccm_aes_reset ( key, options ) {
             throw new TypeError("unexpected nonce type");
         }
 
-        if ( nonce.byteLength !== ( 15 - lengthSize ) )
+        if ( nonce.length !== ( 15 - lengthSize ) )
             throw new IllegalArgumentError("illegal nonce length");
 
         this.nonce = nonce;
@@ -763,43 +731,24 @@ function ccm_aes_decrypt ( data ) {
 
 var ccm_aes_prototype = ccm_aes_constructor.prototype;
 ccm_aes_prototype.reset = ccm_aes_reset;
-ccm_aes_prototype.asHex =   resultAsHex;
-ccm_aes_prototype.asBase64 = resultAsBase64;
-ccm_aes_prototype.asBinaryString = resultAsBinaryString;
-ccm_aes_prototype.asArrayBuffer = resultAsArrayBuffer;
 ccm_aes_prototype.encrypt = ccm_aes_encrypt;
 ccm_aes_prototype.decrypt = ccm_aes_decrypt;
 
-// methods
-var ecb_aes_prototype = ecb_aes_constructor.prototype;
-ecb_aes_prototype.reset = ecb_aes_reset;
-ecb_aes_prototype.asHex =   resultAsHex;
-ecb_aes_prototype.asBase64 = resultAsBase64;
-ecb_aes_prototype.asBinaryString = resultAsBinaryString;
-ecb_aes_prototype.asArrayBuffer = resultAsArrayBuffer;
-ecb_aes_prototype.encrypt = aes_encrypt;
-ecb_aes_prototype.decrypt = aes_decrypt;
+/**
+ * Static constants & methods
+ */
 
-var cbc_aes_prototype = cbc_aes_constructor.prototype;
-cbc_aes_prototype.reset = cbc_aes_reset;
-cbc_aes_prototype.asHex =   resultAsHex;
-cbc_aes_prototype.asBase64 = resultAsBase64;
-cbc_aes_prototype.asBinaryString = resultAsBinaryString;
-cbc_aes_prototype.asArrayBuffer = resultAsArrayBuffer;
-cbc_aes_prototype.encrypt = aes_encrypt;
-cbc_aes_prototype.decrypt = aes_decrypt;
-
-// static constants
 var aes_static = {};
 aes_static.BLOCK_SIZE = _aes_block_size;
 
-// static methods
 var cbc_aes_instance = new cbc_aes_constructor();
-aes_static.encrypt = function ( data, key, options ) { return cbc_aes_instance.reset(key,options).encrypt(data).result; };
-aes_static.decrypt = function ( data, key, options ) { return cbc_aes_instance.reset(key,options).decrypt(data).result; };
+aes_static.encrypt = function ( data, key, options ) { if ( key === undefined ) throw new IllegalArgumentError("key is required"); return cbc_aes_instance.reset(key,options).encrypt(data).result; };
+aes_static.decrypt = function ( data, key, options ) { if ( key === undefined ) throw new IllegalArgumentError("key is required"); return cbc_aes_instance.reset(key,options).decrypt(data).result; };
 
-// export
+/**
+ * Exports
+ */
+
 exports.AES = aes_static;
-exports.ECB_AES = ecb_aes_constructor;
 exports.CBC_AES = cbc_aes_constructor;
 exports.CCM_AES = ccm_aes_constructor;
