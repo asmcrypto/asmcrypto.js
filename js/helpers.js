@@ -6,6 +6,9 @@ IllegalStateError.prototype = new Error;
 function IllegalArgumentError () { Error.apply( this, arguments ); }
 IllegalArgumentError.prototype = new Error;
 
+function SecurityError () { Error.apply( this, arguments ); }
+IllegalArgumentError.prototype = new Error;
+
 function resultAsArrayBuffer () {
     if ( this.result === null )
         throw new IllegalStateError("no result yet");
@@ -42,3 +45,7 @@ function resultAsBase64 () {
     var s = resultAsBinaryString.call(this);
     return btoa(s);
 }
+
+exports.IllegalStateError = IllegalStateError;
+exports.IllegalArgumentError = IllegalArgumentError;
+exports.SecurityError = SecurityError;

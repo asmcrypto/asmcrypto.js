@@ -4,8 +4,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
     // AES precomputed tables
     var SBOX = 0, INV_SBOX = 0x100, X2_SBOX = 0x200, X3_SBOX = 0x300,
-        X9 = 0x400, XB = 0x500, XD = 0x600, XE = 0x700,
-        RCON = 0x800;
+        X9 = 0x400, XB = 0x500, XD = 0x600, XE = 0x700;
 
     // AES state
     var S0 = 0, S1 = 0, S2 = 0, S3 = 0, S4 = 0, S5 = 0, S6 = 0, S7 = 0, S8 = 0, S9 = 0, SA = 0, SB = 0, SC = 0, SD = 0, SE = 0, SF = 0;
@@ -182,7 +181,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
     function _expand_key_128 () {
         // key 1
-        R10 = R00 ^ HEAP[SBOX|R0D] ^ HEAP[RCON|1];
+        R10 = R00 ^ HEAP[SBOX|R0D] ^ 0x01;
         R11 = R01 ^ HEAP[SBOX|R0E];
         R12 = R02 ^ HEAP[SBOX|R0F];
         R13 = R03 ^ HEAP[SBOX|R0C];
@@ -200,7 +199,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R1F = R0F ^ R1B;
 
         // key 2
-        R20 = R10 ^ HEAP[SBOX|R1D] ^ HEAP[RCON|2];
+        R20 = R10 ^ HEAP[SBOX|R1D] ^ 0x02;
         R21 = R11 ^ HEAP[SBOX|R1E];
         R22 = R12 ^ HEAP[SBOX|R1F];
         R23 = R13 ^ HEAP[SBOX|R1C];
@@ -218,7 +217,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R2F = R1F ^ R2B;
 
         // key 3
-        R30 = R20 ^ HEAP[SBOX|R2D] ^ HEAP[RCON|3];
+        R30 = R20 ^ HEAP[SBOX|R2D] ^ 0x04;
         R31 = R21 ^ HEAP[SBOX|R2E];
         R32 = R22 ^ HEAP[SBOX|R2F];
         R33 = R23 ^ HEAP[SBOX|R2C];
@@ -236,7 +235,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R3F = R2F ^ R3B;
 
         // key 4
-        R40 = R30 ^ HEAP[SBOX|R3D] ^ HEAP[RCON|4];
+        R40 = R30 ^ HEAP[SBOX|R3D] ^ 0x08;
         R41 = R31 ^ HEAP[SBOX|R3E];
         R42 = R32 ^ HEAP[SBOX|R3F];
         R43 = R33 ^ HEAP[SBOX|R3C];
@@ -254,7 +253,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R4F = R3F ^ R4B;
 
         // key 5
-        R50 = R40 ^ HEAP[SBOX|R4D] ^ HEAP[RCON|5];
+        R50 = R40 ^ HEAP[SBOX|R4D] ^ 0x10;
         R51 = R41 ^ HEAP[SBOX|R4E];
         R52 = R42 ^ HEAP[SBOX|R4F];
         R53 = R43 ^ HEAP[SBOX|R4C];
@@ -272,7 +271,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R5F = R4F ^ R5B;
 
         // key 6
-        R60 = R50 ^ HEAP[SBOX|R5D] ^ HEAP[RCON|6];
+        R60 = R50 ^ HEAP[SBOX|R5D] ^ 0x20;
         R61 = R51 ^ HEAP[SBOX|R5E];
         R62 = R52 ^ HEAP[SBOX|R5F];
         R63 = R53 ^ HEAP[SBOX|R5C];
@@ -290,7 +289,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R6F = R5F ^ R6B;
 
         // key 7
-        R70 = R60 ^ HEAP[SBOX|R6D] ^ HEAP[RCON|7];
+        R70 = R60 ^ HEAP[SBOX|R6D] ^ 0x40;
         R71 = R61 ^ HEAP[SBOX|R6E];
         R72 = R62 ^ HEAP[SBOX|R6F];
         R73 = R63 ^ HEAP[SBOX|R6C];
@@ -308,7 +307,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R7F = R6F ^ R7B;
 
         // key 8
-        R80 = R70 ^ HEAP[SBOX|R7D] ^ HEAP[RCON|8];
+        R80 = R70 ^ HEAP[SBOX|R7D] ^ 0x80;
         R81 = R71 ^ HEAP[SBOX|R7E];
         R82 = R72 ^ HEAP[SBOX|R7F];
         R83 = R73 ^ HEAP[SBOX|R7C];
@@ -326,7 +325,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R8F = R7F ^ R8B;
 
         // key 9
-        R90 = R80 ^ HEAP[SBOX|R8D] ^ HEAP[RCON|9];
+        R90 = R80 ^ HEAP[SBOX|R8D] ^ 0x1b;
         R91 = R81 ^ HEAP[SBOX|R8E];
         R92 = R82 ^ HEAP[SBOX|R8F];
         R93 = R83 ^ HEAP[SBOX|R8C];
@@ -344,7 +343,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         R9F = R8F ^ R9B;
 
         // key 10
-        RA0 = R90 ^ HEAP[SBOX|R9D] ^ HEAP[RCON|10];
+        RA0 = R90 ^ HEAP[SBOX|R9D] ^ 0x36;
         RA1 = R91 ^ HEAP[SBOX|R9E];
         RA2 = R92 ^ HEAP[SBOX|R9F];
         RA3 = R93 ^ HEAP[SBOX|R9C];
@@ -488,42 +487,26 @@ function aes_asm ( stdlib, foreign, buffer ) {
         SF = sF;
     }
 
-    function _test_state ( s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, sA, sB, sC, sD, sE, sF ) {
-        s0 = s0|0;
-        s1 = s1|0;
-        s2 = s2|0;
-        s3 = s3|0;
-        s4 = s4|0;
-        s5 = s5|0;
-        s6 = s6|0;
-        s7 = s7|0;
-        s8 = s8|0;
-        s9 = s9|0;
-        sA = sA|0;
-        sB = sB|0;
-        sC = sC|0;
-        sD = sD|0;
-        sE = sE|0;
-        sF = sF|0;
+    // offset — multiple of 16
+    function save_state ( offset ) {
+        offset = offset|0;
 
-        s0 = s0 ^ S0;
-        s1 = s1 ^ S1;
-        s2 = s2 ^ S2;
-        s3 = s3 ^ S3;
-        s4 = s4 ^ S4;
-        s5 = s5 ^ S5;
-        s6 = s6 ^ S6;
-        s7 = s7 ^ S7;
-        s8 = s8 ^ S8;
-        s9 = s9 ^ S9;
-        sA = sA ^ SA;
-        sB = sB ^ SB;
-        sC = sC ^ SC;
-        sD = sD ^ SD;
-        sE = sE ^ SE;
-        sF = sF ^ SF;
-
-        return ~(s0|s1|s2|s3|s4|s5|s6|s7|s8|s9|sA|sB|sC|sD|sE|sF)|0;
+        HEAP[offset] = S0;
+        HEAP[offset|1] = S1;
+        HEAP[offset|2] = S2;
+        HEAP[offset|3] = S3;
+        HEAP[offset|4] = S4;
+        HEAP[offset|5] = S5;
+        HEAP[offset|6] = S6;
+        HEAP[offset|7] = S7;
+        HEAP[offset|8] = S8;
+        HEAP[offset|9] = S9;
+        HEAP[offset|10] = SA;
+        HEAP[offset|11] = SB;
+        HEAP[offset|12] = SC;
+        HEAP[offset|13] = SD;
+        HEAP[offset|14] = SE;
+        HEAP[offset|15] = SF;
     }
 
     function init_key_128 ( k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, kA, kB, kC, kD, kE, kF ) {
@@ -564,84 +547,6 @@ function aes_asm ( stdlib, foreign, buffer ) {
         _expand_key_128();
     }
 
-    function _test_key_128 ( i, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, kA, kB, kC, kD, kE, kF ) {
-        i = i|0;
-        k0 = k0|0;
-        k1 = k1|0;
-        k2 = k2|0;
-        k3 = k3|0;
-        k4 = k4|0;
-        k5 = k5|0;
-        k6 = k6|0;
-        k7 = k7|0;
-        k8 = k8|0;
-        k9 = k9|0;
-        kA = kA|0;
-        kB = kB|0;
-        kC = kC|0;
-        kD = kD|0;
-        kE = kE|0;
-        kF = kF|0;
-
-        switch ( i|0 ) {
-            case 1:
-                k0 = k0 ^ R10;
-                k1 = k1 ^ R11;
-                k2 = k2 ^ R12;
-                k3 = k3 ^ R13;
-                k4 = k4 ^ R14;
-                k5 = k5 ^ R15;
-                k6 = k6 ^ R16;
-                k7 = k7 ^ R17;
-                k8 = k8 ^ R18;
-                k9 = k9 ^ R19;
-                kA = kA ^ R1A;
-                kB = kB ^ R1B;
-                kC = kC ^ R1C;
-                kD = kD ^ R1D;
-                kE = kE ^ R1E;
-                kF = kF ^ R1F;
-                break;
-            case 2:
-                k0 = k0 ^ R20;
-                k1 = k1 ^ R21;
-                k2 = k2 ^ R22;
-                k3 = k3 ^ R23;
-                k4 = k4 ^ R24;
-                k5 = k5 ^ R25;
-                k6 = k6 ^ R26;
-                k7 = k7 ^ R27;
-                k8 = k8 ^ R28;
-                k9 = k9 ^ R29;
-                kA = kA ^ R2A;
-                kB = kB ^ R2B;
-                kC = kC ^ R2C;
-                kD = kD ^ R2D;
-                kE = kE ^ R2E;
-                kF = kF ^ R2F;
-                break;
-            default:
-                k0 = k0 ^ R00;
-                k1 = k1 ^ R01;
-                k2 = k2 ^ R02;
-                k3 = k3 ^ R03;
-                k4 = k4 ^ R04;
-                k5 = k5 ^ R05;
-                k6 = k6 ^ R06;
-                k7 = k7 ^ R07;
-                k8 = k8 ^ R08;
-                k9 = k9 ^ R09;
-                kA = kA ^ R0A;
-                kB = kB ^ R0B;
-                kC = kC ^ R0C;
-                kD = kD ^ R0D;
-                kE = kE ^ R0E;
-                kF = kF ^ R0F;
-        }
-
-        return ~(k0|k1|k2|k3|k4|k5|k6|k7|k8|k9|kA|kB|kC|kD|kE|kF)|0;
-    }
-
     // offset, length — multiple of 16
     function ecb_encrypt ( offset, length ) {
         offset = offset|0;
@@ -651,7 +556,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
             return -1;
 
         while ( (length|0) > 0 ) {
-            S0 = HEAP[offset|0]|0;
+            S0 = HEAP[offset]|0;
             S1 = HEAP[offset|1]|0;
             S2 = HEAP[offset|2]|0;
             S3 = HEAP[offset|3]|0;
@@ -670,7 +575,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
             _encrypt_128();
 
-            HEAP[offset|0] = S0;
+            HEAP[offset] = S0;
             HEAP[offset|1] = S1;
             HEAP[offset|2] = S2;
             HEAP[offset|3] = S3;
@@ -701,7 +606,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
             return -1;
 
         while ( (length|0) > 0 ) {
-            S0 = HEAP[offset|0]|0;
+            S0 = HEAP[offset]|0;
             S1 = HEAP[offset|1]|0;
             S2 = HEAP[offset|2]|0;
             S3 = HEAP[offset|3]|0;
@@ -720,7 +625,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
             _decrypt_128();
 
-            HEAP[offset|0] = S0;
+            HEAP[offset] = S0;
             HEAP[offset|1] = S1;
             HEAP[offset|2] = S2;
             HEAP[offset|3] = S3;
@@ -751,7 +656,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
             return -1;
 
         while ( (length|0) > 0 ) {
-            S0 = S0 ^ HEAP[offset|0];
+            S0 = S0 ^ HEAP[offset];
             S1 = S1 ^ HEAP[offset|1];
             S2 = S2 ^ HEAP[offset|2];
             S3 = S3 ^ HEAP[offset|3];
@@ -770,7 +675,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
             _encrypt_128();
 
-            HEAP[offset|0] = S0;
+            HEAP[offset] = S0;
             HEAP[offset|1] = S1;
             HEAP[offset|2] = S2;
             HEAP[offset|3] = S3;
@@ -805,7 +710,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
         iv0 = S0; iv1 = S1; iv2 = S2; iv3 = S3; iv4 = S4; iv5 = S5; iv6 = S6; iv7 = S7; iv8 = S8; iv9 = S9; ivA = SA; ivB = SB; ivC = SC; ivD = SD; ivE = SE; ivF = SF;
 
         while ( (length|0) > 0 ) {
-            S0 = HEAP[offset|0]|0;
+            S0 = HEAP[offset]|0;
             S1 = HEAP[offset|1]|0;
             S2 = HEAP[offset|2]|0;
             S3 = HEAP[offset|3]|0;
@@ -824,7 +729,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
 
             _decrypt_128();
 
-            S0 = S0 ^ iv0; iv0 = HEAP[offset|0]|0;
+            S0 = S0 ^ iv0; iv0 = HEAP[offset]|0;
             S1 = S1 ^ iv1; iv1 = HEAP[offset|1]|0;
             S2 = S2 ^ iv2; iv2 = HEAP[offset|2]|0;
             S3 = S3 ^ iv3; iv3 = HEAP[offset|3]|0;
@@ -841,7 +746,7 @@ function aes_asm ( stdlib, foreign, buffer ) {
             SE = SE ^ ivE; ivE = HEAP[offset|14]|0;
             SF = SF ^ ivF; ivF = HEAP[offset|15]|0;
 
-            HEAP[offset|0] = S0;
+            HEAP[offset] = S0;
             HEAP[offset|1] = S1;
             HEAP[offset|2] = S2;
             HEAP[offset|3] = S3;
@@ -865,26 +770,439 @@ function aes_asm ( stdlib, foreign, buffer ) {
         S0 = iv0; S1 = iv1; S2 = iv2; S3 = iv3; S4 = iv4; S5 = iv5; S6 = iv6; S7 = iv7; S8 = iv8; S9 = iv9; SA = ivA; SB = ivB; SC = ivC; SD = ivD; SE = ivE; SF = ivF;
     }
 
+    // offset, length, output — multiple of 16
+    function cbc_mac ( offset, length, output ) {
+        offset = offset|0;
+        length = length|0;
+        output = output|0;
+
+        if ( offset & 15 )
+            return -1;
+
+        if ( ~output )
+            if ( output & 31 )
+                return -1;
+
+        while ( (length|0) >= 16 ) {
+            S0 = S0 ^ HEAP[offset];
+            S1 = S1 ^ HEAP[offset|1];
+            S2 = S2 ^ HEAP[offset|2];
+            S3 = S3 ^ HEAP[offset|3];
+            S4 = S4 ^ HEAP[offset|4];
+            S5 = S5 ^ HEAP[offset|5];
+            S6 = S6 ^ HEAP[offset|6];
+            S7 = S7 ^ HEAP[offset|7];
+            S8 = S8 ^ HEAP[offset|8];
+            S9 = S9 ^ HEAP[offset|9];
+            SA = SA ^ HEAP[offset|10];
+            SB = SB ^ HEAP[offset|11];
+            SC = SC ^ HEAP[offset|12];
+            SD = SD ^ HEAP[offset|13];
+            SE = SE ^ HEAP[offset|14];
+            SF = SF ^ HEAP[offset|15];
+
+            _encrypt_128();
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+        }
+        if ( (length|0) > 0 ) {
+            S0 = S0 ^ HEAP[offset];
+            if ( (length|0) > 1 ) S1 = S1 ^ HEAP[offset|1];
+            if ( (length|0) > 2 ) S2 = S2 ^ HEAP[offset|2];
+            if ( (length|0) > 3 ) S3 = S3 ^ HEAP[offset|3];
+            if ( (length|0) > 4 ) S4 = S4 ^ HEAP[offset|4];
+            if ( (length|0) > 5 ) S5 = S5 ^ HEAP[offset|5];
+            if ( (length|0) > 6 ) S6 = S6 ^ HEAP[offset|6];
+            if ( (length|0) > 7 ) S7 = S7 ^ HEAP[offset|7];
+            if ( (length|0) > 8 ) S8 = S8 ^ HEAP[offset|8];
+            if ( (length|0) > 9 ) S9 = S9 ^ HEAP[offset|9];
+            if ( (length|0) > 10 ) SA = SA ^ HEAP[offset|10];
+            if ( (length|0) > 11 ) SB = SB ^ HEAP[offset|11];
+            if ( (length|0) > 12 ) SC = SC ^ HEAP[offset|12];
+            if ( (length|0) > 13 ) SD = SD ^ HEAP[offset|13];
+            if ( (length|0) > 14 ) SE = SE ^ HEAP[offset|14];
+
+            _encrypt_128();
+
+            offset = (offset + length)|0;
+            length = 0;
+        }
+
+        if ( ~output ) {
+            HEAP[output|0] = S0;
+            HEAP[output|1] = S1;
+            HEAP[output|2] = S2;
+            HEAP[output|3] = S3;
+            HEAP[output|4] = S4;
+            HEAP[output|5] = S5;
+            HEAP[output|6] = S6;
+            HEAP[output|7] = S7;
+            HEAP[output|8] = S8;
+            HEAP[output|9] = S9;
+            HEAP[output|10] = SA;
+            HEAP[output|11] = SB;
+            HEAP[output|12] = SC;
+            HEAP[output|13] = SD;
+            HEAP[output|14] = SE;
+            HEAP[output|15] = SF;
+        }
+    }
+
+    // offset, length, output — multiple of 16
+    function ccm_encrypt ( offset, length, nonce0, nonce1, nonce2, nonce3, nonce4, nonce5, nonce6, nonce7, nonce8, nonce9, nonceA, nonceB, nonceC, nonceD, counter ) {
+        offset = offset|0;
+        length = length|0;
+        nonce0 = nonce0|0;
+        nonce1 = nonce1|0;
+        nonce2 = nonce2|0;
+        nonce3 = nonce3|0;
+        nonce4 = nonce4|0;
+        nonce5 = nonce5|0;
+        nonce6 = nonce6|0;
+        nonce7 = nonce7|0;
+        nonce8 = nonce8|0;
+        nonce9 = nonce9|0;
+        nonceA = nonceA|0;
+        nonceB = nonceB|0;
+        nonceC = nonceC|0;
+        nonceD = nonceD|0;
+        counter = counter|0;
+
+        var iv0 = 0, iv1 = 0, iv2 = 0, iv3 = 0, iv4 = 0, iv5 = 0, iv6 = 0, iv7 = 0, iv8 = 0, iv9 = 0, ivA = 0, ivB = 0, ivC = 0, ivD = 0, ivE = 0, ivF = 0,
+            s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, s8 = 0, s9 = 0, sA = 0, sB = 0, sC = 0, sD = 0, sE = 0, sF = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        iv0 = S0, iv1 = S1, iv2 = S2, iv3 = S3, iv4 = S4, iv5 = S5, iv6 = S6, iv7 = S7, iv8 = S8, iv9 = S9, ivA = SA, ivB = SB, ivC = SC, ivD = SD, ivE = SE, ivF = SF;
+
+        while ( (length|0) >= 16 ) {
+            s0 = HEAP[offset]|0;
+            s1 = HEAP[offset|1]|0;
+            s2 = HEAP[offset|2]|0;
+            s3 = HEAP[offset|3]|0;
+            s4 = HEAP[offset|4]|0;
+            s5 = HEAP[offset|5]|0;
+            s6 = HEAP[offset|6]|0;
+            s7 = HEAP[offset|7]|0;
+            s8 = HEAP[offset|8]|0;
+            s9 = HEAP[offset|9]|0;
+            sA = HEAP[offset|10]|0;
+            sB = HEAP[offset|11]|0;
+            sC = HEAP[offset|12]|0;
+            sD = HEAP[offset|13]|0;
+            sE = HEAP[offset|14]|0;
+            sF = HEAP[offset|15]|0;
+
+            //
+            // Cipher
+            //
+
+            S0 = nonce0, S1 = nonce1, S2 = nonce2, S3 = nonce3, S4 = nonce4, S5 = nonce5, S6 = nonce6, S7 = nonce7, S8 = nonce8, S9 = nonce9, SA = nonceA, SB = nonceB;
+            SC = nonceC ^ (counter>>>24); SD = nonceD ^ (counter>>>16&255), SE = counter>>>8&255, SF = counter&255;
+
+            _encrypt_128();
+
+            HEAP[offset] = s0 ^ S0;
+            HEAP[offset|1] = s1 ^ S1;
+            HEAP[offset|2] = s2 ^ S2;
+            HEAP[offset|3] = s3 ^ S3;
+            HEAP[offset|4] = s4 ^ S4;
+            HEAP[offset|5] = s5 ^ S5;
+            HEAP[offset|6] = s6 ^ S6;
+            HEAP[offset|7] = s7 ^ S7;
+            HEAP[offset|8] = s8 ^ S8;
+            HEAP[offset|9] = s9 ^ S9;
+            HEAP[offset|10] = sA ^ SA;
+            HEAP[offset|11] = sB ^ SB;
+            HEAP[offset|12] = sC ^ SC;
+            HEAP[offset|13] = sD ^ SD;
+            HEAP[offset|14] = sE ^ SE;
+            HEAP[offset|15] = sF ^ SF;
+
+            //
+            // MAC
+            //
+
+            S0 = s0 ^ iv0;
+            S1 = s1 ^ iv1;
+            S2 = s2 ^ iv2;
+            S3 = s3 ^ iv3;
+            S4 = s4 ^ iv4;
+            S5 = s5 ^ iv5;
+            S6 = s6 ^ iv6;
+            S7 = s7 ^ iv7;
+            S8 = s8 ^ iv8;
+            S9 = s9 ^ iv9;
+            SA = sA ^ ivA;
+            SB = sB ^ ivB;
+            SC = sC ^ ivC;
+            SD = sD ^ ivD;
+            SE = sE ^ ivE;
+            SF = sF ^ ivF;
+
+            _encrypt_128();
+
+            iv0 = S0, iv1 = S1, iv2 = S2, iv3 = S3, iv4 = S4, iv5 = S5, iv6 = S6, iv7 = S7, iv8 = S8, iv9 = S9, ivA = SA, ivB = SB, ivC = SC, ivD = SD, ivE = SE, ivF = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+            counter = (counter + 1)|0;
+        }
+        if ( (length|0) > 0 ) {
+            s0 = HEAP[offset]|0;
+            s1 = (length|0) > 1 ? HEAP[offset|1]|0 : 0;
+            s2 = (length|0) > 2 ? HEAP[offset|2]|0 : 0;
+            s3 = (length|0) > 3 ? HEAP[offset|3]|0 : 0;
+            s4 = (length|0) > 4 ? HEAP[offset|4]|0 : 0;
+            s5 = (length|0) > 5 ? HEAP[offset|5]|0 : 0;
+            s6 = (length|0) > 6 ? HEAP[offset|6]|0 : 0;
+            s7 = (length|0) > 7 ? HEAP[offset|7]|0 : 0;
+            s8 = (length|0) > 8 ? HEAP[offset|8]|0 : 0;
+            s9 = (length|0) > 9 ? HEAP[offset|9]|0 : 0;
+            sA = (length|0) > 10 ? HEAP[offset|10]|0 : 0;
+            sB = (length|0) > 11 ? HEAP[offset|11]|0 : 0;
+            sC = (length|0) > 12 ? HEAP[offset|12]|0 : 0;
+            sD = (length|0) > 13 ? HEAP[offset|13]|0 : 0;
+            sE = (length|0) > 14 ? HEAP[offset|14]|0 : 0;
+            //sF = 0;
+
+            //
+            // Cipher
+            //
+
+            S0 = nonce0, S1 = nonce1, S2 = nonce2, S3 = nonce3, S4 = nonce4, S5 = nonce5, S6 = nonce6, S7 = nonce7, S8 = nonce8, S9 = nonce9, SA = nonceA, SB = nonceB;
+            SC = nonceC ^ (counter>>>24); SD = nonceD ^ (counter>>>16&255), SE = counter>>>8&255, SF = counter&255;
+
+            _encrypt_128();
+
+            HEAP[offset] = s0 ^ S0;
+            if ( (length|0) > 1 ) HEAP[offset|1] = s1 ^ S1;
+            if ( (length|0) > 2 ) HEAP[offset|2] = s2 ^ S2;
+            if ( (length|0) > 3 ) HEAP[offset|3] = s3 ^ S3;
+            if ( (length|0) > 4 ) HEAP[offset|4] = s4 ^ S4;
+            if ( (length|0) > 5 ) HEAP[offset|5] = s5 ^ S5;
+            if ( (length|0) > 6 ) HEAP[offset|6] = s6 ^ S6;
+            if ( (length|0) > 7 ) HEAP[offset|7] = s7 ^ S7;
+            if ( (length|0) > 8 ) HEAP[offset|8] = s8 ^ S8;
+            if ( (length|0) > 9 ) HEAP[offset|9] = s9 ^ S9;
+            if ( (length|0) > 10 ) HEAP[offset|10] = sA ^ SA;
+            if ( (length|0) > 11 ) HEAP[offset|11] = sB ^ SB;
+            if ( (length|0) > 12 ) HEAP[offset|12] = sC ^ SC;
+            if ( (length|0) > 13 ) HEAP[offset|13] = sD ^ SD;
+            if ( (length|0) > 14 ) HEAP[offset|14] = sE ^ SE;
+            //if ( 0 ) HEAP[offset|15] = sF ^ SF;
+
+            //
+            // MAC
+            //
+
+            S0 = s0 ^ iv0;
+            S1 = s1 ^ iv1;
+            S2 = s2 ^ iv2;
+            S3 = s3 ^ iv3;
+            S4 = s4 ^ iv4;
+            S5 = s5 ^ iv5;
+            S6 = s6 ^ iv6;
+            S7 = s7 ^ iv7;
+            S8 = s8 ^ iv8;
+            S9 = s9 ^ iv9;
+            SA = sA ^ ivA;
+            SB = sB ^ ivB;
+            SC = sC ^ ivC;
+            SD = sD ^ ivD;
+            SE = sE ^ ivE;
+            SF = ivF; // sF = 0
+
+            _encrypt_128();
+
+            iv0 = S0, iv1 = S1, iv2 = S2, iv3 = S3, iv4 = S4, iv5 = S5, iv6 = S6, iv7 = S7, iv8 = S8, iv9 = S9, ivA = SA, ivB = SB, ivC = SC, ivD = SD, ivE = SE, ivF = SF;
+
+            offset = (offset + length)|0;
+            length = 0;
+            counter = (counter + 1)|0;
+        }
+    }
+
+    // offset, length, output — multiple of 16
+    function ccm_decrypt ( offset, length, nonce0, nonce1, nonce2, nonce3, nonce4, nonce5, nonce6, nonce7, nonce8, nonce9, nonceA, nonceB, nonceC, nonceD, counter ) {
+        offset = offset|0;
+        length = length|0;
+        nonce0 = nonce0|0;
+        nonce1 = nonce1|0;
+        nonce2 = nonce2|0;
+        nonce3 = nonce3|0;
+        nonce4 = nonce4|0;
+        nonce5 = nonce5|0;
+        nonce6 = nonce6|0;
+        nonce7 = nonce7|0;
+        nonce8 = nonce8|0;
+        nonce9 = nonce9|0;
+        nonceA = nonceA|0;
+        nonceB = nonceB|0;
+        nonceC = nonceC|0;
+        nonceD = nonceD|0;
+        counter = counter|0;
+
+        var iv0 = 0, iv1 = 0, iv2 = 0, iv3 = 0, iv4 = 0, iv5 = 0, iv6 = 0, iv7 = 0, iv8 = 0, iv9 = 0, ivA = 0, ivB = 0, ivC = 0, ivD = 0, ivE = 0, ivF = 0,
+            s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, s8 = 0, s9 = 0, sA = 0, sB = 0, sC = 0, sD = 0, sE = 0, sF = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        iv0 = S0, iv1 = S1, iv2 = S2, iv3 = S3, iv4 = S4, iv5 = S5, iv6 = S6, iv7 = S7, iv8 = S8, iv9 = S9, ivA = SA, ivB = SB, ivC = SC, ivD = SD, ivE = SE, ivF = SF;
+
+        while ( (length|0) >= 16 ) {
+            //
+            // Cipher
+            //
+
+            S0 = nonce0, S1 = nonce1, S2 = nonce2, S3 = nonce3, S4 = nonce4, S5 = nonce5, S6 = nonce6, S7 = nonce7, S8 = nonce8, S9 = nonce9, SA = nonceA, SB = nonceB;
+            SC = nonceC ^ (counter>>>24); SD = nonceD ^ (counter>>>16&255), SE = counter>>>8&255, SF = counter&255;
+
+            _encrypt_128();
+
+            HEAP[offset] = s0 = HEAP[offset] ^ S0;
+            HEAP[offset|1] = s1 = HEAP[offset|1] ^ S1;
+            HEAP[offset|2] = s2 = HEAP[offset|2] ^ S2;
+            HEAP[offset|3] = s3 = HEAP[offset|3] ^ S3;
+            HEAP[offset|4] = s4 = HEAP[offset|4] ^ S4;
+            HEAP[offset|5] = s5 = HEAP[offset|5] ^ S5;
+            HEAP[offset|6] = s6 = HEAP[offset|6] ^ S6;
+            HEAP[offset|7] = s7 = HEAP[offset|7] ^ S7;
+            HEAP[offset|8] = s8 = HEAP[offset|8] ^ S8;
+            HEAP[offset|9] = s9 = HEAP[offset|9] ^ S9;
+            HEAP[offset|10] = sA = HEAP[offset|10] ^ SA;
+            HEAP[offset|11] = sB = HEAP[offset|11] ^ SB;
+            HEAP[offset|12] = sC = HEAP[offset|12] ^ SC;
+            HEAP[offset|13] = sD = HEAP[offset|13] ^ SD;
+            HEAP[offset|14] = sE = HEAP[offset|14] ^ SE;
+            HEAP[offset|15] = sF = HEAP[offset|15] ^ SF;
+
+            //
+            // MAC
+            //
+
+            S0 = s0 ^ iv0;
+            S1 = s1 ^ iv1;
+            S2 = s2 ^ iv2;
+            S3 = s3 ^ iv3;
+            S4 = s4 ^ iv4;
+            S5 = s5 ^ iv5;
+            S6 = s6 ^ iv6;
+            S7 = s7 ^ iv7;
+            S8 = s8 ^ iv8;
+            S9 = s9 ^ iv9;
+            SA = sA ^ ivA;
+            SB = sB ^ ivB;
+            SC = sC ^ ivC;
+            SD = sD ^ ivD;
+            SE = sE ^ ivE;
+            SF = sF ^ ivF;
+
+            _encrypt_128();
+
+            iv0 = S0, iv1 = S1, iv2 = S2, iv3 = S3, iv4 = S4, iv5 = S5, iv6 = S6, iv7 = S7, iv8 = S8, iv9 = S9, ivA = SA, ivB = SB, ivC = SC, ivD = SD, ivE = SE, ivF = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+            counter = (counter + 1)|0;
+        }
+        if ( (length|0) > 0 ) {
+            //
+            // Cipher
+            //
+
+            S0 = nonce0, S1 = nonce1, S2 = nonce2, S3 = nonce3, S4 = nonce4, S5 = nonce5, S6 = nonce6, S7 = nonce7, S8 = nonce8, S9 = nonce9, SA = nonceA, SB = nonceB;
+            SC = nonceC ^ (counter>>>24); SD = nonceD ^ (counter>>>16&255), SE = counter>>>8&255, SF = counter&255;
+
+            _encrypt_128();
+
+            s0 = HEAP[offset] ^ S0;
+            s1 = (length|0) > 1 ? HEAP[offset|1] ^ S1 : 0;
+            s2 = (length|0) > 2 ? HEAP[offset|2] ^ S2 : 0;
+            s3 = (length|0) > 3 ? HEAP[offset|3] ^ S3 : 0;
+            s4 = (length|0) > 4 ? HEAP[offset|4] ^ S4 : 0;
+            s5 = (length|0) > 5 ? HEAP[offset|5] ^ S5 : 0;
+            s6 = (length|0) > 6 ? HEAP[offset|6] ^ S6 : 0;
+            s7 = (length|0) > 7 ? HEAP[offset|7] ^ S7 : 0;
+            s8 = (length|0) > 8 ? HEAP[offset|8] ^ S8 : 0;
+            s9 = (length|0) > 9 ? HEAP[offset|9] ^ S9 : 0;
+            sA = (length|0) > 10 ? HEAP[offset|10] ^ SA : 0;
+            sB = (length|0) > 11 ? HEAP[offset|11] ^ SB : 0;
+            sC = (length|0) > 12 ? HEAP[offset|12] ^ SC : 0;
+            sD = (length|0) > 13 ? HEAP[offset|13] ^ SD : 0;
+            sE = (length|0) > 14 ? HEAP[offset|14] ^ SE : 0;
+            sF = (length|0) > 15 ? HEAP[offset|15] ^ SF : 0;
+
+            HEAP[offset] = s0;
+            if ( (length|0) > 1 ) HEAP[offset|1] = s1;
+            if ( (length|0) > 2 ) HEAP[offset|2] = s2;
+            if ( (length|0) > 3 ) HEAP[offset|3] = s3;
+            if ( (length|0) > 4 ) HEAP[offset|4] = s4;
+            if ( (length|0) > 5 ) HEAP[offset|5] = s5;
+            if ( (length|0) > 6 ) HEAP[offset|6] = s6;
+            if ( (length|0) > 7 ) HEAP[offset|7] = s7;
+            if ( (length|0) > 8 ) HEAP[offset|8] = s8;
+            if ( (length|0) > 9 ) HEAP[offset|9] = s9;
+            if ( (length|0) > 10 ) HEAP[offset|10] = sA;
+            if ( (length|0) > 11 ) HEAP[offset|11] = sB;
+            if ( (length|0) > 12 ) HEAP[offset|12] = sC;
+            if ( (length|0) > 13 ) HEAP[offset|13] = sD;
+            if ( (length|0) > 14 ) HEAP[offset|14] = sE;
+            //if ( (length|0) > 15 ) HEAP[offset|15] = sF;
+
+            //
+            // MAC
+            //
+
+            S0 = s0 ^ iv0;
+            S1 = s1 ^ iv1;
+            S2 = s2 ^ iv2;
+            S3 = s3 ^ iv3;
+            S4 = s4 ^ iv4;
+            S5 = s5 ^ iv5;
+            S6 = s6 ^ iv6;
+            S7 = s7 ^ iv7;
+            S8 = s8 ^ iv8;
+            S9 = s9 ^ iv9;
+            SA = sA ^ ivA;
+            SB = sB ^ ivB;
+            SC = sC ^ ivC;
+            SD = sD ^ ivD;
+            SE = sE ^ ivE;
+            SF = sF ^ ivF;
+
+            _encrypt_128();
+
+            iv0 = S0, iv1 = S1, iv2 = S2, iv3 = S3, iv4 = S4, iv5 = S5, iv6 = S6, iv7 = S7, iv8 = S8, iv9 = S9, ivA = SA, ivB = SB, ivC = SC, ivD = SD, ivE = SE, ivF = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+            counter = (counter + 1)|0;
+        }
+    }
+
     return {
-        _sub_shift: _sub_shift,
-        _inv_sub_shift: _inv_sub_shift,
-        _sub_shift_mix: _sub_shift_mix,
-        _inv_sub_shift_mix: _inv_sub_shift_mix,
-        _expand_key_128: _expand_key_128,
-        _encrypt_128: _encrypt_128,
-        _decrypt_128: _decrypt_128,
-        _test_state: _test_state,
-        _test_key_128: _test_key_128,
         init_state: init_state,
+        save_state: save_state,
+
         init_key_128: init_key_128,
+
         ecb_encrypt: ecb_encrypt,
         ecb_decrypt: ecb_decrypt,
+
         cbc_encrypt: cbc_encrypt,
         cbc_decrypt: cbc_decrypt,
+        cbc_mac: cbc_mac,
+
+        ccm_encrypt: ccm_encrypt,
+        ccm_decrypt: ccm_decrypt
     };
 }
 */
 // Workaround Firefox bug, uglified from aes_asm above with little manual changes
 function aes_asm ( stdlib, foreign, buffer ) {
-    return (new Function('e,t,n','"use asm";var r=0,i=256,s=512,o=768,u=1024,a=1280,f=1536,l=1792,c=2048;var h=0,p=0,d=0,v=0,m=0,g=0,y=0,b=0,w=0,E=0,S=0,x=0,T=0,N=0,C=0,k=0;var L=0,A=0,O=0,M=0,_=0,D=0,P=0,H=0,B=0,j=0,F=0,I=0,q=0,R=0,U=0,z=0,W=0,X=0,V=0,$=0,J=0,K=0,Q=0,G=0,Y=0,Z=0,et=0,tt=0,nt=0,rt=0,it=0,st=0,ot=0,ut=0,at=0,ft=0,lt=0,ct=0,ht=0,pt=0,dt=0,vt=0,mt=0,gt=0,yt=0,bt=0,wt=0,Et=0,St=0,xt=0,Tt=0,Nt=0,Ct=0,kt=0,Lt=0,At=0,Ot=0,Mt=0,_t=0,Dt=0,Pt=0,Ht=0,Bt=0,jt=0,Ft=0,It=0,qt=0,Rt=0,Ut=0,zt=0,Wt=0,Xt=0,Vt=0,$t=0,Jt=0,Kt=0,Qt=0,Gt=0,Yt=0,Zt=0,en=0,tn=0,nn=0,rn=0,sn=0,on=0,un=0,an=0,fn=0,ln=0,cn=0,hn=0,pn=0,dn=0,vn=0,mn=0,gn=0,yn=0,bn=0,wn=0,En=0,Sn=0,xn=0,Tn=0,Nn=0,Cn=0,kn=0,Ln=0,An=0,On=0,Mn=0,_n=0,Dn=0,Pn=0,Hn=0,Bn=0,jn=0,Fn=0,In=0,qn=0,Rn=0,Un=0,zn=0,Wn=0,Xn=0,Vn=0,$n=0,Jn=0,Kn=0,Qn=0,Gn=0,Yn=0,Zn=0,er=0,tr=0,nr=0,rr=0,ir=0,sr=0,or=0,ur=0,ar=0,fr=0,lr=0,cr=0,hr=0,pr=0,dr=0,vr=0,mr=0,gr=0,yr=0,br=0,wr=0,Er=0,Sr=0,xr=0,Tr=0,Nr=0,Cr=0,kr=0,Lr=0,Ar=0,Or=0,Mr=0,_r=0,Dr=0,Pr=0,Hr=0,Br=0,jr=0,Fr=0,Ir=0,qr=0,Rr=0,Ur=0;var zr=new e.Uint8Array(n);function Wr(){var e=0;h=zr[r|h]|0;m=zr[r|m]|0;w=zr[r|w]|0;T=zr[r|T]|0;e=zr[r|p]|0;p=zr[r|g]|0;g=zr[r|E]|0;E=zr[r|N]|0;N=e;e=zr[r|d]|0;d=zr[r|S]|0;S=e;e=zr[r|y]|0;y=zr[r|C]|0;C=e;e=zr[r|k]|0;k=zr[r|x]|0;x=zr[r|b]|0;b=zr[r|v]|0;v=e}function Xr(){var e=0;h=zr[i|h]|0;m=zr[i|m]|0;w=zr[i|w]|0;T=zr[i|T]|0;e=zr[i|N]|0;N=zr[i|E]|0;E=zr[i|g]|0;g=zr[i|p]|0;p=e;e=zr[i|d]|0;d=zr[i|S]|0;S=e;e=zr[i|y]|0;y=zr[i|C]|0;C=e;e=zr[i|v]|0;v=zr[i|b]|0;b=zr[i|x]|0;x=zr[i|k]|0;k=e}function Vr(){var e=0,t=0,n=0,i=0,u=0,a=0,f=0,l=0,c=0,L=0,A=0,O=0,M=0,_=0,D=0,P=0;e=zr[s|h]^zr[o|g]^zr[r|S]^zr[r|k];t=zr[r|h]^zr[s|g]^zr[o|S]^zr[r|k];n=zr[r|h]^zr[r|g]^zr[s|S]^zr[o|k];i=zr[o|h]^zr[r|g]^zr[r|S]^zr[s|k];u=zr[s|m]^zr[o|E]^zr[r|C]^zr[r|v];a=zr[r|m]^zr[s|E]^zr[o|C]^zr[r|v];f=zr[r|m]^zr[r|E]^zr[s|C]^zr[o|v];l=zr[o|m]^zr[r|E]^zr[r|C]^zr[s|v];c=zr[s|w]^zr[o|N]^zr[r|d]^zr[r|b];L=zr[r|w]^zr[s|N]^zr[o|d]^zr[r|b];A=zr[r|w]^zr[r|N]^zr[s|d]^zr[o|b];O=zr[o|w]^zr[r|N]^zr[r|d]^zr[s|b];M=zr[s|T]^zr[o|p]^zr[r|y]^zr[r|x];_=zr[r|T]^zr[s|p]^zr[o|y]^zr[r|x];D=zr[r|T]^zr[r|p]^zr[s|y]^zr[o|x];P=zr[o|T]^zr[r|p]^zr[r|y]^zr[s|x];h=e|0;p=t|0;d=n|0;v=i|0;m=u|0;g=a|0;y=f|0;b=l|0;w=c|0;E=L|0;S=A|0;x=O|0;T=M|0;N=_|0;C=D|0;k=P|0}function $r(){var e=0,t=0,n=0,r=0,s=0,o=0,c=0,L=0,A=0,O=0,M=0,_=0,D=0,P=0,H=0,B=0;e=zr[l|h]^zr[a|p]^zr[f|d]^zr[u|v];o=zr[u|h]^zr[l|p]^zr[a|d]^zr[f|v];M=zr[f|h]^zr[u|p]^zr[l|d]^zr[a|v];B=zr[a|h]^zr[f|p]^zr[u|d]^zr[l|v];s=zr[l|m]^zr[a|g]^zr[f|y]^zr[u|b];O=zr[u|m]^zr[l|g]^zr[a|y]^zr[f|b];H=zr[f|m]^zr[u|g]^zr[l|y]^zr[a|b];r=zr[a|m]^zr[f|g]^zr[u|y]^zr[l|b];A=zr[l|w]^zr[a|E]^zr[f|S]^zr[u|x];P=zr[u|w]^zr[l|E]^zr[a|S]^zr[f|x];n=zr[f|w]^zr[u|E]^zr[l|S]^zr[a|x];L=zr[a|w]^zr[f|E]^zr[u|S]^zr[l|x];D=zr[l|T]^zr[a|N]^zr[f|C]^zr[u|k];t=zr[u|T]^zr[l|N]^zr[a|C]^zr[f|k];c=zr[f|T]^zr[u|N]^zr[l|C]^zr[a|k];_=zr[a|T]^zr[f|N]^zr[u|C]^zr[l|k];h=zr[i|e]|0;p=zr[i|t]|0;d=zr[i|n]|0;v=zr[i|r]|0;m=zr[i|s]|0;g=zr[i|o]|0;y=zr[i|c]|0;b=zr[i|L]|0;w=zr[i|A]|0;E=zr[i|O]|0;S=zr[i|M]|0;x=zr[i|_]|0;T=zr[i|D]|0;N=zr[i|P]|0;C=zr[i|H]|0;k=zr[i|B]|0}function Jr(){W=L^zr[r|R]^zr[c|1];X=A^zr[r|U];V=O^zr[r|z];$=M^zr[r|q];J=_^W;K=D^X;Q=P^V;G=H^$;Y=B^J;Z=j^K;et=F^Q;tt=I^G;nt=q^Y;rt=R^Z;it=U^et;st=z^tt;ot=W^zr[r|rt]^zr[c|2];ut=X^zr[r|it];at=V^zr[r|st];ft=$^zr[r|nt];lt=J^ot;ct=K^ut;ht=Q^at;pt=G^ft;dt=Y^lt;vt=Z^ct;mt=et^ht;gt=tt^pt;yt=nt^dt;bt=rt^vt;wt=it^mt;Et=st^gt;St=ot^zr[r|bt]^zr[c|3];xt=ut^zr[r|wt];Tt=at^zr[r|Et];Nt=ft^zr[r|yt];Ct=lt^St;kt=ct^xt;Lt=ht^Tt;At=pt^Nt;Ot=dt^Ct;Mt=vt^kt;_t=mt^Lt;Dt=gt^At;Pt=yt^Ot;Ht=bt^Mt;Bt=wt^_t;jt=Et^Dt;Ft=St^zr[r|Ht]^zr[c|4];It=xt^zr[r|Bt];qt=Tt^zr[r|jt];Rt=Nt^zr[r|Pt];Ut=Ct^Ft;zt=kt^It;Wt=Lt^qt;Xt=At^Rt;Vt=Ot^Ut;$t=Mt^zt;Jt=_t^Wt;Kt=Dt^Xt;Qt=Pt^Vt;Gt=Ht^$t;Yt=Bt^Jt;Zt=jt^Kt;en=Ft^zr[r|Gt]^zr[c|5];tn=It^zr[r|Yt];nn=qt^zr[r|Zt];rn=Rt^zr[r|Qt];sn=Ut^en;on=zt^tn;un=Wt^nn;an=Xt^rn;fn=Vt^sn;ln=$t^on;cn=Jt^un;hn=Kt^an;pn=Qt^fn;dn=Gt^ln;vn=Yt^cn;mn=Zt^hn;gn=en^zr[r|dn]^zr[c|6];yn=tn^zr[r|vn];bn=nn^zr[r|mn];wn=rn^zr[r|pn];En=sn^gn;Sn=on^yn;xn=un^bn;Tn=an^wn;Nn=fn^En;Cn=ln^Sn;kn=cn^xn;Ln=hn^Tn;An=pn^Nn;On=dn^Cn;Mn=vn^kn;_n=mn^Ln;Dn=gn^zr[r|On]^zr[c|7];Pn=yn^zr[r|Mn];Hn=bn^zr[r|_n];Bn=wn^zr[r|An];jn=En^Dn;Fn=Sn^Pn;In=xn^Hn;qn=Tn^Bn;Rn=Nn^jn;Un=Cn^Fn;zn=kn^In;Wn=Ln^qn;Xn=An^Rn;Vn=On^Un;$n=Mn^zn;Jn=_n^Wn;Kn=Dn^zr[r|Vn]^zr[c|8];Qn=Pn^zr[r|$n];Gn=Hn^zr[r|Jn];Yn=Bn^zr[r|Xn];Zn=jn^Kn;er=Fn^Qn;tr=In^Gn;nr=qn^Yn;rr=Rn^Zn;ir=Un^er;sr=zn^tr;or=Wn^nr;ur=Xn^rr;ar=Vn^ir;fr=$n^sr;lr=Jn^or;cr=Kn^zr[r|ar]^zr[c|9];hr=Qn^zr[r|fr];pr=Gn^zr[r|lr];dr=Yn^zr[r|ur];vr=Zn^cr;mr=er^hr;gr=tr^pr;yr=nr^dr;br=rr^vr;wr=ir^mr;Er=sr^gr;Sr=or^yr;xr=ur^br;Tr=ar^wr;Nr=fr^Er;Cr=lr^Sr;kr=cr^zr[r|Tr]^zr[c|10];Lr=hr^zr[r|Nr];Ar=pr^zr[r|Cr];Or=dr^zr[r|xr];Mr=vr^kr;_r=mr^Lr;Dr=gr^Ar;Pr=yr^Or;Hr=br^Mr;Br=wr^_r;jr=Er^Dr;Fr=Sr^Pr;Ir=xr^Hr;qr=Tr^Br;Rr=Nr^jr;Ur=Cr^Fr}function Kr(){h=h^L;p=p^A;d=d^O;v=v^M;m=m^_;g=g^D;y=y^P;b=b^H;w=w^B;E=E^j;S=S^F;x=x^I;T=T^q;N=N^R;C=C^U;k=k^z;Vr();h=h^W;p=p^X;d=d^V;v=v^$;m=m^J;g=g^K;y=y^Q;b=b^G;w=w^Y;E=E^Z;S=S^et;x=x^tt;T=T^nt;N=N^rt;C=C^it;k=k^st;Vr();h=h^ot;p=p^ut;d=d^at;v=v^ft;m=m^lt;g=g^ct;y=y^ht;b=b^pt;w=w^dt;E=E^vt;S=S^mt;x=x^gt;T=T^yt;N=N^bt;C=C^wt;k=k^Et;Vr();h=h^St;p=p^xt;d=d^Tt;v=v^Nt;m=m^Ct;g=g^kt;y=y^Lt;b=b^At;w=w^Ot;E=E^Mt;S=S^_t;x=x^Dt;T=T^Pt;N=N^Ht;C=C^Bt;k=k^jt;Vr();h=h^Ft;p=p^It;d=d^qt;v=v^Rt;m=m^Ut;g=g^zt;y=y^Wt;b=b^Xt;w=w^Vt;E=E^$t;S=S^Jt;x=x^Kt;T=T^Qt;N=N^Gt;C=C^Yt;k=k^Zt;Vr();h=h^en;p=p^tn;d=d^nn;v=v^rn;m=m^sn;g=g^on;y=y^un;b=b^an;w=w^fn;E=E^ln;S=S^cn;x=x^hn;T=T^pn;N=N^dn;C=C^vn;k=k^mn;Vr();h=h^gn;p=p^yn;d=d^bn;v=v^wn;m=m^En;g=g^Sn;y=y^xn;b=b^Tn;w=w^Nn;E=E^Cn;S=S^kn;x=x^Ln;T=T^An;N=N^On;C=C^Mn;k=k^_n;Vr();h=h^Dn;p=p^Pn;d=d^Hn;v=v^Bn;m=m^jn;g=g^Fn;y=y^In;b=b^qn;w=w^Rn;E=E^Un;S=S^zn;x=x^Wn;T=T^Xn;N=N^Vn;C=C^$n;k=k^Jn;Vr();h=h^Kn;p=p^Qn;d=d^Gn;v=v^Yn;m=m^Zn;g=g^er;y=y^tr;b=b^nr;w=w^rr;E=E^ir;S=S^sr;x=x^or;T=T^ur;N=N^ar;C=C^fr;k=k^lr;Vr();h=h^cr;p=p^hr;d=d^pr;v=v^dr;m=m^vr;g=g^mr;y=y^gr;b=b^yr;w=w^br;E=E^wr;S=S^Er;x=x^Sr;T=T^xr;N=N^Tr;C=C^Nr;k=k^Cr;Wr();h=h^kr;p=p^Lr;d=d^Ar;v=v^Or;m=m^Mr;g=g^_r;y=y^Dr;b=b^Pr;w=w^Hr;E=E^Br;S=S^jr;x=x^Fr;T=T^Ir;N=N^qr;C=C^Rr;k=k^Ur}function Qr(){h=h^kr;p=p^Lr;d=d^Ar;v=v^Or;m=m^Mr;g=g^_r;y=y^Dr;b=b^Pr;w=w^Hr;E=E^Br;S=S^jr;x=x^Fr;T=T^Ir;N=N^qr;C=C^Rr;k=k^Ur;Xr();h=h^cr;p=p^hr;d=d^pr;v=v^dr;m=m^vr;g=g^mr;y=y^gr;b=b^yr;w=w^br;E=E^wr;S=S^Er;x=x^Sr;T=T^xr;N=N^Tr;C=C^Nr;k=k^Cr;$r();h=h^Kn;p=p^Qn;d=d^Gn;v=v^Yn;m=m^Zn;g=g^er;y=y^tr;b=b^nr;w=w^rr;E=E^ir;S=S^sr;x=x^or;T=T^ur;N=N^ar;C=C^fr;k=k^lr;$r();h=h^Dn;p=p^Pn;d=d^Hn;v=v^Bn;m=m^jn;g=g^Fn;y=y^In;b=b^qn;w=w^Rn;E=E^Un;S=S^zn;x=x^Wn;T=T^Xn;N=N^Vn;C=C^$n;k=k^Jn;$r();h=h^gn;p=p^yn;d=d^bn;v=v^wn;m=m^En;g=g^Sn;y=y^xn;b=b^Tn;w=w^Nn;E=E^Cn;S=S^kn;x=x^Ln;T=T^An;N=N^On;C=C^Mn;k=k^_n;$r();h=h^en;p=p^tn;d=d^nn;v=v^rn;m=m^sn;g=g^on;y=y^un;b=b^an;w=w^fn;E=E^ln;S=S^cn;x=x^hn;T=T^pn;N=N^dn;C=C^vn;k=k^mn;$r();h=h^Ft;p=p^It;d=d^qt;v=v^Rt;m=m^Ut;g=g^zt;y=y^Wt;b=b^Xt;w=w^Vt;E=E^$t;S=S^Jt;x=x^Kt;T=T^Qt;N=N^Gt;C=C^Yt;k=k^Zt;$r();h=h^St;p=p^xt;d=d^Tt;v=v^Nt;m=m^Ct;g=g^kt;y=y^Lt;b=b^At;w=w^Ot;E=E^Mt;S=S^_t;x=x^Dt;T=T^Pt;N=N^Ht;C=C^Bt;k=k^jt;$r();h=h^ot;p=p^ut;d=d^at;v=v^ft;m=m^lt;g=g^ct;y=y^ht;b=b^pt;w=w^dt;E=E^vt;S=S^mt;x=x^gt;T=T^yt;N=N^bt;C=C^wt;k=k^Et;$r();h=h^W;p=p^X;d=d^V;v=v^$;m=m^J;g=g^K;y=y^Q;b=b^G;w=w^Y;E=E^Z;S=S^et;x=x^tt;T=T^nt;N=N^rt;C=C^it;k=k^st;$r();h=h^L;p=p^A;d=d^O;v=v^M;m=m^_;g=g^D;y=y^P;b=b^H;w=w^B;E=E^j;S=S^F;x=x^I;T=T^q;N=N^R;C=C^U;k=k^z}function Gr(e,t,n,r,i,s,o,u,a,f,l,c,L,A,O,M){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;c=c|0;L=L|0;A=A|0;O=O|0;M=M|0;h=e;p=t;d=n;v=r;m=i;g=s;y=o;b=u;w=a;E=f;S=l;x=c;T=L;N=A;C=O;k=M}function Yr(e,t,n,r,i,s,o,u,a,f,l,c,h,p,d,v){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;c=c|0;h=h|0;p=p|0;d=d|0;v=v|0;L=e;A=t;O=n;M=r;_=i;D=s;P=o;H=u;B=a;j=f;F=l;I=c;q=h;R=p;U=d;z=v;Jr()}function Zr(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){h=zr[e|0]|0;p=zr[e|1]|0;d=zr[e|2]|0;v=zr[e|3]|0;m=zr[e|4]|0;g=zr[e|5]|0;y=zr[e|6]|0;b=zr[e|7]|0;w=zr[e|8]|0;E=zr[e|9]|0;S=zr[e|10]|0;x=zr[e|11]|0;T=zr[e|12]|0;N=zr[e|13]|0;C=zr[e|14]|0;k=zr[e|15]|0;Kr();zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}}function ei(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){h=zr[e|0]|0;p=zr[e|1]|0;d=zr[e|2]|0;v=zr[e|3]|0;m=zr[e|4]|0;g=zr[e|5]|0;y=zr[e|6]|0;b=zr[e|7]|0;w=zr[e|8]|0;E=zr[e|9]|0;S=zr[e|10]|0;x=zr[e|11]|0;T=zr[e|12]|0;N=zr[e|13]|0;C=zr[e|14]|0;k=zr[e|15]|0;Qr();zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}}function ti(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){h=h^zr[e|0];p=p^zr[e|1];d=d^zr[e|2];v=v^zr[e|3];m=m^zr[e|4];g=g^zr[e|5];y=y^zr[e|6];b=b^zr[e|7];w=w^zr[e|8];E=E^zr[e|9];S=S^zr[e|10];x=x^zr[e|11];T=T^zr[e|12];N=N^zr[e|13];C=C^zr[e|14];k=k^zr[e|15];Kr();zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}}function ni(e,t){e=e|0;t=t|0;var n=0,r=0,i=0,s=0,o=0,u=0,a=0,f=0,l=0,c=0,L=0,A=0,O=0,M=0,_=0,D=0;if(e&15|t&15)return-1;n=h;r=p;i=d;s=v;o=m;u=g;a=y;f=b;l=w;c=E;L=S;A=x;O=T;M=N;_=C;D=k;while((t|0)>0){h=zr[e|0]|0;p=zr[e|1]|0;d=zr[e|2]|0;v=zr[e|3]|0;m=zr[e|4]|0;g=zr[e|5]|0;y=zr[e|6]|0;b=zr[e|7]|0;w=zr[e|8]|0;E=zr[e|9]|0;S=zr[e|10]|0;x=zr[e|11]|0;T=zr[e|12]|0;N=zr[e|13]|0;C=zr[e|14]|0;k=zr[e|15]|0;Qr();h=h^n;n=zr[e|0]|0;p=p^r;r=zr[e|1]|0;d=d^i;i=zr[e|2]|0;v=v^s;s=zr[e|3]|0;m=m^o;o=zr[e|4]|0;g=g^u;u=zr[e|5]|0;y=y^a;a=zr[e|6]|0;b=b^f;f=zr[e|7]|0;w=w^l;l=zr[e|8]|0;E=E^c;c=zr[e|9]|0;S=S^L;L=zr[e|10]|0;x=x^A;A=zr[e|11]|0;T=T^O;O=zr[e|12]|0;N=N^M;M=zr[e|13]|0;C=C^_;_=zr[e|14]|0;k=k^D;D=zr[e|15]|0;zr[e|0]=h;zr[e|1]=p;zr[e|2]=d;zr[e|3]=v;zr[e|4]=m;zr[e|5]=g;zr[e|6]=y;zr[e|7]=b;zr[e|8]=w;zr[e|9]=E;zr[e|10]=S;zr[e|11]=x;zr[e|12]=T;zr[e|13]=N;zr[e|14]=C;zr[e|15]=k;e=e+16|0;t=t-16|0}h=n;p=r;d=i;v=s;m=o;g=u;y=a;b=f;w=l;E=c;S=L;x=A;T=O;N=M;C=_;k=D}return{init_state:Gr,init_key_128:Yr,ecb_encrypt:Zr,ecb_decrypt:ei,cbc_encrypt:ti,cbc_decrypt:ni}'))( stdlib, foreign, buffer );
+    return (new Function('e,t,n','"use asm";var r=0,i=256,s=512,o=768,u=1024,a=1280,f=1536,l=1792,c=0,h=0,p=0,d=0,v=0,m=0,g=0,y=0,b=0,w=0,E=0,S=0,x=0,T=0,N=0,C=0,k=0,L=0,A=0,O=0,M=0,_=0,D=0,P=0,H=0,B=0,j=0,F=0,I=0,q=0,R=0,U=0,z=0,W=0,X=0,V=0,$=0,J=0,K=0,Q=0,G=0,Y=0,Z=0,et=0,tt=0,nt=0,rt=0,it=0,st=0,ot=0,ut=0,at=0,ft=0,lt=0,ct=0,ht=0,pt=0,dt=0,vt=0,mt=0,gt=0,yt=0,bt=0,wt=0,Et=0,St=0,xt=0,Tt=0,Nt=0,Ct=0,kt=0,Lt=0,At=0,Ot=0,Mt=0,_t=0,Dt=0,Pt=0,Ht=0,Bt=0,jt=0,Ft=0,It=0,qt=0,Rt=0,Ut=0,zt=0,Wt=0,Xt=0,Vt=0,$t=0,Jt=0,Kt=0,Qt=0,Gt=0,Yt=0,Zt=0,en=0,tn=0,nn=0,rn=0,sn=0,on=0,un=0,an=0,fn=0,ln=0,cn=0,hn=0,pn=0,dn=0,vn=0,mn=0,gn=0,yn=0,bn=0,wn=0,En=0,Sn=0,xn=0,Tn=0,Nn=0,Cn=0,kn=0,Ln=0,An=0,On=0,Mn=0,_n=0,Dn=0,Pn=0,Hn=0,Bn=0,jn=0,Fn=0,In=0,qn=0,Rn=0,Un=0,zn=0,Wn=0,Xn=0,Vn=0,$n=0,Jn=0,Kn=0,Qn=0,Gn=0,Yn=0,Zn=0,er=0,tr=0,nr=0,rr=0,ir=0,sr=0,or=0,ur=0,ar=0,fr=0,lr=0,cr=0,hr=0,pr=0,dr=0,vr=0,mr=0,gr=0,yr=0,br=0,wr=0,Er=0,Sr=0,xr=0,Tr=0,Nr=0,Cr=0,kr=0,Lr=0,Ar=0,Or=0,Mr=0,_r=0,Dr=0,Pr=0,Hr=0,Br=0,jr=0,Fr=0,Ir=0,qr=0,Rr=0;var Ur=new e.Uint8Array(n);function zr(){var e=0;c=Ur[r|c]|0;v=Ur[r|v]|0;b=Ur[r|b]|0;x=Ur[r|x]|0;e=Ur[r|h]|0;h=Ur[r|m]|0;m=Ur[r|w]|0;w=Ur[r|T]|0;T=e;e=Ur[r|p]|0;p=Ur[r|E]|0;E=e;e=Ur[r|g]|0;g=Ur[r|N]|0;N=e;e=Ur[r|C]|0;C=Ur[r|S]|0;S=Ur[r|y]|0;y=Ur[r|d]|0;d=e}function Wr(){var e=0;c=Ur[i|c]|0;v=Ur[i|v]|0;b=Ur[i|b]|0;x=Ur[i|x]|0;e=Ur[i|T]|0;T=Ur[i|w]|0;w=Ur[i|m]|0;m=Ur[i|h]|0;h=e;e=Ur[i|p]|0;p=Ur[i|E]|0;E=e;e=Ur[i|g]|0;g=Ur[i|N]|0;N=e;e=Ur[i|d]|0;d=Ur[i|y]|0;y=Ur[i|S]|0;S=Ur[i|C]|0;C=e}function Xr(){var e=0,t=0,n=0,i=0,u=0,a=0,f=0,l=0,k=0,L=0,A=0,O=0,M=0,_=0,D=0,P=0;e=Ur[s|c]^Ur[o|m]^Ur[r|E]^Ur[r|C];t=Ur[r|c]^Ur[s|m]^Ur[o|E]^Ur[r|C];n=Ur[r|c]^Ur[r|m]^Ur[s|E]^Ur[o|C];i=Ur[o|c]^Ur[r|m]^Ur[r|E]^Ur[s|C];u=Ur[s|v]^Ur[o|w]^Ur[r|N]^Ur[r|d];a=Ur[r|v]^Ur[s|w]^Ur[o|N]^Ur[r|d];f=Ur[r|v]^Ur[r|w]^Ur[s|N]^Ur[o|d];l=Ur[o|v]^Ur[r|w]^Ur[r|N]^Ur[s|d];k=Ur[s|b]^Ur[o|T]^Ur[r|p]^Ur[r|y];L=Ur[r|b]^Ur[s|T]^Ur[o|p]^Ur[r|y];A=Ur[r|b]^Ur[r|T]^Ur[s|p]^Ur[o|y];O=Ur[o|b]^Ur[r|T]^Ur[r|p]^Ur[s|y];M=Ur[s|x]^Ur[o|h]^Ur[r|g]^Ur[r|S];_=Ur[r|x]^Ur[s|h]^Ur[o|g]^Ur[r|S];D=Ur[r|x]^Ur[r|h]^Ur[s|g]^Ur[o|S];P=Ur[o|x]^Ur[r|h]^Ur[r|g]^Ur[s|S];c=e|0;h=t|0;p=n|0;d=i|0;v=u|0;m=a|0;g=f|0;y=l|0;b=k|0;w=L|0;E=A|0;S=O|0;x=M|0;T=_|0;N=D|0;C=P|0}function Vr(){var e=0,t=0,n=0,r=0,s=0,o=0,k=0,L=0,A=0,O=0,M=0,_=0,D=0,P=0,H=0,B=0;e=Ur[l|c]^Ur[a|h]^Ur[f|p]^Ur[u|d];o=Ur[u|c]^Ur[l|h]^Ur[a|p]^Ur[f|d];M=Ur[f|c]^Ur[u|h]^Ur[l|p]^Ur[a|d];B=Ur[a|c]^Ur[f|h]^Ur[u|p]^Ur[l|d];s=Ur[l|v]^Ur[a|m]^Ur[f|g]^Ur[u|y];O=Ur[u|v]^Ur[l|m]^Ur[a|g]^Ur[f|y];H=Ur[f|v]^Ur[u|m]^Ur[l|g]^Ur[a|y];r=Ur[a|v]^Ur[f|m]^Ur[u|g]^Ur[l|y];A=Ur[l|b]^Ur[a|w]^Ur[f|E]^Ur[u|S];P=Ur[u|b]^Ur[l|w]^Ur[a|E]^Ur[f|S];n=Ur[f|b]^Ur[u|w]^Ur[l|E]^Ur[a|S];L=Ur[a|b]^Ur[f|w]^Ur[u|E]^Ur[l|S];D=Ur[l|x]^Ur[a|T]^Ur[f|N]^Ur[u|C];t=Ur[u|x]^Ur[l|T]^Ur[a|N]^Ur[f|C];k=Ur[f|x]^Ur[u|T]^Ur[l|N]^Ur[a|C];_=Ur[a|x]^Ur[f|T]^Ur[u|N]^Ur[l|C];c=Ur[i|e]|0;h=Ur[i|t]|0;p=Ur[i|n]|0;d=Ur[i|r]|0;v=Ur[i|s]|0;m=Ur[i|o]|0;g=Ur[i|k]|0;y=Ur[i|L]|0;b=Ur[i|A]|0;w=Ur[i|O]|0;E=Ur[i|M]|0;S=Ur[i|_]|0;x=Ur[i|D]|0;T=Ur[i|P]|0;N=Ur[i|H]|0;C=Ur[i|B]|0}function $r(){z=k^Ur[r|q]^1;W=L^Ur[r|R];X=A^Ur[r|U];V=O^Ur[r|I];$=M^z;J=_^W;K=D^X;Q=P^V;G=H^$;Y=B^J;Z=j^K;et=F^Q;tt=I^G;nt=q^Y;rt=R^Z;it=U^et;st=z^Ur[r|nt]^2;ot=W^Ur[r|rt];ut=X^Ur[r|it];at=V^Ur[r|tt];ft=$^st;lt=J^ot;ct=K^ut;ht=Q^at;pt=G^ft;dt=Y^lt;vt=Z^ct;mt=et^ht;gt=tt^pt;yt=nt^dt;bt=rt^vt;wt=it^mt;Et=st^Ur[r|yt]^4;St=ot^Ur[r|bt];xt=ut^Ur[r|wt];Tt=at^Ur[r|gt];Nt=ft^Et;Ct=lt^St;kt=ct^xt;Lt=ht^Tt;At=pt^Nt;Ot=dt^Ct;Mt=vt^kt;_t=mt^Lt;Dt=gt^At;Pt=yt^Ot;Ht=bt^Mt;Bt=wt^_t;jt=Et^Ur[r|Pt]^8;Ft=St^Ur[r|Ht];It=xt^Ur[r|Bt];qt=Tt^Ur[r|Dt];Rt=Nt^jt;Ut=Ct^Ft;zt=kt^It;Wt=Lt^qt;Xt=At^Rt;Vt=Ot^Ut;$t=Mt^zt;Jt=_t^Wt;Kt=Dt^Xt;Qt=Pt^Vt;Gt=Ht^$t;Yt=Bt^Jt;Zt=jt^Ur[r|Qt]^16;en=Ft^Ur[r|Gt];tn=It^Ur[r|Yt];nn=qt^Ur[r|Kt];rn=Rt^Zt;sn=Ut^en;on=zt^tn;un=Wt^nn;an=Xt^rn;fn=Vt^sn;ln=$t^on;cn=Jt^un;hn=Kt^an;pn=Qt^fn;dn=Gt^ln;vn=Yt^cn;mn=Zt^Ur[r|pn]^32;gn=en^Ur[r|dn];yn=tn^Ur[r|vn];bn=nn^Ur[r|hn];wn=rn^mn;En=sn^gn;Sn=on^yn;xn=un^bn;Tn=an^wn;Nn=fn^En;Cn=ln^Sn;kn=cn^xn;Ln=hn^Tn;An=pn^Nn;On=dn^Cn;Mn=vn^kn;_n=mn^Ur[r|An]^64;Dn=gn^Ur[r|On];Pn=yn^Ur[r|Mn];Hn=bn^Ur[r|Ln];Bn=wn^_n;jn=En^Dn;Fn=Sn^Pn;In=xn^Hn;qn=Tn^Bn;Rn=Nn^jn;Un=Cn^Fn;zn=kn^In;Wn=Ln^qn;Xn=An^Rn;Vn=On^Un;$n=Mn^zn;Jn=_n^Ur[r|Xn]^128;Kn=Dn^Ur[r|Vn];Qn=Pn^Ur[r|$n];Gn=Hn^Ur[r|Wn];Yn=Bn^Jn;Zn=jn^Kn;er=Fn^Qn;tr=In^Gn;nr=qn^Yn;rr=Rn^Zn;ir=Un^er;sr=zn^tr;or=Wn^nr;ur=Xn^rr;ar=Vn^ir;fr=$n^sr;lr=Jn^Ur[r|ur]^27;cr=Kn^Ur[r|ar];hr=Qn^Ur[r|fr];pr=Gn^Ur[r|or];dr=Yn^lr;vr=Zn^cr;mr=er^hr;gr=tr^pr;yr=nr^dr;br=rr^vr;wr=ir^mr;Er=sr^gr;Sr=or^yr;xr=ur^br;Tr=ar^wr;Nr=fr^Er;Cr=lr^Ur[r|xr]^54;kr=cr^Ur[r|Tr];Lr=hr^Ur[r|Nr];Ar=pr^Ur[r|Sr];Or=dr^Cr;Mr=vr^kr;_r=mr^Lr;Dr=gr^Ar;Pr=yr^Or;Hr=br^Mr;Br=wr^_r;jr=Er^Dr;Fr=Sr^Pr;Ir=xr^Hr;qr=Tr^Br;Rr=Nr^jr}function Jr(){c=c^k;h=h^L;p=p^A;d=d^O;v=v^M;m=m^_;g=g^D;y=y^P;b=b^H;w=w^B;E=E^j;S=S^F;x=x^I;T=T^q;N=N^R;C=C^U;Xr();c=c^z;h=h^W;p=p^X;d=d^V;v=v^$;m=m^J;g=g^K;y=y^Q;b=b^G;w=w^Y;E=E^Z;S=S^et;x=x^tt;T=T^nt;N=N^rt;C=C^it;Xr();c=c^st;h=h^ot;p=p^ut;d=d^at;v=v^ft;m=m^lt;g=g^ct;y=y^ht;b=b^pt;w=w^dt;E=E^vt;S=S^mt;x=x^gt;T=T^yt;N=N^bt;C=C^wt;Xr();c=c^Et;h=h^St;p=p^xt;d=d^Tt;v=v^Nt;m=m^Ct;g=g^kt;y=y^Lt;b=b^At;w=w^Ot;E=E^Mt;S=S^_t;x=x^Dt;T=T^Pt;N=N^Ht;C=C^Bt;Xr();c=c^jt;h=h^Ft;p=p^It;d=d^qt;v=v^Rt;m=m^Ut;g=g^zt;y=y^Wt;b=b^Xt;w=w^Vt;E=E^$t;S=S^Jt;x=x^Kt;T=T^Qt;N=N^Gt;C=C^Yt;Xr();c=c^Zt;h=h^en;p=p^tn;d=d^nn;v=v^rn;m=m^sn;g=g^on;y=y^un;b=b^an;w=w^fn;E=E^ln;S=S^cn;x=x^hn;T=T^pn;N=N^dn;C=C^vn;Xr();c=c^mn;h=h^gn;p=p^yn;d=d^bn;v=v^wn;m=m^En;g=g^Sn;y=y^xn;b=b^Tn;w=w^Nn;E=E^Cn;S=S^kn;x=x^Ln;T=T^An;N=N^On;C=C^Mn;Xr();c=c^_n;h=h^Dn;p=p^Pn;d=d^Hn;v=v^Bn;m=m^jn;g=g^Fn;y=y^In;b=b^qn;w=w^Rn;E=E^Un;S=S^zn;x=x^Wn;T=T^Xn;N=N^Vn;C=C^$n;Xr();c=c^Jn;h=h^Kn;p=p^Qn;d=d^Gn;v=v^Yn;m=m^Zn;g=g^er;y=y^tr;b=b^nr;w=w^rr;E=E^ir;S=S^sr;x=x^or;T=T^ur;N=N^ar;C=C^fr;Xr();c=c^lr;h=h^cr;p=p^hr;d=d^pr;v=v^dr;m=m^vr;g=g^mr;y=y^gr;b=b^yr;w=w^br;E=E^wr;S=S^Er;x=x^Sr;T=T^xr;N=N^Tr;C=C^Nr;zr();c=c^Cr;h=h^kr;p=p^Lr;d=d^Ar;v=v^Or;m=m^Mr;g=g^_r;y=y^Dr;b=b^Pr;w=w^Hr;E=E^Br;S=S^jr;x=x^Fr;T=T^Ir;N=N^qr;C=C^Rr}function Kr(){c=c^Cr;h=h^kr;p=p^Lr;d=d^Ar;v=v^Or;m=m^Mr;g=g^_r;y=y^Dr;b=b^Pr;w=w^Hr;E=E^Br;S=S^jr;x=x^Fr;T=T^Ir;N=N^qr;C=C^Rr;Wr();c=c^lr;h=h^cr;p=p^hr;d=d^pr;v=v^dr;m=m^vr;g=g^mr;y=y^gr;b=b^yr;w=w^br;E=E^wr;S=S^Er;x=x^Sr;T=T^xr;N=N^Tr;C=C^Nr;Vr();c=c^Jn;h=h^Kn;p=p^Qn;d=d^Gn;v=v^Yn;m=m^Zn;g=g^er;y=y^tr;b=b^nr;w=w^rr;E=E^ir;S=S^sr;x=x^or;T=T^ur;N=N^ar;C=C^fr;Vr();c=c^_n;h=h^Dn;p=p^Pn;d=d^Hn;v=v^Bn;m=m^jn;g=g^Fn;y=y^In;b=b^qn;w=w^Rn;E=E^Un;S=S^zn;x=x^Wn;T=T^Xn;N=N^Vn;C=C^$n;Vr();c=c^mn;h=h^gn;p=p^yn;d=d^bn;v=v^wn;m=m^En;g=g^Sn;y=y^xn;b=b^Tn;w=w^Nn;E=E^Cn;S=S^kn;x=x^Ln;T=T^An;N=N^On;C=C^Mn;Vr();c=c^Zt;h=h^en;p=p^tn;d=d^nn;v=v^rn;m=m^sn;g=g^on;y=y^un;b=b^an;w=w^fn;E=E^ln;S=S^cn;x=x^hn;T=T^pn;N=N^dn;C=C^vn;Vr();c=c^jt;h=h^Ft;p=p^It;d=d^qt;v=v^Rt;m=m^Ut;g=g^zt;y=y^Wt;b=b^Xt;w=w^Vt;E=E^$t;S=S^Jt;x=x^Kt;T=T^Qt;N=N^Gt;C=C^Yt;Vr();c=c^Et;h=h^St;p=p^xt;d=d^Tt;v=v^Nt;m=m^Ct;g=g^kt;y=y^Lt;b=b^At;w=w^Ot;E=E^Mt;S=S^_t;x=x^Dt;T=T^Pt;N=N^Ht;C=C^Bt;Vr();c=c^st;h=h^ot;p=p^ut;d=d^at;v=v^ft;m=m^lt;g=g^ct;y=y^ht;b=b^pt;w=w^dt;E=E^vt;S=S^mt;x=x^gt;T=T^yt;N=N^bt;C=C^wt;Vr();c=c^z;h=h^W;p=p^X;d=d^V;v=v^$;m=m^J;g=g^K;y=y^Q;b=b^G;w=w^Y;E=E^Z;S=S^et;x=x^tt;T=T^nt;N=N^rt;C=C^it;Vr();c=c^k;h=h^L;p=p^A;d=d^O;v=v^M;m=m^_;g=g^D;y=y^P;b=b^H;w=w^B;E=E^j;S=S^F;x=x^I;T=T^q;N=N^R;C=C^U}function Qr(e,t,n,r,i,s,o,u,a,f,l,k,L,A,O,M){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;k=k|0;L=L|0;A=A|0;O=O|0;M=M|0;c=e;h=t;p=n;d=r;v=i;m=s;g=o;y=u;b=a;w=f;E=l;S=k;x=L;T=A;N=O;C=M}function Gr(e){e=e|0;Ur[e]=c;Ur[e|1]=h;Ur[e|2]=p;Ur[e|3]=d;Ur[e|4]=v;Ur[e|5]=m;Ur[e|6]=g;Ur[e|7]=y;Ur[e|8]=b;Ur[e|9]=w;Ur[e|10]=E;Ur[e|11]=S;Ur[e|12]=x;Ur[e|13]=T;Ur[e|14]=N;Ur[e|15]=C}function Yr(e,t,n,r,i,s,o,u,a,f,l,c,h,p,d,v){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;c=c|0;h=h|0;p=p|0;d=d|0;v=v|0;k=e;L=t;A=n;O=r;M=i;_=s;D=o;P=u;H=a;B=f;j=l;F=c;I=h;q=p;R=d;U=v;$r()}function Zr(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){c=Ur[e]|0;h=Ur[e|1]|0;p=Ur[e|2]|0;d=Ur[e|3]|0;v=Ur[e|4]|0;m=Ur[e|5]|0;g=Ur[e|6]|0;y=Ur[e|7]|0;b=Ur[e|8]|0;w=Ur[e|9]|0;E=Ur[e|10]|0;S=Ur[e|11]|0;x=Ur[e|12]|0;T=Ur[e|13]|0;N=Ur[e|14]|0;C=Ur[e|15]|0;Jr();Ur[e]=c;Ur[e|1]=h;Ur[e|2]=p;Ur[e|3]=d;Ur[e|4]=v;Ur[e|5]=m;Ur[e|6]=g;Ur[e|7]=y;Ur[e|8]=b;Ur[e|9]=w;Ur[e|10]=E;Ur[e|11]=S;Ur[e|12]=x;Ur[e|13]=T;Ur[e|14]=N;Ur[e|15]=C;e=e+16|0;t=t-16|0}}function ei(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){c=Ur[e]|0;h=Ur[e|1]|0;p=Ur[e|2]|0;d=Ur[e|3]|0;v=Ur[e|4]|0;m=Ur[e|5]|0;g=Ur[e|6]|0;y=Ur[e|7]|0;b=Ur[e|8]|0;w=Ur[e|9]|0;E=Ur[e|10]|0;S=Ur[e|11]|0;x=Ur[e|12]|0;T=Ur[e|13]|0;N=Ur[e|14]|0;C=Ur[e|15]|0;Kr();Ur[e]=c;Ur[e|1]=h;Ur[e|2]=p;Ur[e|3]=d;Ur[e|4]=v;Ur[e|5]=m;Ur[e|6]=g;Ur[e|7]=y;Ur[e|8]=b;Ur[e|9]=w;Ur[e|10]=E;Ur[e|11]=S;Ur[e|12]=x;Ur[e|13]=T;Ur[e|14]=N;Ur[e|15]=C;e=e+16|0;t=t-16|0}}function ti(e,t){e=e|0;t=t|0;if(e&15|t&15)return-1;while((t|0)>0){c=c^Ur[e];h=h^Ur[e|1];p=p^Ur[e|2];d=d^Ur[e|3];v=v^Ur[e|4];m=m^Ur[e|5];g=g^Ur[e|6];y=y^Ur[e|7];b=b^Ur[e|8];w=w^Ur[e|9];E=E^Ur[e|10];S=S^Ur[e|11];x=x^Ur[e|12];T=T^Ur[e|13];N=N^Ur[e|14];C=C^Ur[e|15];Jr();Ur[e]=c;Ur[e|1]=h;Ur[e|2]=p;Ur[e|3]=d;Ur[e|4]=v;Ur[e|5]=m;Ur[e|6]=g;Ur[e|7]=y;Ur[e|8]=b;Ur[e|9]=w;Ur[e|10]=E;Ur[e|11]=S;Ur[e|12]=x;Ur[e|13]=T;Ur[e|14]=N;Ur[e|15]=C;e=e+16|0;t=t-16|0}}function ni(e,t){e=e|0;t=t|0;var n=0,r=0,i=0,s=0,o=0,u=0,a=0,f=0,l=0,k=0,L=0,A=0,O=0,M=0,_=0,D=0;if(e&15|t&15)return-1;n=c;r=h;i=p;s=d;o=v;u=m;a=g;f=y;l=b;k=w;L=E;A=S;O=x;M=T;_=N;D=C;while((t|0)>0){c=Ur[e]|0;h=Ur[e|1]|0;p=Ur[e|2]|0;d=Ur[e|3]|0;v=Ur[e|4]|0;m=Ur[e|5]|0;g=Ur[e|6]|0;y=Ur[e|7]|0;b=Ur[e|8]|0;w=Ur[e|9]|0;E=Ur[e|10]|0;S=Ur[e|11]|0;x=Ur[e|12]|0;T=Ur[e|13]|0;N=Ur[e|14]|0;C=Ur[e|15]|0;Kr();c=c^n;n=Ur[e]|0;h=h^r;r=Ur[e|1]|0;p=p^i;i=Ur[e|2]|0;d=d^s;s=Ur[e|3]|0;v=v^o;o=Ur[e|4]|0;m=m^u;u=Ur[e|5]|0;g=g^a;a=Ur[e|6]|0;y=y^f;f=Ur[e|7]|0;b=b^l;l=Ur[e|8]|0;w=w^k;k=Ur[e|9]|0;E=E^L;L=Ur[e|10]|0;S=S^A;A=Ur[e|11]|0;x=x^O;O=Ur[e|12]|0;T=T^M;M=Ur[e|13]|0;N=N^_;_=Ur[e|14]|0;C=C^D;D=Ur[e|15]|0;Ur[e]=c;Ur[e|1]=h;Ur[e|2]=p;Ur[e|3]=d;Ur[e|4]=v;Ur[e|5]=m;Ur[e|6]=g;Ur[e|7]=y;Ur[e|8]=b;Ur[e|9]=w;Ur[e|10]=E;Ur[e|11]=S;Ur[e|12]=x;Ur[e|13]=T;Ur[e|14]=N;Ur[e|15]=C;e=e+16|0;t=t-16|0}c=n;h=r;p=i;d=s;v=o;m=u;g=a;y=f;b=l;w=k;E=L;S=A;x=O;T=M;N=_;C=D}function ri(e,t,n){e=e|0;t=t|0;n=n|0;if(e&15)return-1;if(~n)if(n&31)return-1;while((t|0)>=16){c=c^Ur[e];h=h^Ur[e|1];p=p^Ur[e|2];d=d^Ur[e|3];v=v^Ur[e|4];m=m^Ur[e|5];g=g^Ur[e|6];y=y^Ur[e|7];b=b^Ur[e|8];w=w^Ur[e|9];E=E^Ur[e|10];S=S^Ur[e|11];x=x^Ur[e|12];T=T^Ur[e|13];N=N^Ur[e|14];C=C^Ur[e|15];Jr();e=e+16|0;t=t-16|0}if((t|0)>0){c=c^Ur[e];if((t|0)>1)h=h^Ur[e|1];if((t|0)>2)p=p^Ur[e|2];if((t|0)>3)d=d^Ur[e|3];if((t|0)>4)v=v^Ur[e|4];if((t|0)>5)m=m^Ur[e|5];if((t|0)>6)g=g^Ur[e|6];if((t|0)>7)y=y^Ur[e|7];if((t|0)>8)b=b^Ur[e|8];if((t|0)>9)w=w^Ur[e|9];if((t|0)>10)E=E^Ur[e|10];if((t|0)>11)S=S^Ur[e|11];if((t|0)>12)x=x^Ur[e|12];if((t|0)>13)T=T^Ur[e|13];if((t|0)>14)N=N^Ur[e|14];Jr();e=e+t|0;t=0}if(~n){Ur[n|0]=c;Ur[n|1]=h;Ur[n|2]=p;Ur[n|3]=d;Ur[n|4]=v;Ur[n|5]=m;Ur[n|6]=g;Ur[n|7]=y;Ur[n|8]=b;Ur[n|9]=w;Ur[n|10]=E;Ur[n|11]=S;Ur[n|12]=x;Ur[n|13]=T;Ur[n|14]=N;Ur[n|15]=C}}function ii(e,t,n,r,i,s,o,u,a,f,l,k,L,A,O,M,_){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;k=k|0;L=L|0;A=A|0;O=O|0;M=M|0;_=_|0;var D=0,P=0,H=0,B=0,j=0,F=0,I=0,q=0,R=0,U=0,z=0,W=0,X=0,V=0,$=0,J=0,K=0,Q=0,G=0,Y=0,Z=0,et=0,tt=0,nt=0,rt=0,it=0,st=0,ot=0,ut=0,at=0,ft=0,lt=0;if(e&15)return-1;D=c,P=h,H=p,B=d,j=v,F=m,I=g,q=y,R=b,U=w,z=E,W=S,X=x,V=T,$=N,J=C;while((t|0)>=16){K=Ur[e]|0;Q=Ur[e|1]|0;G=Ur[e|2]|0;Y=Ur[e|3]|0;Z=Ur[e|4]|0;et=Ur[e|5]|0;tt=Ur[e|6]|0;nt=Ur[e|7]|0;rt=Ur[e|8]|0;it=Ur[e|9]|0;st=Ur[e|10]|0;ot=Ur[e|11]|0;ut=Ur[e|12]|0;at=Ur[e|13]|0;ft=Ur[e|14]|0;lt=Ur[e|15]|0;c=n,h=r,p=i,d=s,v=o,m=u,g=a,y=f,b=l,w=k,E=L,S=A;x=O^_>>>24;T=M^_>>>16&255,N=_>>>8&255,C=_&255;Jr();Ur[e]=K^c;Ur[e|1]=Q^h;Ur[e|2]=G^p;Ur[e|3]=Y^d;Ur[e|4]=Z^v;Ur[e|5]=et^m;Ur[e|6]=tt^g;Ur[e|7]=nt^y;Ur[e|8]=rt^b;Ur[e|9]=it^w;Ur[e|10]=st^E;Ur[e|11]=ot^S;Ur[e|12]=ut^x;Ur[e|13]=at^T;Ur[e|14]=ft^N;Ur[e|15]=lt^C;c=K^D;h=Q^P;p=G^H;d=Y^B;v=Z^j;m=et^F;g=tt^I;y=nt^q;b=rt^R;w=it^U;E=st^z;S=ot^W;x=ut^X;T=at^V;N=ft^$;C=lt^J;Jr();D=c,P=h,H=p,B=d,j=v,F=m,I=g,q=y,R=b,U=w,z=E,W=S,X=x,V=T,$=N,J=C;e=e+16|0;t=t-16|0;_=_+1|0}if((t|0)>0){K=Ur[e]|0;Q=(t|0)>1?Ur[e|1]|0:0;G=(t|0)>2?Ur[e|2]|0:0;Y=(t|0)>3?Ur[e|3]|0:0;Z=(t|0)>4?Ur[e|4]|0:0;et=(t|0)>5?Ur[e|5]|0:0;tt=(t|0)>6?Ur[e|6]|0:0;nt=(t|0)>7?Ur[e|7]|0:0;rt=(t|0)>8?Ur[e|8]|0:0;it=(t|0)>9?Ur[e|9]|0:0;st=(t|0)>10?Ur[e|10]|0:0;ot=(t|0)>11?Ur[e|11]|0:0;ut=(t|0)>12?Ur[e|12]|0:0;at=(t|0)>13?Ur[e|13]|0:0;ft=(t|0)>14?Ur[e|14]|0:0;c=n,h=r,p=i,d=s,v=o,m=u,g=a,y=f,b=l,w=k,E=L,S=A;x=O^_>>>24;T=M^_>>>16&255,N=_>>>8&255,C=_&255;Jr();Ur[e]=K^c;if((t|0)>1)Ur[e|1]=Q^h;if((t|0)>2)Ur[e|2]=G^p;if((t|0)>3)Ur[e|3]=Y^d;if((t|0)>4)Ur[e|4]=Z^v;if((t|0)>5)Ur[e|5]=et^m;if((t|0)>6)Ur[e|6]=tt^g;if((t|0)>7)Ur[e|7]=nt^y;if((t|0)>8)Ur[e|8]=rt^b;if((t|0)>9)Ur[e|9]=it^w;if((t|0)>10)Ur[e|10]=st^E;if((t|0)>11)Ur[e|11]=ot^S;if((t|0)>12)Ur[e|12]=ut^x;if((t|0)>13)Ur[e|13]=at^T;if((t|0)>14)Ur[e|14]=ft^N;c=K^D;h=Q^P;p=G^H;d=Y^B;v=Z^j;m=et^F;g=tt^I;y=nt^q;b=rt^R;w=it^U;E=st^z;S=ot^W;x=ut^X;T=at^V;N=ft^$;C=J;Jr();D=c,P=h,H=p,B=d,j=v,F=m,I=g,q=y,R=b,U=w,z=E,W=S,X=x,V=T,$=N,J=C;e=e+t|0;t=0;_=_+1|0}}function si(e,t,n,r,i,s,o,u,a,f,l,k,L,A,O,M,_){e=e|0;t=t|0;n=n|0;r=r|0;i=i|0;s=s|0;o=o|0;u=u|0;a=a|0;f=f|0;l=l|0;k=k|0;L=L|0;A=A|0;O=O|0;M=M|0;_=_|0;var D=0,P=0,H=0,B=0,j=0,F=0,I=0,q=0,R=0,U=0,z=0,W=0,X=0,V=0,$=0,J=0,K=0,Q=0,G=0,Y=0,Z=0,et=0,tt=0,nt=0,rt=0,it=0,st=0,ot=0,ut=0,at=0,ft=0,lt=0;if(e&15)return-1;D=c,P=h,H=p,B=d,j=v,F=m,I=g,q=y,R=b,U=w,z=E,W=S,X=x,V=T,$=N,J=C;while((t|0)>=16){c=n,h=r,p=i,d=s,v=o,m=u,g=a,y=f,b=l,w=k,E=L,S=A;x=O^_>>>24;T=M^_>>>16&255,N=_>>>8&255,C=_&255;Jr();Ur[e]=K=Ur[e]^c;Ur[e|1]=Q=Ur[e|1]^h;Ur[e|2]=G=Ur[e|2]^p;Ur[e|3]=Y=Ur[e|3]^d;Ur[e|4]=Z=Ur[e|4]^v;Ur[e|5]=et=Ur[e|5]^m;Ur[e|6]=tt=Ur[e|6]^g;Ur[e|7]=nt=Ur[e|7]^y;Ur[e|8]=rt=Ur[e|8]^b;Ur[e|9]=it=Ur[e|9]^w;Ur[e|10]=st=Ur[e|10]^E;Ur[e|11]=ot=Ur[e|11]^S;Ur[e|12]=ut=Ur[e|12]^x;Ur[e|13]=at=Ur[e|13]^T;Ur[e|14]=ft=Ur[e|14]^N;Ur[e|15]=lt=Ur[e|15]^C;c=K^D;h=Q^P;p=G^H;d=Y^B;v=Z^j;m=et^F;g=tt^I;y=nt^q;b=rt^R;w=it^U;E=st^z;S=ot^W;x=ut^X;T=at^V;N=ft^$;C=lt^J;Jr();D=c,P=h,H=p,B=d,j=v,F=m,I=g,q=y,R=b,U=w,z=E,W=S,X=x,V=T,$=N,J=C;e=e+16|0;t=t-16|0;_=_+1|0}if((t|0)>0){c=n,h=r,p=i,d=s,v=o,m=u,g=a,y=f,b=l,w=k,E=L,S=A;x=O^_>>>24;T=M^_>>>16&255,N=_>>>8&255,C=_&255;Jr();K=Ur[e]^c;Q=(t|0)>1?Ur[e|1]^h:0;G=(t|0)>2?Ur[e|2]^p:0;Y=(t|0)>3?Ur[e|3]^d:0;Z=(t|0)>4?Ur[e|4]^v:0;et=(t|0)>5?Ur[e|5]^m:0;tt=(t|0)>6?Ur[e|6]^g:0;nt=(t|0)>7?Ur[e|7]^y:0;rt=(t|0)>8?Ur[e|8]^b:0;it=(t|0)>9?Ur[e|9]^w:0;st=(t|0)>10?Ur[e|10]^E:0;ot=(t|0)>11?Ur[e|11]^S:0;ut=(t|0)>12?Ur[e|12]^x:0;at=(t|0)>13?Ur[e|13]^T:0;ft=(t|0)>14?Ur[e|14]^N:0;lt=(t|0)>15?Ur[e|15]^C:0;Ur[e]=K;if((t|0)>1)Ur[e|1]=Q;if((t|0)>2)Ur[e|2]=G;if((t|0)>3)Ur[e|3]=Y;if((t|0)>4)Ur[e|4]=Z;if((t|0)>5)Ur[e|5]=et;if((t|0)>6)Ur[e|6]=tt;if((t|0)>7)Ur[e|7]=nt;if((t|0)>8)Ur[e|8]=rt;if((t|0)>9)Ur[e|9]=it;if((t|0)>10)Ur[e|10]=st;if((t|0)>11)Ur[e|11]=ot;if((t|0)>12)Ur[e|12]=ut;if((t|0)>13)Ur[e|13]=at;if((t|0)>14)Ur[e|14]=ft;c=K^D;h=Q^P;p=G^H;d=Y^B;v=Z^j;m=et^F;g=tt^I;y=nt^q;b=rt^R;w=it^U;E=st^z;S=ot^W;x=ut^X;T=at^V;N=ft^$;C=lt^J;Jr();D=c,P=h,H=p,B=d,j=v,F=m,I=g,q=y,R=b,U=w,z=E,W=S,X=x,V=T,$=N,J=C;e=e+16|0;t=t-16|0;_=_+1|0}}return{init_state:Qr,save_state:Gr,init_key_128:Yr,ecb_encrypt:Zr,ecb_decrypt:ei,cbc_encrypt:ti,cbc_decrypt:ni,cbc_mac:ri,ccm_encrypt:ii,ccm_decrypt:si}'))( stdlib, foreign, buffer );
 }
