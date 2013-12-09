@@ -12,7 +12,7 @@ function sha256_constructor ( options ) {
     this.pos = 0;
     this.len = 0;
 
-    this.asm = sha256_asm( window, null, this.heap.buffer );
+    this.asm = sha256_asm( global, null, this.heap.buffer );
     this.asm.reset();
 
     this.BLOCK_SIZE = _sha256_block_size;

@@ -165,7 +165,7 @@ function _aes_constructor ( key, options ) {
     this.heap = new Uint8Array(options.heapSize);
     this.heap.set(_aes_tables);
 
-    this.asm = aes_asm( window, null, this.heap.buffer );
+    this.asm = aes_asm( global, null, this.heap.buffer );
 
     this.key = null;
 
