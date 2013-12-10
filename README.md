@@ -39,9 +39,9 @@ Index
 Download
 --------
 
-* [Compressed JS file](http://vibornoff.com/asmcrypto.js) ~56KB,
-* [Source Map file](http://vibornoff.com/asmcrypto.js.map) ~33KB,
-* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) ~53KB.
+* [Compressed JS file](http://vibornoff.com/asmcrypto.js) 67KB,
+* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 33KB,
+* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 56KB.
 
 Build & Test
 ------------
