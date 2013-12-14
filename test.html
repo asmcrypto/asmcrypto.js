@@ -279,7 +279,7 @@ test( "encrypt / decrypt in CTR mode", function () {
         aes.asm.ccm_encrypt(
             0xa00, 0x17,
             nonce[0], nonce[1], nonce[2], nonce[3], nonce[4], nonce[5], nonce[6], nonce[7], nonce[8], nonce[9], nonce[10], nonce[11], nonce[12], nonce[13],
-            1
+            0, 1
         );
         equal(
             _bytesAsHex( aes.heap.subarray( 0xa00, 0xa17 ) ),
@@ -299,7 +299,7 @@ test( "encrypt / decrypt in CTR mode", function () {
         aes.asm.ccm_decrypt(
             0xa00, 0x17,
             nonce[0], nonce[1], nonce[2], nonce[3], nonce[4], nonce[5], nonce[6], nonce[7], nonce[8], nonce[9], nonce[10], nonce[11], nonce[12], nonce[13],
-            1
+            0, 1
         );
         equal(
             _bytesAsHex( aes.heap.subarray( 0xa00, 0xa17 ) ),

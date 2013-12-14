@@ -621,7 +621,7 @@ function ccm_aes_encrypt ( data ) {
     var dleft = ( this.dataLeft -= dlen ),
         result = new Uint8Array( dlen + ( dleft > 0 ? 0 : tagSize ) );
 
-    var asm_args = [ _aes_heap_start, 0, (this.lengthSize-1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    var asm_args = [ _aes_heap_start, 0, (this.lengthSize-1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     for ( var i = 0; i < nonce.length; ++i ) asm_args[3+i] = nonce[i];
 
     while ( dlen > 0 ) {
@@ -629,8 +629,10 @@ function ccm_aes_encrypt ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        asm_args[1] = wlen,
-        asm_args[16] = counter + (rlen>>>4);
+        var c = counter + (rlen>>>4);
+        asm_args[1] = wlen;
+        asm_args[16] = (c/0x100000000)>>>0;
+        asm_args[17] = c>>>0;
         asm.ccm_encrypt.apply( asm, asm_args );
 
         result.set( heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
@@ -642,6 +644,7 @@ function ccm_aes_encrypt ( data ) {
 
         asm_args[1] = _aes_block_size,
         asm_args[16] = 0;
+        asm_args[17] = 0;
         asm.ccm_encrypt.apply( asm, asm_args );
 
         result.set( heap.subarray( _aes_heap_start, _aes_heap_start + tagSize ), rlen );
@@ -692,7 +695,7 @@ function ccm_aes_decrypt ( data ) {
     dleft = ( this.dataLeft -= dlen );
     var result = new Uint8Array(dlen);
 
-    var asm_args = [ _aes_heap_start, 0, (this.lengthSize-1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    var asm_args = [ _aes_heap_start, 0, (this.lengthSize-1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     for ( var i = 0; i < nonce.length; ++i ) asm_args[3+i] = nonce[i];
 
     while ( dlen > 0 ) {
@@ -700,8 +703,10 @@ function ccm_aes_decrypt ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
+        var c = counter + (rlen>>>4);
         asm_args[1] = wlen,
-        asm_args[16] = counter + (rlen>>>4);
+        asm_args[16] = (c/0x100000000)>>>0;
+        asm_args[17] = c>>>0;
         asm.ccm_decrypt.apply( asm, asm_args );
 
         result.set( heap.subarray( _aes_heap_start, _aes_heap_start + wlen ), rlen );
@@ -712,6 +717,7 @@ function ccm_aes_decrypt ( data ) {
         asm.save_state( _aes_heap_start );
         asm_args[1] = _aes_block_size,
         asm_args[16] = 0;
+        asm_args[17] = 0;
         asm.ccm_encrypt.apply( asm, asm_args );
 
         var atag = new Uint8Array(tagSize);
