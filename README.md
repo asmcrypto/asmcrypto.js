@@ -46,15 +46,16 @@ Download
 Build & Test
 ------------
 
-Before you start check that [UglifyJS2](https://github.com/mishoo/UglifyJS2) is installed:
+Before you start check that [Grunt](http://gruntjs.com/) is installed:
 
-    uglifyjs -V
+    grunt --version
 
 Then download and build the stuff:
 
     git clone https://github.com/vibornoff/asmcrypto.js.git
     cd asmcrypto.js
-    make
+    npm install
+    grunt
 
 After build is complete open `test.html` in your browser and check that all tests are passed.
 
