@@ -3,7 +3,7 @@ asmCrypto
 
 JavaScript implementation of popular cryptographic utilities with performance in mind.
 
-[UglifyJS2](https://github.com/mishoo/UglifyJS2) is required to build this.
+[Grunt](http://gruntjs.com/) is required to build this.
 
 Synopsis
 --------
@@ -25,14 +25,16 @@ Index
 
 * [Download] (#download)
 * [Build & Test](#build--test)
-* [API Reference](#api-reference)
-    * [SHA256](#sha256)
-    * [HMAC](#hmac)
-    * [HMAC-SHA256](#hmac_sha256)
-    * [PBKDF2](#pbkdf2)
-    * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
-    * [AES](#aes)
 * [Performance](#performance)
+* [API Reference](#api-reference)
+    * [Message Digest](#sha256)
+        * [SHA256](#sha256)
+    * [Hash-based Message Authentication](#hmac)
+        * [HMAC-SHA256](#hmac_sha256)
+    * [Password-based Key Derivation](#pbkdf2)
+        * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
+    * [Block Cipher](#aes)
+        * [AES](#aes)
 * [Bugs & TODO](#bugs--todo)
 * [Donate](#donate)
 
@@ -61,12 +63,32 @@ After build is complete open `test.html` in your browser and check that all test
 
 Congratulations! Now you have your `asmcrypto.js` and `asmcrypto.js.map` ready to use ☺
 
+Performance
+-----------
+
+In the development of this project, special attention was paid to the performance issues.
+In the result of all the optimizations made this stuff is pretty fast under Firefox and Chrome.
+
+My *Intel® Core™ i7-3770 CPU @ 3.40GHz* typical processing speeds are:
+* *Chrome/31.0*
+    * SHA256: 51 MiB/s (**9 times faster** than *SJCL* and *CryptoJS*)
+    * AES-CBC: 47 MiB/s (**13 times faster** than *CryptoJS* and **20 times faster** than *SJCL*)
+* *Firefox/26.0*
+    * SHA256: 144 MiB/s (**5 times faster** than *CryptoJS* and **20 times faster** than *SJCL*)
+    * AES-CBC: 81 MiB/s (**3 times faster** than *CryptoJS* and **8 times faster** than *SJCL*)
+
+See benchmarks:
+* [SHA256](http://jsperf.com/sha256/34),
+* [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
+* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2),
+* [AES](http://jsperf.com/aes).
+
 API Reference
 -------------
 
 ### SHA256
 
-Implementation of Secure Hash 2 algorithm with 256-bit output length.
+[Secure Hash Algorithm](http://en.wikipedia.org/wiki/SHA-2) — a cryptographic hash function with 256-bit output.
 
 #### Static methods and constants
 
@@ -74,13 +96,27 @@ Implementation of Secure Hash 2 algorithm with 256-bit output length.
 
 ##### SHA256.HASH_SIZE = 32
 
-##### SHA256.hex(input)
+##### SHA256.hex( data )
 
-Same as `staticSha256Instance.reset().process(input).finish().asHex()` (see below).
+Shorthand for `staticSha256Instance.reset().process(data).finish().asHex()`.
 
-##### SHA256.base64(input)
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
 
-Same as `staticSha256Instance.reset().process(input).finish().asBase64()` (see below).
+Returns a string containing hex-encoded message digest.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### SHA256.base64( data )
+
+Shorthand for `staticSha256Instance.reset().process(data).finish().asBase64()`.
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns a string containing hex-encoded message digest.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
 
 #### Constructor
 
@@ -89,7 +125,7 @@ Same as `staticSha256Instance.reset().process(input).finish().asBase64()` (see b
 Constructs new instance of `SHA256` object.
 
 Advanced `options`:
-* `heapSize` — asm.js heap size to allocate for hasher, must be multiple of 4096, default is 4096.
+* `heapSize` — asm.js heap size to allocate for hasher, must be a multiple of 4096, default is 4096.
 
 #### Methods and properties
 
@@ -99,16 +135,14 @@ Advanced `options`:
 
 ##### sha256.reset()
 
-Resets internal state into initial.
+Resets internal state.
 
-##### sha256.process(input)
+##### sha256.process( data )
 
-Updates internal state with the supplied `input` data.
-
-Input data can be a string or instance of `ArrayBuffer` or `Uint8Array`.
+Updates internal state with the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
 
 Throws
-* `IllegalStateError` when trying to update `finish`'ed state,
+* `IllegalStateError` when trying to update finish'ed state,
 * `TypeError` when something ridiculous is supplied as input data.
 
 ##### sha256.finish()
@@ -116,7 +150,7 @@ Throws
 Finishes hash calculation.
 
 Throws
-* `IllegalStateError` when trying to finish already `finish`'ed state,
+* `IllegalStateError` when trying to finish already finish'ed state,
 
 ##### sha256.asHex()
 
@@ -148,23 +182,159 @@ Throws
 
 ### HMAC
 
-TODO
+[Hash-based Message Authentication Code](http://en.wikipedia.org/wiki/HMAC)
 
-### HMAC_SHA256
+Used to calculate message authentication code with a cryptographic hash function
+in combination with a secret cryptographic key.
 
-TODO
+#### Static methods and constants
+
+#### HMAC_SHA256.BLOCK_SIZE = 64
+
+#### HMAC_SHA256.HMAC_SIZE = 32
+
+#### HMAC_SHA256.hex( password, data )
+
+Shorthand for `staticHmacSha256Instance.reset(password).process(data).finish().asHex()`.
+
+Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns a string containing hex-encoded message authentication code.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+#### HMAC_SHA256.base64( password, data )
+
+Shorthand for `staticHmacSha256Instance.reset(password).process(data).finish().asBase64()`.
+
+Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns a string containing base64-encoded message authentication code.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+#### Constructors
+
+##### HMAC_SHA256( password, options )
+
+Constructs an instatnce of HMAC with SHA256 underlying hash function.
+
+If `password` is specified associates it with the instance.
+
+Advanced options can be passed via an `options` object:
+* `heapSize` — asm.js heap size to allocate for hasher, must be a multiple of 4096, default is 4096.
+
+#### Methods and properties
+
+##### hmac.BLOCK_SIZE
+
+Size (in bytes) of the underlying hash function block.
+
+##### hmac.HMAC_SIZE
+
+Size (in bytes) of the output.
+
+##### hmac.reset( password )
+
+Resets internal state.
+
+If `password` is specified reassociates it with the instance (or associates it
+for the first time if it wasn't associated before).
+
+Throws
+* `IllegalStateError` when `password` is required to be associated for the first time,
+* `TypeError` when something strange provided instead of the password.
+
+##### hmac.process( data )
+
+Updates internal state with the supplied input `data`.
+
+Input data can be a binary string or instance of `ArrayBuffer`/`Uint8Array` object.
+
+Throws
+* `IllegalStateError` when trying to update `finish`'ed state or when no password associated with the instance,
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### hmac.finish()
+
+Finishes HMAC calculation.
+
+Throws
+* `IllegalStateError` when trying to finish already `finish`'ed state or when no password associated with the instance,
+
+##### hmac.asHex(), hmac.asBase64(), hmac.asArrayBuffer(), hmac.asBinaryString()
+
+Same as for [SHA256](#sha256).
 
 ### PBKDF2
 
-TODO
+[Password-Based Key Derivation Function 2](http://en.wikipedia.org/wiki/PBKDF2)
 
-### PBKDF2_HMAC_SHA256
+Applies a cryptographic hash function to the input password or passphrase along with a salt value and repeats the process many times to produce a derived key,
+which can then be used as a cryptographic key in subsequent operations. The added computational work makes password cracking much more difficult.
 
-TODO
+#### Constructors
+
+##### PBKDF2_HMAC_SHA256( password, options )
+
+Constructs an instatce of PBKDF2 key deriver with HMAC-SHA256 used as pseudo-random function.
+
+If `password` is supplied, associates it with the instance.
+
+Additional options can be passed via an `options` object:
+* `count` — number of iterations to perform, default is 4096;
+* `length` — desired output key length in bytes, default is 32.
+
+Advanced options:
+* `heapSize` — asm.js heap size to allocate, must be a multiple of 4096, default is 4096.
+
+#### Methods and properties
+
+##### pbkdf2.count
+
+Number of iterations to perform.
+
+##### pbkdf2.length
+
+Desired key length.
+
+##### pbkdf2.result
+
+Derived key value.
+
+##### pbkdf2.reset( password )
+
+Reset internal state.
+
+If `password` is supplied reassociates it with the instance.
+
+Returns `this` object so method calls could be chained.
+
+Throws
+* `TypeError` when password of unsupported type is supplied.
+
+##### pbkdf2.generate( salt, count, length )
+
+Performs key derivation along with the `salt`.
+
+If `count` is supplied overrides previous setting.
+
+If `length` is supplied overrides previous setting.
+
+Returns `this` object so method calls could be chained.
+
+Throws
+* `TypeError` when salt of unsupported type is supplied.
+
+##### pbkdf2.asHex(), pbkdf2.asBase64(), pbkdf2.asArrayBuffer(), pbkdf2.asBinaryString()
+
+Same as for [SHA256](#sha256).
 
 ### AES
 
-The Advanced Encryption Standard
+Advanced Encryption Standard
 
 TODO progressive ciphering docs
 
@@ -205,7 +375,7 @@ Additional `options` object can be passed:
 * `padding` — boolean value to turn on/off PKCS#7 padding, default is `true`.
 
 Advanced options:
-* `heapSize` — asm.js heap size to allocate for cipher, must be multiple of 4096, default is 4096.
+* `heapSize` — asm.js heap size to allocate for cipher, must be a multiple of 4096, default is 4096.
 
 ##### CCM_AES( key, options )
 
@@ -226,7 +396,7 @@ Additional `options` object can be passed:
 * `adata` — additional authenticated data of length no more than 65279 bytes, can be a binary string or `Uint8Array`/`ArrayBuffer` object.
 
 Advanced options:
-* `heapSize` — asm.js heap size to allocate for cipher, must be multiple of 4096, default is 4096.
+* `heapSize` — asm.js heap size to allocate for cipher, must be a multiple of 4096, default is 4096.
 
 Progressive ciphering options:
 * `iv` — initialization vector to be used, a binary string or `Uint8Array`/`ArrayBuffer` object, when ommited default all-zeros-value is used;
@@ -282,17 +452,6 @@ Throws
 * `TypeError` in case of bizzarie stuff supplied instead of data,
 * `IllegalArgumentError` when data length isn't multiple of block size,
 * `IllegalStateError` when trying to decrypt data without the key being initialized prior.
-
-Performance
------------
-
-This stuff is pretty fast under Firefox and Chrome.
-
-See benchmarks:
-* [SHA256](http://jsperf.com/sha256/34),
-* [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
-* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2),
-* [AES](http://jsperf.com/aes).
 
 Bugs & TODO
 -----------
