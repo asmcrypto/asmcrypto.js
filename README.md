@@ -55,7 +55,8 @@ Before you start check that [Grunt](http://gruntjs.com/) is installed:
 Then download and build the stuff:
 
     git clone https://github.com/vibornoff/asmcrypto.js.git
-    cd asmcrypto.js
+    cd asmcrypto.js/
+    git submodule update --init
     npm install
     grunt
 
