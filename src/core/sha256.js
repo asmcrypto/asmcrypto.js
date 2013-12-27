@@ -8,17 +8,13 @@ function sha256_constructor ( options ) {
     if ( options.heapSize <= 0 || options.heapSize % 4096 )
         throw new IllegalArgumentError("heapSize must be a positive number and multiple of 4096");
 
-    this.heap = new Uint8Array(options.heapSize);
-    this.pos = 0;
-    this.len = 0;
-
-    this.asm = sha256_asm( global, null, this.heap.buffer );
-    this.asm.reset();
+    this.heap = options.heap || new Uint8Array(options.heapSize);
+    this.asm = options.asm || sha256_asm( global, null, this.heap.buffer );
 
     this.BLOCK_SIZE = _sha256_block_size;
     this.HASH_SIZE = _sha256_hash_size;
 
-    this.result = null;
+    this.reset();
 }
 
 function sha256_reset () {
@@ -89,24 +85,9 @@ function sha256_finish () {
     return this;
 }
 
-// methods
+sha256_constructor.BLOCK_SIZE = _sha256_block_size;
+sha256_constructor.HASH_SIZE = _sha256_hash_size;
 var sha256_prototype = sha256_constructor.prototype;
 sha256_prototype.reset =   sha256_reset;
 sha256_prototype.process = sha256_process;
 sha256_prototype.finish =  sha256_finish;
-sha256_prototype.asHex =   resultAsHex;
-sha256_prototype.asBase64 = resultAsBase64;
-sha256_prototype.asBinaryString = resultAsBinaryString;
-sha256_prototype.asArrayBuffer = resultAsArrayBuffer;
-
-// static constants
-sha256_constructor.BLOCK_SIZE = _sha256_block_size;
-sha256_constructor.HASH_SIZE = _sha256_hash_size;
-
-// static methods
-var sha256_instance = new sha256_constructor;
-sha256_constructor.hex = function ( data ) { return sha256_instance.reset().process(data).finish().asHex() };
-sha256_constructor.base64 = function ( data ) { return sha256_instance.reset().process(data).finish().asBase64() };
-
-// export
-exports.SHA256 = sha256_constructor;

@@ -1,31 +1,40 @@
-function pbkdf2_constructor ( password, options ) {
+function pbkdf2_constructor ( options ) {
     options = options || {};
-    options.hmacFunction = options.hmacFunction || new hmac_sha256_constructor( password, options );
-    options.count = options.count || 4096;
-    options.length = options.length || options.hmacFunction.HMAC_SIZE;
 
-    if ( !options.hmacFunction.HMAC_SIZE )
-        throw new TypeError("'hmacFunction' supplied doesn't seem to be a valid HMAC function");
+    if ( !options.hmac )
+        throw new SyntaxError("option 'hmac' is required");
 
-    this.hmac = options.hmacFunction;
-    this.count = options.count;
-    this.length = options.length;
+    if ( !options.hmac.HMAC_SIZE )
+        throw new SyntaxError("option 'hmac' supplied doesn't seem to be a valid HMAC function");
+
+    this.hmac = options.hmac;
+    this.count = options.count || 4096;
+    this.length = options.length || this.hmac.HMAC_SIZE;
 
     this.result = null;
+
+    var password = options.password;
+    if ( password || typeof password === 'string' )
+        this.reset(options);
 
     return this;
 }
 
-function pbkdf2_hmac_sha256_constructor ( password, options ) {
-    pbkdf2_constructor.call( this, password, options );
+function pbkdf2_hmac_sha256_constructor ( options ) {
+    options = options || {};
+
+    if ( !( options.hmac instanceof hmac_sha256_constructor ) )
+        options.hmac = new hmac_sha256_constructor(options);
+
+    pbkdf2_constructor.call( this, options );
 
     return this;
 }
 
-function pbkdf2_reset ( password ) {
+function pbkdf2_reset ( options ) {
     this.result = null;
 
-    this.hmac.reset(password);
+    this.hmac.reset(options);
 
     return this;
 }
@@ -89,24 +98,7 @@ function pbkdf2_hmac_sha256_generate ( salt, count, length ) {
 var pbkdf2_prototype = pbkdf2_constructor.prototype;
 pbkdf2_prototype.reset =   pbkdf2_reset;
 pbkdf2_prototype.generate = pbkdf2_generate;
-pbkdf2_prototype.asHex =   resultAsHex;
-pbkdf2_prototype.asBase64 = resultAsBase64;
-pbkdf2_prototype.asBinaryString = resultAsBinaryString;
-pbkdf2_prototype.asArrayBuffer = resultAsArrayBuffer;
 
 var pbkdf2_hmac_sha256_prototype = pbkdf2_hmac_sha256_constructor.prototype;
 pbkdf2_hmac_sha256_prototype.reset =   pbkdf2_reset;
 pbkdf2_hmac_sha256_prototype.generate = pbkdf2_hmac_sha256_generate;
-pbkdf2_hmac_sha256_prototype.asHex =   resultAsHex;
-pbkdf2_hmac_sha256_prototype.asBase64 = resultAsBase64;
-pbkdf2_hmac_sha256_prototype.asBinaryString = resultAsBinaryString;
-pbkdf2_hmac_sha256_prototype.asArrayBuffer = resultAsArrayBuffer;
-
-// static methods
-var pbkdf2_hmac_sha256_instance = new pbkdf2_hmac_sha256_constructor( undefined, { hmacFunction: hmac_sha256_instance } );
-pbkdf2_hmac_sha256_constructor.hex = function ( password, salt, count, length ) { return pbkdf2_hmac_sha256_instance.reset(password).generate(salt, count, length).asHex() };
-pbkdf2_hmac_sha256_constructor.base64 = function ( password, salt, count, length ) { return pbkdf2_hmac_sha256_instance.reset(password).generate(salt, count, length).asBase64() };
-
-// export
-exports.PBKDF2 = pbkdf2_constructor;
-exports.PBKDF2_HMAC_SHA256 = pbkdf2_hmac_sha256_constructor;

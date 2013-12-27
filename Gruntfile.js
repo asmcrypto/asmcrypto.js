@@ -3,20 +3,23 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         uglify: {
-            asmcrypto: {
+            core: {
                 options: {
                     mangle: true,
                     compress: true,
+                    beautify: false,
                     sourceMap: 'asmcrypto.js.map',
                     wrap: 'asmCrypto'
                 },
                 files: {
                     'asmcrypto.js': [
-                        'src/helpers.js',
-                        'src/aes.asm.js', 'src/aes.js',
-                        'src/sha256.asm.js', 'src/sha256.js',
-                        'src/hmac.js',
-                        'src/pbkdf2.js'
+                        'src/utils.js',
+                        'src/core/errors.js',
+                        'src/core/aes.asm.js', 'src/core/aes.js', 'src/core/aes-cbc.js', 'src/core/aes-ccm.js',
+                        'src/core/sha256.asm.js', 'src/core/sha256.js',
+                        'src/core/hmac.js',
+                        'src/core/pbkdf2.js',
+                        'src/core/api.js'
                     ]
                 }
             }
@@ -31,5 +34,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-clean');
 
-    grunt.registerTask('default', ['uglify']);
+    grunt.registerTask('default', ['uglify:core']);
 };

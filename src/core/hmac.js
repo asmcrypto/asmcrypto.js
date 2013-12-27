@@ -1,25 +1,33 @@
-function hmac_constructor ( password, options ) {
+function hmac_constructor ( options ) {
     options = options || {};
-    options.hashFunction = options.hashFunction || new sha256_constructor(options);
 
-    if ( !options.hashFunction.HASH_SIZE )
-        throw new TypeError("'hashFunction' supplied doesn't seem to be a valid hash function");
+    if ( !options.hash )
+        throw new SyntaxError("option 'hash' is required");
 
-    this.hash = options.hashFunction;
+    if ( !options.hash.HASH_SIZE )
+        throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");
+
+    this.hash = options.hash;
     this.BLOCK_SIZE = this.hash.BLOCK_SIZE;
     this.HMAC_SIZE = this.hash.HASH_SIZE;
 
     this.key = null;
+    this.verify = null;
     this.result = null;
 
-    if ( password || typeof password === 'string' )
-        this.reset(password);
+    if ( options.password !== undefined || options.verify !== undefined )
+        this.reset(options);
 
     return this;
 }
 
-function hmac_sha256_constructor ( password, options ) {
-    hmac_constructor.call( this, password, options );
+function hmac_sha256_constructor ( options ) {
+    options = options || {};
+
+    if ( !( options.hash instanceof sha256_constructor ) )
+        options.hash = new sha256_constructor(options);
+
+    hmac_constructor.call( this, options );
 
     return this;
 }
@@ -58,7 +66,27 @@ function _hmac_key ( hash, password ) {
     return key;
 }
 
-function hmac_reset ( password ) {
+function _hmac_init_verify ( verify ) {
+    if ( verify instanceof ArrayBuffer || verify instanceof Uint8Array ) {
+        verify = new Uint8Array(verify);
+    }
+    else if ( typeof verify === 'string' ) {
+        verify = string_to_bytes(verify);
+    }
+    else {
+        throw new TypeError("verify tag isn't of expected type");
+    }
+
+    if ( verify.length !== this.HMAC_SIZE )
+        throw new IllegalArgumentError("illegal verification tag size");
+
+    this.verify = verify;
+}
+
+function hmac_reset ( options ) {
+    options = options || {};
+    var password = options.password;
+
     if ( this.key === null && typeof password !== 'string' && !password )
         throw new IllegalStateError("no key is associated with the instance");
 
@@ -74,10 +102,21 @@ function hmac_reset ( password ) {
 
     this.hash.process(ipad);
 
+    var verify = options.verify;
+    if ( verify !== undefined ) {
+        _hmac_init_verify.call( this, verify );
+    }
+    else {
+        this.verify = null;
+    }
+
     return this;
 }
 
-function hmac_sha256_reset ( password ) {
+function hmac_sha256_reset ( options ) {
+    options = options || {};
+    var password = options.password;
+
     if ( this.key === null && typeof password !== 'string' && !password )
         throw new IllegalStateError("no key is associated with the instance");
 
@@ -109,6 +148,14 @@ function hmac_sha256_reset ( password ) {
         this.hash.asm.hmac_reset();
     }
 
+    var verify = options.verify;
+    if ( verify !== undefined ) {
+        _hmac_init_verify.call( this, verify );
+    }
+    else {
+        this.verify = null;
+    }
+
     return this;
 }
 
@@ -137,7 +184,23 @@ function hmac_finish () {
     for ( var i = 0; i < opad.length; ++i )
         opad[i] ^= 0x5c;
 
-    this.result = this.hash.reset().process(opad).process(inner_result).finish().result;
+    var verify = this.verify;
+    var result = this.hash.reset().process(opad).process(inner_result).finish().result;
+
+    if ( verify ) {
+        if ( verify.length === result.length ) {
+            var diff = 0;
+            for ( var i = 0; i < verify.length; i++ ) {
+                diff |= ( verify[i] ^ result[i] );
+            }
+            this.result = !diff;
+        } else {
+            this.result = false;
+        }
+    }
+    else {
+        this.result = result;
+    }
 
     return this;
 }
@@ -149,42 +212,42 @@ function hmac_sha256_finish () {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 
-    this.hash.asm.hmac_finish( this.hash.pos, this.hash.len, 0 );
+    var hash = this.hash,
+        asm = this.hash.asm,
+        heap = this.hash.heap;
 
-    this.result = new Uint8Array(this.HMAC_SIZE);
-    this.result.set( this.hash.heap.subarray( 0, this.HMAC_SIZE ) );
+    asm.hmac_finish( hash.pos, hash.len, 0 );
+
+    var verify = this.verify;
+    var result = new Uint8Array(_sha256_hash_size);
+    result.set( heap.subarray( 0, _sha256_hash_size ) );
+
+    if ( verify ) {
+        if ( verify.length === result.length ) {
+            var diff = 0;
+            for ( var i = 0; i < verify.length; i++ ) {
+                diff |= ( verify[i] ^ result[i] );
+            }
+            this.result = !diff;
+        } else {
+            this.result = false;
+        }
+    }
+    else {
+        this.result = result;
+    }
 
     return this;
 }
 
-// methods
 var hmac_prototype = hmac_constructor.prototype;
 hmac_prototype.reset =   hmac_reset;
 hmac_prototype.process = hmac_process;
 hmac_prototype.finish =  hmac_finish;
-hmac_prototype.asHex =   resultAsHex;
-hmac_prototype.asBase64 = resultAsBase64;
-hmac_prototype.asBinaryString = resultAsBinaryString;
-hmac_prototype.asArrayBuffer = resultAsArrayBuffer;
 
+hmac_sha256_constructor.BLOCK_SIZE = sha256_constructor.BLOCK_SIZE;
+hmac_sha256_constructor.HMAC_SIZE = sha256_constructor.HASH_SIZE;
 var hmac_sha256_prototype = hmac_sha256_constructor.prototype;
 hmac_sha256_prototype.reset = hmac_sha256_reset;
 hmac_sha256_prototype.process = hmac_process;
 hmac_sha256_prototype.finish = hmac_sha256_finish;
-hmac_sha256_prototype.asHex =   resultAsHex;
-hmac_sha256_prototype.asBase64 = resultAsBase64;
-hmac_sha256_prototype.asBinaryString = resultAsBinaryString;
-hmac_sha256_prototype.asArrayBuffer = resultAsArrayBuffer;
-
-// static constants
-hmac_sha256_constructor.BLOCK_SIZE = sha256_constructor.BLOCK_SIZE;
-hmac_sha256_constructor.HMAC_SIZE = sha256_constructor.HASH_SIZE;
-
-// static methods
-var hmac_sha256_instance = new hmac_sha256_constructor( undefined, { hashFunction: sha256_instance } );
-hmac_sha256_constructor.hex = function ( password, data ) { return hmac_sha256_instance.reset(password).process(data).finish().asHex() };
-hmac_sha256_constructor.base64 = function ( password, data ) { return hmac_sha256_instance.reset(password).process(data).finish().asBase64() };
-
-// export
-exports.HMAC = hmac_constructor;
-exports.HMAC_SHA256 = hmac_sha256_constructor;
