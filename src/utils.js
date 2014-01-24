@@ -11,15 +11,27 @@
 var _is_crypto_worker = ( global.document === undefined && global.location.hash.length > 0 );
 
 function string_to_bytes ( str ) {
-    // TODO
+    var i,
+        len=str.length,
+        arr = new Uint8Array( len );
+    for ( i=0; i<len; i+=1 ) {
+        arr[i] = str.charCodeAt(i);
+    }
+    return arr;
 }
 
 function hex_to_bytes ( str ) {
-    // TODO
+    var arr = [],
+        len = str.length,
+        i;
+    for( i=0; i<len; i+=2 ) {
+        arr.push( parseInt( str.substr( i, 2), 16 ) );
+    }
+    return arr;
 }
 
 function base64_to_bytes ( str ) {
-    // TODO
+    return string_to_bytes( atob( str ) );
 }
 
 function bytes_to_string ( arr ) {
