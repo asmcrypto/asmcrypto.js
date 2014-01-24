@@ -39,7 +39,7 @@ function _hmac_key ( hash, password ) {
         key = new Uint8Array(hash.BLOCK_SIZE);
 
         if ( password.byteLength > this.hash.BLOCK_SIZE ) {
-            key.set( new Uint8Array( hash.reset().process(password).finish().asArrayBuffer() ) );
+            key.set( new Uint8Array( hash.reset().process(password).finish().result ) );
         }
         else if ( password instanceof ArrayBuffer ) {
             key.set( new Uint8Array(password) );
@@ -52,7 +52,7 @@ function _hmac_key ( hash, password ) {
         key = new Uint8Array(hash.BLOCK_SIZE);
 
         if ( password.length > hash.BLOCK_SIZE ) {
-            key.set( new Uint8Array( hash.reset().process(password).finish().asArrayBuffer() ) );
+            key.set( new Uint8Array( hash.reset().process(password).finish().result ) );
         }
         else {
             for ( var i = 0; i < password.length; ++i )
@@ -125,7 +125,7 @@ function hmac_sha256_reset ( options ) {
 
     if ( password || typeof password === 'string' ) {
         this.key = _hmac_key( this.hash, password );
-        this.hash.asm.hmac_init(
+        this.hash.reset().asm.hmac_init(
             (this.key[0]<<24)|(this.key[1]<<16)|(this.key[2]<<8)|(this.key[3]),
             (this.key[4]<<24)|(this.key[5]<<16)|(this.key[6]<<8)|(this.key[7]),
             (this.key[8]<<24)|(this.key[9]<<16)|(this.key[10]<<8)|(this.key[11]),

@@ -56,10 +56,10 @@ function pbkdf2_generate ( salt, count, length ) {
     for ( var i = 1; i <= blocks; ++i ) {
         var j = ( i - 1 ) * this.hmac.HMAC_SIZE;
         var l = ( i < blocks ? 0 : length % this.hmac.HMAC_SIZE ) || this.hmac.HMAC_SIZE;
-        var tmp = new Uint8Array( this.hmac.reset().process(salt).process( new Uint8Array([ i>>>24&0xff, i>>>16&0xff, i>>>8&0xff, i&0xff ]) ).finish().asArrayBuffer() );
+        var tmp = new Uint8Array( this.hmac.reset().process(salt).process( new Uint8Array([ i>>>24&0xff, i>>>16&0xff, i>>>8&0xff, i&0xff ]) ).finish().result );
         this.result.set( tmp.subarray( 0, l ), j );
         for ( var k = 1; k < count; ++k ) {
-            tmp = new Uint8Array( this.hmac.reset().process(tmp).finish().asArrayBuffer() );
+            tmp = new Uint8Array( this.hmac.reset().process(tmp).finish().result );
             for ( var r = 0; r < l; ++r ) this.result[j+r] ^= tmp[r];
         }
     }
