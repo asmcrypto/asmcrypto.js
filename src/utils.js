@@ -24,14 +24,18 @@ function hex_to_bytes ( str ) {
     var arr = [],
         len = str.length,
         i;
-    for( i=0; i<len; i+=2 ) {
+    if ( len & 1 ) {
+        str = '0'+str;
+        len++;
+    }
+    for ( i=0; i<len; i+=2 ) {
         arr.push( parseInt( str.substr( i, 2), 16 ) );
     }
-    return arr;
+    return new Uint8Array(arr);
 }
 
 function base64_to_bytes ( str ) {
-    return string_to_bytes( atob( str ) );
+    return string_to_bytes( global.atob( str ) );
 }
 
 function bytes_to_string ( arr ) {
@@ -52,5 +56,5 @@ function bytes_to_hex ( arr ) {
 }
 
 function bytes_to_base64 ( arr ) {
-    return btoa( bytes_to_string(arr) );
+    return global.btoa( bytes_to_string(arr) );
 }
