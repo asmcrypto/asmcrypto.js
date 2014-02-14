@@ -5,9 +5,9 @@ module.exports = function(grunt) {
         uglify: {
             core: {
                 options: {
-                    mangle: true,
-                    compress: true,
-                    beautify: false,
+                    mangle: false,
+                    compress: false,
+                    beautify: true,
                     sourceMap: 'asmcrypto.js.map',
                     wrap: 'asmCrypto'
                 },
@@ -19,7 +19,8 @@ module.exports = function(grunt) {
                         'src/core/sha256.asm.js', 'src/core/sha256.js',
                         'src/core/hmac.js',
                         'src/core/pbkdf2.js',
-                        'src/core/api.js'
+                        'src/core/api.js',
+                        'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/api.js'
                     ]
                 }
             }

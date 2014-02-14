@@ -8,6 +8,7 @@
  *
  * The last option is detected here.
  */
+
 var _is_crypto_worker = ( global.document === undefined && global.location.hash.length > 0 );
 
 function string_to_bytes ( str ) {
@@ -57,4 +58,15 @@ function bytes_to_hex ( arr ) {
 
 function bytes_to_base64 ( arr ) {
     return global.btoa( bytes_to_string(arr) );
+}
+
+function pow2_ceil ( a ) {
+    a -= 1;
+    a |= a >>> 1;
+    a |= a >>> 2;
+    a |= a >>> 4;
+    a |= a >>> 8;
+    a |= a >>> 16;
+    a += 1;
+    return a;
 }
