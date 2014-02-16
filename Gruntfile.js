@@ -20,7 +20,7 @@ module.exports = function(grunt) {
                         'src/core/hmac.js',
                         'src/core/pbkdf2.js',
                         'src/core/api.js',
-                        'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/api.js'
+                        'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/modulus.js', 'src/bignum/api.js'
                     ]
                 }
             }

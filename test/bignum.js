@@ -194,3 +194,14 @@ test( "asmCrypto.BigNumber.extGCD", function () {
         "00:d5:17:64:43:be:bb:2a:31:a4:4d:f7:11:ff:7c:98:23:95:c5:47:73:65:f3:61:83:98:fd:7d:37:fa:d4:d2:39:4f:94:58:c3:9d:ec:56:1d:ab:0b:c6:c7:ce:d1:c7:6b:29:cf:d2:e1:4e:c7:93:d5:d3:00:c7:0d:49:ad:a9:f1" );
     equal( z.gcd.valueOf(), 1, "gcd ok" );
 });
+
+test ( "asmCrypto.Modulus", function () {
+    var M = new asmCrypto.Modulus(123456789);
+
+    ok( M, "new Modulus" );
+    ok( M instanceof asmCrypto.BigNumber, "instanceof Modulus" );
+    equal( M.reduce(987654321).valueOf(), 9, "Modulus.reduce(small)" );
+
+    var M2 = new asmCrypto.Modulus(0xabcdabcdabcd);
+    equal( M2.reduce(0x9abcdefabcdef).valueOf(), 0x468e8a6c68b9, "Modulus.reduce(medium)" );
+});

@@ -170,22 +170,52 @@ function BigNumber_valueOf () {
 
 function BigNumber_clamp ( b ) {
     var limbs = this.limbs,
-        bitlen = this.bitLength,
-        sign = this.sign,
-        n = (b + 31) >> 5,
-        k = b % 32;
+        bitlen = this.bitLength;
+
+    // FIXME check b is number and in a valid range
 
     if ( b >= bitlen )
         return this;
 
-    var clamped = new BigNumber;
+    var clamped = new BigNumber,
+        n = (b + 31) >> 5,
+        k = b % 32;
+
     clamped.limbs = new Uint32Array( limbs.subarray(0,n) );
     clamped.bitLength = b;
-    clamped.sign = sign;
+    clamped.sign = this.sign;
 
     if ( k ) clamped.limbs[n-1] &= (-1 >>> (32-k));
 
     return clamped;
+}
+
+function BigNumber_splice ( f, b ) {
+    var limbs = this.limbs,
+        bitlen = this.bitLength;
+
+    // FIXME check f is number and in a valid range
+    // FIXME check b is number and in a valid range
+
+    if ( b === undefined )
+        b = bitlen - f;
+
+    if ( f === 0 )
+        return this.clamp(b);
+
+    var spliced = new BigNumber, slimbs,
+        n = f >> 5, m = (f + b + 31) >> 5,
+        t = f % 32, k = b % 32;
+
+    slimbs = new Uint32Array( limbs.subarray(n,m) ),
+
+    spliced.limbs = slimbs
+    spliced.bitLength = b;
+    spliced.sign = this.sign;
+
+    if ( k ) slimbs[m-n-1] &= (-1 >>> (32-k));
+
+    return spliced;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -394,6 +424,9 @@ var BigNumberPrototype = BigNumber.prototype = new Number;
 BigNumberPrototype.toString = BigNumber_toString;
 BigNumberPrototype.valueOf = BigNumber_valueOf;
 BigNumberPrototype.clamp = BigNumber_clamp;
+BigNumberPrototype.splice = BigNumber_splice;
+
+///////////////////////////////////////////////////////////////////////////////
 
 BigNumberPrototype.negate = BigNumber_negate;
 BigNumberPrototype.compare = BigNumber_compare;

@@ -1926,6 +1926,97 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         return ( lN + (e+31>>5<<2) - lD )|0;
     }
 
+    /**
+     * Reduction modulo (pseudo-)Mersenne number M such that
+     *
+     *  M = 2^(32*m)-k, 1 < m,  0 < k < 2^16.
+     *
+     * See HAC 14.47 for details
+    function pmred ( A, lA, Mm, Mk, R, lR ) {
+        A  =  A|0;
+        lA = lA|0;
+        Mm = Mm|0;
+        Mk = Mk|0;
+        R  =  R|0;
+        lR = lR|0;
+
+        // TODO
+    }
+     */
+
+    /**
+     * Montgomery reduction
+     *
+     * Definition:
+     *
+     *  MREDC(A) = A×X (mod N),
+     *  M×X = 1 mod N,
+     *  N×Y = 1 mod M,
+     *
+     * where M = 2^(32*m)-k such that N < M and 0 ≤ k < 2^16.
+     *
+     * Numbers `X` and `Y` can be calculated using Extended Euclidean Algorithm.
+     */
+    function monred ( A, lA, Mm, Mk, N, lN, Y, lY, R ) {
+        A  =  A|0;
+        lA = lA|0;
+        Mm = Mm|0;
+        Mk = Mk|0;
+        N  =  N|0;
+        lN = lN|0;
+        Y  =  Y|0;
+        lY = lY|0;
+        R  =  R|0;
+
+        var T = 0, lT = 0, U = 0, lU = 0;
+
+        // A ← A mod M
+        if ( Mk ) {
+            // TODO
+        }
+        else {
+            lA = Mm<<2;
+        }
+
+        // T ← A×Y mod M
+        if ( Mk ) {
+            // TODO
+        }
+        else {
+            lT = Mm<<2;
+            T = salloc(lT)|0;
+            mul( A, lA, Y, lY, T, lT );
+        }
+
+        // U ← T×N
+        if ( Mk ) {
+            // TODO
+        }
+        else {
+            lU = (lT+lN)|0;
+            U = salloc(lU)|0;
+            mul( T, lT, N, lN, U, lU );
+        }
+
+        // U ← A+U, exactly divisible by M
+        add( A, lA, U, lU, U, lU )|0;
+
+        // R ← U/M
+        if ( Mk ) {
+            // TODO
+        }
+        else {
+            cp( lT, U+lT|0, R );
+        }
+
+        sfree(lU);
+        sfree(lT);
+
+        if ( (cmp( R, lT, N, lN )|0) >= 0 ) {
+            sub( R, lT, N, lN, R, lT )|0;
+        }
+    }
+
     return {
         sreset: sreset,
         salloc: salloc,
@@ -1938,6 +2029,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         sub: sub,
         mul: mul,
         sqr: sqr,
-        div: div
+        div: div,
+        monred: monred
     };
 }
