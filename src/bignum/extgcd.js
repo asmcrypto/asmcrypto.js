@@ -1,9 +1,9 @@
-function bignum_extGCD ( a, b ) {
-    if ( !( a instanceof bignum_constructor ) )
-        a = new bignum_constructor(a);
+function BigNumber_extGCD ( a, b ) {
+    if ( !( a instanceof BigNumber ) )
+        a = new BigNumber(a);
 
-    if ( !( b instanceof bignum_constructor ) )
-        b = new bignum_constructor(b);
+    if ( !( b instanceof BigNumber ) )
+        b = new BigNumber(b);
 
     var sa = a.sign, sb = b.sign;
 
@@ -13,16 +13,18 @@ function bignum_extGCD ( a, b ) {
     if ( sb < 0 )
         b = b.negate();
 
-    if ( a.compare(b) < 0 ) {
+    var a_cmp_b = a.compare(b);
+    if ( a_cmp_b < 0 ) {
         var t = a; a = b, b = t;
+        t = sa; sa = sb; sb = t;
     }
 
-    var xi = bignum_one, xj = bignum_zero, lx = b.bitLength,
-        yi = bignum_zero, yj = bignum_one, ly = a.bitLength,
+    var xi = BigNumber_ONE, xj = BigNumber_ZERO, lx = b.bitLength,
+        yi = BigNumber_ZERO, yj = BigNumber_ONE, ly = a.bitLength,
         z, r, q;
 
     z = a.divide(b);
-    while ( (r = z.remainder) !== bignum_zero ) {
+    while ( (r = z.remainder) !== BigNumber_ZERO ) {
         q = z.quotient;
 
         z = xi.subtract( q.multiply(xj).clamp(lx) ).clamp(lx), xi = xj, xj = z;
@@ -38,6 +40,10 @@ function bignum_extGCD ( a, b ) {
 
     if ( sb < 0 )
         yj = yj.negate();
+
+    if ( a_cmp_b < 0 ) {
+        var t = xj; xj = yj, yj = t;
+    }
 
     return {
         gcd: b,

@@ -3,10 +3,10 @@ var _bigint_heap = new Uint32Array(0x100000),
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var _bignum_zero_limbs = new Uint32Array(8);
+var _BigNumber_ZERO_limbs = new Uint32Array(0);
 
-function bignum_constructor ( num, radix ) {
-    var limbs = _bignum_zero_limbs,
+function BigNumber ( num, radix ) {
+    var limbs = _BigNumber_ZERO_limbs,
         bitLength = 0,
         sign = 0;
 
@@ -14,44 +14,25 @@ function bignum_constructor ( num, radix ) {
         // do nothing
     }
     else if ( typeof num === 'number' ) {
-        var anum = Math.abs(num);
-        if ( anum > 0xffffffff ) {
-            limbs = new Uint32Array(8);
-            limbs[0] = num|0;
-            limbs[1] = (num/0x100000000)|0;
-            bitLength = 52;
-            sign = ( num < 0 ? -1 : 1 );
-        }
-        else if ( num < 0 ) {
-            limbs = new Uint32Array(8);
-            limbs[0] = num|0;
-            bitLength = 31;
-            sign = -1;
-        }
-        else if ( anum > 0 ) {
-            limbs = new Uint32Array(8);
-            limbs[0] = num|0;
-            bitLength = 32;
-            sign = 1;
-        }
-    }
-    else if ( num instanceof bignum_constructor ) {
-        limbs = new Uint32Array( num.limbs );
-        bitLength = num.bitLength;
+        return _BigNumber_fromNumber.call( this, num );
     }
     else if ( typeof num === 'string' ) {
         switch ( radix || 16 ) {
             case 16:
-                _bignum_fromHexString.call( this, num );
-                return;
+                return _BigNumber_fromHexString.call( this, num );
 
             default:
                 throw new IllegalArgumentError("bad radix");
         }
     }
+    else if ( typeof num === 'object' && num !== null ) {
+        limbs = new Uint32Array( num.limbs );
+        bitLength = num.bitLength;
+        sign = num.sign;
+    }
 /*
     else if ( num instanceof ArrayBuffer || num instanceof Uint8Array ) {
-        limbs = _bignum_parseBuffer(num);
+        limbs = _BigNumber_fromBuffer(num);
         bitLength = 32*(limbs.length-1);
     }
 */
@@ -64,7 +45,34 @@ function bignum_constructor ( num, radix ) {
     this.sign = sign;
 }
 
-function _bignum_fromHexString ( str ) {
+function _BigNumber_fromNumber ( num ) {
+    var absnum = Math.abs(num),
+        limbs, biglen;
+
+    if ( absnum > 0xffffffff ) {
+        limbs = new Uint32Array(2);
+        limbs[0] = absnum|0;
+        limbs[1] = (absnum/0x100000000)|0;
+        bitlen = 52;
+    }
+    else if ( absnum > 0 ) {
+        limbs = new Uint32Array(1);
+        limbs[0] = absnum;
+        bitlen = 32;
+    }
+    else {
+        limbs = _BigNumber_ZERO_limbs;
+        bitlen = 0;
+    }
+
+    this.limbs = limbs;
+    this.bitLength = bitlen;
+    this.sign = ( num <= 0 ? num < 0 ? -1 : 0 : 1 );
+
+    return this;
+}
+
+function _BigNumber_fromHexString ( str ) {
     var bitlen = 0, sign = 0, limbs;
 
     str = str.toUpperCase().replace( /[^0-9A-F]/g, '' ).replace( /^0+/, '' );
@@ -76,7 +84,7 @@ function _bignum_fromHexString ( str ) {
             str = ( '00000000'.substr( str.length % 8 ) ) + str;
         }
 
-        limbs = new Uint32Array( pow2_ceil( (bitlen + 255) >> 8 << 3 ) );
+        limbs = new Uint32Array( (bitlen + 31) >> 5 );
         for ( var i = 0; i < str.length; i += 8 ) {
             limb = parseInt( str.substr(i, 8), 16 );
             limbs[(str.length-i-8)>>3] = limb;
@@ -84,22 +92,24 @@ function _bignum_fromHexString ( str ) {
 
         sign = 1;
     }
+    else {
+        return BigNumber_ZERO;
+    }
 
     this.limbs = limbs;
     this.bitLength = bitlen;
     this.sign = sign;
+
+    return this;
 }
 
 /*
-function _bignum_parseBuffer ( buff ) {
+function _BigNumber_fromBuffer ( buff ) {
 }
 */
 
-function bignum_toString ( radix ) {
+function BigNumber_toString ( radix ) {
     radix = radix || 16;
-
-    if ( this.sign < 0 )
-        return '-' + this.negate().toString(radix);
 
     var limbs = this.limbs,
         bitlen = this.bitLength,
@@ -111,6 +121,9 @@ function bignum_toString ( radix ) {
             str += '00000000'.substr(h.length);
             str += h;
         }
+
+        str = str.replace( /^0+/, '' );
+
         if ( !str.length )
             str = '0';
     }
@@ -118,11 +131,14 @@ function bignum_toString ( radix ) {
         throw new IllegalArgumentError("bad radix");
     }
 
+    if ( this.sign < 0 )
+        str = '-' + str;
+
     return str;
 }
 
 // Downgrade to Number
-function bignum_valueOf () {
+function BigNumber_valueOf () {
     var limbs = this.limbs,
         bits = this.bitLength,
         sign = this.sign;
@@ -130,14 +146,11 @@ function bignum_valueOf () {
     if ( !sign )
         return 0;
 
-    if ( sign < 0 )
-        return '-' + this.negate().valueOf();
-
     if ( bits <= 32 )
-        return limbs[0]>>>0;
+        return sign * (limbs[0]>>>0);
 
     if ( bits <= 52 )
-        return 0x100000000 * (limbs[1]>>>0) + (limbs[0]>>>0);
+        return sign * ( 0x100000000 * (limbs[1]>>>0) + (limbs[0]>>>0) );
 
     // normalization
     var i, l, e = 0;
@@ -148,14 +161,16 @@ function bignum_valueOf () {
     }
 
     if ( i === 0 )
-        return limbs[0]>>>0;
+        return sign * (limbs[0]>>>0);
 
-    return ( 0x100000 * (( (limbs[i] << e) | ( e ? limbs[i-1] >>> (32-e) : 0 ) )>>>0)
-                      + ((limbs[i-1] << e)>>>0) ) * Math.pow( 2, 32*i-e );
+    return sign * ( 0x100000 * (( (limbs[i] << e) | ( e ? limbs[i-1] >>> (32-e) : 0 ) )>>>0)
+                             + (( (limbs[i-1] << e) | ( e && i > 1 ? limbs[i-2] >>> (32-e) : 0 ) )>>>12)
+                  ) * Math.pow( 2, 32*i-e-52 );
 }
 
-function bignum_clamp ( b ) {
-    var bitlen = this.bitLength,
+function BigNumber_clamp ( b ) {
+    var limbs = this.limbs,
+        bitlen = this.bitLength,
         sign = this.sign,
         n = (b + 31) >> 5,
         k = b % 32;
@@ -163,51 +178,35 @@ function bignum_clamp ( b ) {
     if ( b >= bitlen )
         return this;
 
-    var limbs = new Uint32Array( pow2_ceil( (n+7) & -8 ) );
-    limbs.set( this.limbs.subarray(0,n), 0 );
-    if ( sign < 0 ) {
-        if ( k ) limbs[n-1] |= -1 << k;
-        for ( var i = n; i < limbs.length; i++ ) limbs[i] = -1;
-    }
-    else {
-        if ( k ) limbs[n-1] &= ~(-1 << k);
-    }
-
-    var clamped = new bignum_constructor();
-    clamped.limbs = limbs;
+    var clamped = new BigNumber;
+    clamped.limbs = new Uint32Array( limbs.subarray(0,n) );
     clamped.bitLength = b;
     clamped.sign = sign;
+
+    if ( k ) clamped.limbs[n-1] &= (-1 >>> (32-k));
 
     return clamped;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-function bignum_negate () {
-    var limbcnt = this.limbs.length,
-        limbs = new Uint32Array(limbcnt),
-        negative = new bignum_constructor();
+function BigNumber_negate () {
+    var negative = new BigNumber;
 
-    _bigint_heap.set( this.limbs, 0 );
-
-    _bigint_asm.neg( 0, limbcnt<<2, 0, limbcnt<<2 );
-
-    limbs.set( _bigint_heap.subarray(0, limbcnt) );
-
-    negative.limbs = limbs;
+    negative.limbs = this.limbs;
     negative.bitLength = this.bitLength;
     negative.sign = -1 * this.sign;
 
     return negative;
 }
 
-function bignum_compare ( that ) {
-    if ( !( that instanceof bignum_constructor ) )
-        that = new bignum_constructor(that);
+function BigNumber_compare ( that ) {
+    if ( !( that instanceof BigNumber ) )
+        that = new BigNumber(that);
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
         bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
-        c;
+        z = 0;
 
     if ( this.sign < that.sign )
         return -1;
@@ -217,14 +216,14 @@ function bignum_compare ( that ) {
 
     _bigint_heap.set( alimbs, 0 );
     _bigint_heap.set( blimbs, alimbcnt );
-    c = _bigint_asm.cmp( 0, alimbcnt<<2, alimbcnt<<2, blimbcnt<<2 );
+    z = _bigint_asm.cmp( 0, alimbcnt<<2, alimbcnt<<2, blimbcnt<<2 );
 
-    return c * this.sign;
+    return z * this.sign;
 }
 
-function bignum_add ( that ) {
-    if ( !( that instanceof bignum_constructor ) )
-        that = new bignum_constructor(that);
+function BigNumber_add ( that ) {
+    if ( !( that instanceof BigNumber ) )
+        that = new BigNumber(that);
 
     if ( !this.sign )
         return that;
@@ -232,169 +231,155 @@ function bignum_add ( that ) {
     if ( !that.sign )
         return this;
 
-    var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
-        bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
-        result = new bignum_constructor(),
-        rbitlen, rlimbs, rlimbcnt;
-
-    _bigint_heap.set( alimbs, 0 );
-    _bigint_heap.set( blimbs, alimbcnt );
-
-    _bigint_asm.add( 0, alimbcnt<<2, alimbcnt<<2, blimbcnt<<2, (alimbcnt+blimbcnt)<<2, -1 );
+    var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length, asign = this.sign,
+        bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length, bsign = that.sign,
+        rbitlen, rlimbcnt, rsign, rof, result = new BigNumber;
 
     rbitlen = ( abitlen > bbitlen ? abitlen : bbitlen ) + 1;
-    rlimbcnt = ( rbitlen + 255 ) >> 8 << 3;
-    rlimbs = new Uint32Array( pow2_ceil(rlimbcnt) );
-    rlimbs.set( _bigint_heap.subarray(alimbcnt+blimbcnt, alimbcnt+blimbcnt+rlimbcnt) );
-    if ( rlimbcnt < rlimbs.length ) {
-        rlimbs[rlimbcnt] = (rlimbs[rlimbcnt-1]|0) < 0 ? -1 : 0;
-        for ( var i = rlimbcnt+1; i < rlimbs.length; i++ ) rlimbs[i] = rlimbs[rlimbcnt];
+    rlimbcnt = ( rbitlen + 31 ) >> 5;
+
+    _bigint_asm.sreset();
+
+    var pA = _bigint_asm.salloc( alimbcnt<<2 ),
+        pB = _bigint_asm.salloc( blimbcnt<<2 ),
+        pR = _bigint_asm.salloc( rlimbcnt<<2 );
+
+    _bigint_asm.z( pR-pA, 0, pA );
+
+    _bigint_heap.set( alimbs, pA>>2 );
+    _bigint_heap.set( blimbs, pB>>2 );
+
+    if ( asign * bsign > 0 ) {
+        _bigint_asm.add( pA, alimbcnt<<2, pB, blimbcnt<<2, pR, rlimbcnt<<2 );
+        rsign = asign;
+    }
+    else if ( asign > bsign ) {
+        rof = _bigint_asm.sub( pA, alimbcnt<<2, pB, blimbcnt<<2, pR, rlimbcnt<<2 );
+        rsign = rof ? bsign : asign;
+    }
+    else {
+        rof = _bigint_asm.sub( pB, blimbcnt<<2, pA, alimbcnt<<2, pR, rlimbcnt<<2 );
+        rsign = rof ? asign : bsign;
     }
 
+    if ( rof )
+        _bigint_asm.neg( pR, rlimbcnt<<2, pR, rlimbcnt<<2 );
+
+    if ( _bigint_asm.tst( pR, rlimbcnt<<2 ) === 0 )
+        return BigNumber_ZERO;
+
+    result.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+rlimbcnt ) );
     result.bitLength = rbitlen;
-    result.limbs = rlimbs;
-
-    return result;
-}
-
-function bignum_subtract ( that ) {
-    if ( !( that instanceof bignum_constructor ) )
-        that = new bignum_constructor(that);
-
-    if ( !this.sign )
-        return that.negate();
-
-    if ( !that.sign )
-        return this;
-
-    var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
-        bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
-        result = new bignum_constructor(),
-        rbitlen, rlimbs, rlimbcnt, rc;
-
-    _bigint_heap.set( alimbs, 0 );
-    _bigint_heap.set( blimbs, alimbcnt );
-    rc = _bigint_asm.sub( 0, alimbcnt<<2, alimbcnt<<2, blimbcnt<<2, (alimbcnt+blimbcnt)<<2, -1 );
-
-    rbitlen = ( abitlen > bbitlen ? abitlen : bbitlen );
-    if ( this.sign * that.sign < 0 ) rbitlen++;
-    rlimbcnt = ( rbitlen + 255 ) >> 8 << 3;
-    rlimbs = new Uint32Array( pow2_ceil(rlimbcnt) );
-    rlimbs.set( _bigint_heap.subarray(alimbcnt+blimbcnt, alimbcnt+blimbcnt+rlimbcnt) );
-    if ( rlimbcnt < rlimbs.length ) {
-        rlimbs[rlimbcnt] = (rlimbs[rlimbcnt-1]|0) < 0 ? -1 : 0;
-        for ( var i = rlimbcnt+1; i < rlimbs.length; i++ ) rlimbs[i] = rlimbs[rlimbcnt];
-    }
-
-    result.bitLength = rbitlen;
-    result.limbs = rlimbs;
-    result.sign = ( rc ? -1 : 1 ) * this.sign;
-
-    return result;
-}
-
-function bignum_multiply ( that ) {
-    if ( !( that instanceof bignum_constructor ) )
-        that = new bignum_constructor(that);
-
-    var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
-        bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
-        result = new bignum_constructor(),
-        rlimbs, rbitlen, rlimbcnt, rsign = 0;
-
-    _bigint_heap.set( alimbs, 0 );
-    if ( this.sign < 0 ) _bigint_asm.neg( 0, alimbcnt<<2, 0, alimbcnt<<2 );
-
-    _bigint_heap.set( blimbs, alimbcnt );
-    if ( that.sign < 0 ) _bigint_asm.neg( alimbcnt<<2, blimbcnt<<2, alimbcnt<<2, blimbcnt<<2 );
-
-    rbitlen = abitlen + bbitlen;
-    rlimbcnt = ( rbitlen + 255 ) >> 8 << 3;
-    _bigint_asm.mul( 0, alimbcnt<<2, alimbcnt<<2, blimbcnt<<2, (alimbcnt+blimbcnt)<<2, rlimbcnt<<2 );
-
-    rlimbs = new Uint32Array( pow2_ceil(rlimbcnt) );
-
-    rsign = this.sign * that.sign;
-    if ( rsign < 0 ) {
-        _bigint_asm.neg( (alimbcnt+blimbcnt)<<2, rlimbcnt<<2, (alimbcnt+blimbcnt)<<2, rlimbcnt<<2 );
-        for ( var i = 0; i < rlimbs.length; i++ ) rlimbs[i] = -1;
-    }
-
-    rlimbs.set( _bigint_heap.subarray(alimbcnt+blimbcnt, alimbcnt+blimbcnt+rlimbcnt) );
-
-    result.bitLength = rbitlen;
-    result.limbs = rlimbs;
     result.sign = rsign;
 
     return result;
 }
 
-function bignum_square () {
+function BigNumber_subtract ( that ) {
+    if ( !( that instanceof BigNumber ) )
+        that = new BigNumber(that);
+
+    return this.add( that.negate() );
+}
+
+function BigNumber_multiply ( that ) {
+    if ( !( that instanceof BigNumber ) )
+        that = new BigNumber(that);
+
+    if ( !this.sign || !that.sign )
+        return BigNumber_ZERO;
+
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
-        result = new bignum_constructor(),
-        rlimbs, rbitlen, rlimbcnt;
+        bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
+        rbitlen, rlimbcnt, rsign = 0, result = new BigNumber;
 
-    _bigint_heap.set( alimbs, 0 );
-    if ( this.sign < 0 ) _bigint_asm.neg( 0, alimbcnt<<2, 0, alimbcnt<<2 );
+    rbitlen = abitlen + bbitlen;
+    rlimbcnt = ( rbitlen + 31 ) >> 5;
 
-    _bigint_asm.sqr( 0, alimbcnt<<2, alimbcnt<<2 );
+    _bigint_asm.sreset();
+
+    var pA = _bigint_asm.salloc( alimbcnt<<2 ),
+        pB = _bigint_asm.salloc( blimbcnt<<2 ),
+        pR = _bigint_asm.salloc( rlimbcnt<<2 );
+
+    _bigint_asm.z( pR-pA, 0, pA );
+
+    _bigint_heap.set( alimbs, pA>>2 );
+    _bigint_heap.set( blimbs, pB>>2 );
+
+    _bigint_asm.mul( pA, alimbcnt<<2, pB, blimbcnt<<2, pR, rlimbcnt<<2 );
+
+    result.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+rlimbcnt ) );
+    result.sign = this.sign * that.sign;
+    result.bitLength = rbitlen;
+
+    return result;
+}
+
+function BigNumber_square () {
+    if ( !this.sign )
+        return BigNumber_ZERO;
+
+    var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
+        rbitlen, rlimbcnt, result = new BigNumber;
 
     rbitlen = abitlen << 1;
-    rlimbcnt = alimbcnt << 1;
-    rlimbs = new Uint32Array(rlimbcnt);
-    rlimbs.set( _bigint_heap.subarray(alimbcnt, 3*alimbcnt) );
+    rlimbcnt = ( rbitlen + 31 ) >> 5;
 
+    _bigint_asm.sreset();
+
+    var pA = _bigint_asm.salloc( alimbcnt<<2 ),
+        pR = _bigint_asm.salloc( rlimbcnt<<2 );
+
+    _bigint_asm.z( pR-pA, 0, pA );
+
+    _bigint_heap.set( alimbs, pA>>2 );
+
+    _bigint_asm.sqr( pA, alimbcnt<<2, pR );
+
+    result.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+rlimbcnt ) );
     result.bitLength = rbitlen;
-    result.limbs = rlimbs;
     result.sign = 1;
 
     return result;
 }
 
-function bignum_divide ( that ) {
-    if ( !( that instanceof bignum_constructor ) )
-        that = new bignum_constructor(that);
+function BigNumber_divide ( that ) {
+    if ( !( that instanceof BigNumber ) )
+        that = new BigNumber(that);
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
         bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
-        quotient = bignum_zero,
-        remainder = bignum_zero,
-        qlimbcnt, qlimbs, qsign,
-        rlimbcnt, rlimbs;
+        qlimbcnt, rlimbcnt, quotient = BigNumber_ZERO, remainder = BigNumber_ZERO;
 
-    _bigint_heap.set( alimbs, 0 );
-    if ( this.sign < 0 ) _bigint_asm.neg( 0, alimbcnt<<2, 0, alimbcnt<<2 );
+    _bigint_asm.sreset();
 
-    _bigint_heap.set( blimbs, alimbcnt );
-    if ( that.sign < 0 ) _bigint_asm.neg( alimbcnt<<2, blimbcnt<<2, alimbcnt<<2, blimbcnt<<2 );
+    var pA = _bigint_asm.salloc( alimbcnt<<2 ),
+        pB = _bigint_asm.salloc( blimbcnt<<2 ),
+        pR = _bigint_asm.salloc( blimbcnt<<2 ),
+        pQ = _bigint_asm.salloc( alimbcnt<<2 );
 
-    qlimbcnt = _bigint_asm.div( 0, alimbcnt<<2, alimbcnt<<2, blimbcnt<<2, (alimbcnt+blimbcnt)<<2, (alimbcnt+2*blimbcnt)<<2 )>>2;
-    rlimbcnt = (bbitlen + 31) >>> 5;
+    _bigint_asm.z( pQ-pA, 0, pA );
 
-    if ( _bigint_asm.tst( (alimbcnt+2*blimbcnt)<<2, alimbcnt<<2 ) ) {
-        qsign = this.sign * that.sign;
-        if ( qsign < 0 ) _bigint_asm.neg( (alimbcnt+2*blimbcnt)<<2, alimbcnt<<2, (alimbcnt+2*blimbcnt)<<2, alimbcnt<<2 );
+    _bigint_heap.set( alimbs, pA>>2 );
+    _bigint_heap.set( blimbs, pB>>2 );
 
-        qlimbs = new Uint32Array( pow2_ceil((qlimbcnt + 7) & -8) );
-        qlimbs.set( _bigint_heap.subarray(alimbcnt+2*blimbcnt, alimbcnt+2*blimbcnt+qlimbcnt) );
+    qlimbcnt = _bigint_asm.div( pA, alimbcnt<<2, pB, blimbcnt<<2, pR, pQ )>>2;
 
-        quotient = new bignum_constructor();
-        quotient.bitLength = abitlen;
-        quotient.limbs = qlimbs;
-        quotient.sign = qsign;
+    qlimbcnt = _bigint_asm.tst( pQ, qlimbcnt<<2 )>>2;
+    if ( qlimbcnt ) {
+        quotient = new BigNumber;
+        quotient.limbs = new Uint32Array( _bigint_heap.subarray( pQ>>2, (pQ>>2)+qlimbcnt ) );
+        quotient.bitLength = abitlen < (qlimbcnt<<5) ? abitlen : (qlimbcnt<<5);
+        quotient.sign = this.sign * that.sign;
     }
 
-    if ( _bigint_asm.tst( (alimbcnt+blimbcnt)<<2, blimbcnt<<2 ) ) {
-        rsign = this.sign;
-        if ( rsign < 0 ) _bigint_asm.neg( (alimbcnt+blimbcnt)<<2, blimbcnt<<2, (alimbcnt+blimbcnt)<<2, blimbcnt<<2 );
-
-        rlimbs = new Uint32Array(blimbcnt);
-        rlimbs.set( _bigint_heap.subarray(alimbcnt+blimbcnt, alimbcnt+blimbcnt+rlimbcnt) );
-
-        remainder = new bignum_constructor();
-        remainder.bitLength = bbitlen;
-        remainder.limbs = rlimbs;
-        remainder.sign = rsign;
+    rlimbcnt = _bigint_asm.tst( pR, blimbcnt<<2 )>>2;
+    if ( rlimbcnt ) {
+        remainder = new BigNumber;
+        remainder.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+rlimbcnt ) );;
+        remainder.bitLength = bbitlen < (rlimbcnt<<5) ? bbitlen : (rlimbcnt<<5);
+        remainder.sign = this.sign;
     }
 
     return {
@@ -405,23 +390,23 @@ function bignum_divide ( that ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var bignum_prototype = bignum_constructor.prototype = new Number;
-bignum_prototype.toString = bignum_toString;
-bignum_prototype.valueOf = bignum_valueOf;
-bignum_prototype.clamp = bignum_clamp;
+var BigNumberPrototype = BigNumber.prototype = new Number;
+BigNumberPrototype.toString = BigNumber_toString;
+BigNumberPrototype.valueOf = BigNumber_valueOf;
+BigNumberPrototype.clamp = BigNumber_clamp;
 
-bignum_prototype.negate = bignum_negate;
-bignum_prototype.compare = bignum_compare;
-bignum_prototype.add = bignum_add;
-bignum_prototype.subtract = bignum_subtract;
-bignum_prototype.multiply = bignum_multiply;
-bignum_prototype.square = bignum_square;
-bignum_prototype.divide = bignum_divide;
+BigNumberPrototype.negate = BigNumber_negate;
+BigNumberPrototype.compare = BigNumber_compare;
+BigNumberPrototype.add = BigNumber_add;
+BigNumberPrototype.subtract = BigNumber_subtract;
+BigNumberPrototype.multiply = BigNumber_multiply;
+BigNumberPrototype.square = BigNumber_square;
+BigNumberPrototype.divide = BigNumber_divide;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var bignum_zero = new bignum_constructor(0),
-    bignum_one  = new bignum_constructor(1);
+var BigNumber_ZERO = new BigNumber(0),
+    BigNumber_ONE  = new BigNumber(1);
 
-Object.freeze(bignum_zero);
-Object.freeze(bignum_one);
+Object.freeze(BigNumber_ZERO);
+Object.freeze(BigNumber_ONE);

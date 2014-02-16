@@ -1,6 +1,7 @@
-bignum_constructor.ZERO = bignum_zero;
-bignum_constructor.ONE  = bignum_one;
+BigNumber.ZERO = BigNumber_ZERO;
+BigNumber.ONE  = BigNumber_ONE;
 
-bignum_constructor.extGCD = bignum_extGCD;
+BigNumber.extGCD = BigNumber_extGCD;
 
-exports.BigNumber = bignum_constructor;
+exports.BigNumber = BigNumber;
+exports.Modulus = Modulus;

@@ -13,9 +13,75 @@ if ( global.Math.imul === undefined ) {
 function bigint_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
+    var SP = 0;
+
     var HEAP32 = new stdlib.Uint32Array(buffer);
 
     var imul = stdlib.Math.imul;
+
+    /**
+     * Simple stack memory allocator
+     *
+     * Methods:
+     *  sreset
+     *  salloc
+     *  sfree
+     */
+
+    function sreset ( p ) {
+        p = p|0;
+        SP = p = (p + 31) & -32;
+        return p|0;
+    }
+
+    function salloc ( l ) {
+        l = l|0;
+        var p = 0; p = SP;
+        SP = p + ((l + 31) & -32)|0;
+        return p|0;
+    }
+
+    function sfree ( l ) {
+        l = l|0;
+        SP = SP - ((l + 31) & -32)|0;
+    }
+
+    /**
+     * Utility functions:
+     *  cp
+     *  z
+     */
+
+    function cp ( l, A, B ) {
+        l = l|0;
+        A = A|0;
+        B = B|0;
+
+        var i = 0, Ai = 0, Bi = 0;
+
+        if ( (A|0) > (B|0) ) {
+            for ( ; (i|0) < (l|0); i = (i+4)|0 ) {
+                HEAP32[(B+i)>>2] = HEAP32[(A+i)>>2];
+            }
+        }
+        else {
+            for ( i = (l-4)|0; (i|0) >= 0; i = (i-4)|0 ) {
+                HEAP32[(B+i)>>2] = HEAP32[(A+i)>>2];
+            }
+        }
+    }
+
+    function z ( l, z, A ) {
+        l = l|0;
+        z = z|0;
+        A = A|0;
+
+        var i = 0, Ai = 0;
+
+        for ( ; (i|0) < (l|0); i = (i+4)|0 ) {
+            HEAP32[(A+i)>>2] = z;
+        }
+    }
 
     /**
      * Negate the argument
@@ -53,7 +119,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
             c = r >>> 16;
         }
 
-        for ( ; (i|0) < (lA|0); i = (i+4)|0 ) {
+        for ( ; (i|0) < (lR|0); i = (i+4)|0 ) {
             HEAP32[(R+i)>>2] = (c-1)|0;
         }
 
@@ -100,7 +166,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         var i = 0;
 
         for ( i = (lA-4)|0; (i|0) >= 0; i = (i-4)|0 ) {
-            if ( HEAP32[(A+i)>>2]|0 ) return 1;
+            if ( HEAP32[(A+i)>>2]|0 ) return (i+4)|0;
         }
 
         return 0;
@@ -1663,8 +1729,6 @@ function bigint_asm ( stdlib, foreign, buffer ) {
     /**
      * Conventional division
      *
-     * TODO can be almost twice faster with unrolled internal multiplication loops
-     *
      * @param A offset of the numerator, 32-byte aligned
      * @param lA length of the numerator, multiple of 32
      *
@@ -1692,10 +1756,10 @@ function bigint_asm ( stdlib, foreign, buffer ) {
             i = 0, j = 0, k = 0;
 
         // copy `N` to `R`
-        _cp( lN, N, R )|0;
+        cp( lN, N, R );
 
         // set `Q` to zero
-        _z( lD, Q )|0;
+        z( lD, 0, Q );
 
         // number of significant limbs in `N` (multiplied by 4)
         for ( i = (lN-1) & -4; (i|0) >= 0; i = (i-4)|0 ) {
@@ -1862,65 +1926,11 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         return ( lN + (e+31>>5<<2) - lD )|0;
     }
 
-    function _cp ( l, A, B ) {
-        l = l|0;
-        A = A|0;
-        B = B|0;
-
-        var i = 0, Ai = 0, Bi = 0;
-
-        if ( (A|0) > (B|0) ) {
-            for ( i = 0; (i|0) < (l|0); i = (i+32)|0 ) {
-                Ai = (A+i)|0, Bi = (B+i)|0;
-                HEAP32[(Bi|0)>>2] = HEAP32[(Ai|0)>>2]|0,
-                HEAP32[(Bi|4)>>2] = HEAP32[(Ai|4)>>2]|0,
-                HEAP32[(Bi|8)>>2] = HEAP32[(Ai|8)>>2]|0,
-                HEAP32[(Bi|12)>>2] = HEAP32[(Ai|12)>>2]|0,
-                HEAP32[(Bi|16)>>2] = HEAP32[(Ai|16)>>2]|0,
-                HEAP32[(Bi|20)>>2] = HEAP32[(Ai|20)>>2]|0,
-                HEAP32[(Bi|24)>>2] = HEAP32[(Ai|24)>>2]|0,
-                HEAP32[(Bi|28)>>2] = HEAP32[(Ai|28)>>2]|0;
-            }
-        }
-        else {
-            for ( i = (l-32)|0; (i|0) >= 0; i = (i-32)|0 ) {
-                Ai = (A+i)|0, Bi = (B+i)|0;
-                HEAP32[(Bi|28)>>2] = HEAP32[(Ai|28)>>2]|0,
-                HEAP32[(Bi|24)>>2] = HEAP32[(Ai|24)>>2]|0,
-                HEAP32[(Bi|20)>>2] = HEAP32[(Ai|20)>>2]|0,
-                HEAP32[(Bi|16)>>2] = HEAP32[(Ai|16)>>2]|0,
-                HEAP32[(Bi|12)>>2] = HEAP32[(Ai|12)>>2]|0,
-                HEAP32[(Bi|8)>>2] = HEAP32[(Ai|8)>>2]|0,
-                HEAP32[(Bi|4)>>2] = HEAP32[(Ai|4)>>2]|0,
-                HEAP32[(Bi|0)>>2] = HEAP32[(Ai|0)>>2]|0;
-            }
-        }
-
-        return B|0;
-    }
-
-    function _z ( l, A ) {
-        l = l|0;
-        A = A|0;
-
-        var i = 0, Ai = 0;
-
-        for ( i = 0; (i|0) < (l|0); i = (i+32)|0 ) {
-            Ai = (A+i)|0;
-            HEAP32[(Ai|0)>>2] = 0,
-            HEAP32[(Ai|4)>>2] = 0,
-            HEAP32[(Ai|8)>>2] = 0,
-            HEAP32[(Ai|12)>>2] = 0,
-            HEAP32[(Ai|16)>>2] = 0,
-            HEAP32[(Ai|20)>>2] = 0,
-            HEAP32[(Ai|24)>>2] = 0,
-            HEAP32[(Ai|28)>>2] = 0;
-        }
-
-        return A|0;
-    }
-
     return {
+        sreset: sreset,
+        salloc: salloc,
+        sfree:  sfree,
+        z: z,
         tst: tst,
         neg: neg,
         cmp: cmp,
