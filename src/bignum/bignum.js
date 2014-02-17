@@ -205,15 +205,25 @@ function BigNumber_splice ( f, b ) {
 
     var spliced = new BigNumber, slimbs,
         n = f >> 5, m = (f + b + 31) >> 5,
-        t = f % 32, k = b % 32;
+        t = (f-1) % 32, k = b % 32;
 
-    slimbs = new Uint32Array( limbs.subarray(n,m) ),
+    slimbs = new Uint32Array( limbs.subarray(n,m) );
 
     spliced.limbs = slimbs
     spliced.bitLength = b;
     spliced.sign = this.sign;
 
-    if ( k ) slimbs[m-n-1] &= (-1 >>> (32-k));
+    if ( t ) {
+        slimbs[0] >>>= t;
+        for ( var i = 1; i < slimbs.length; i++ ) {
+            slimbs[i-1] |= slimbs[i] << (32-t);
+            slimbs[i] >>>= t;
+        }
+    }
+
+    if ( k ) {
+        slimbs[m-n-1] &= (-1 >>> (32-k));
+    }
 
     return spliced;
 }

@@ -17,8 +17,8 @@ var _pseudo_mersenne_k = [ 0,
     0x0471, 0x08e1, 0x025d, 0x04d1, 0x0459, 0x045b, 0x084b, 0x03c3, 0x1a43, 0x06e7, 0x0081, 0x05df, 0x0d97, 0x032f, 0x140d, 0x0615,
     0x0d0b, 0x0377, 0x00d7, 0x0729, 0x1d87, 0x0063, 0x034d, 0x0741, 0x0063, 0x0005, 0x0005, 0x0e8b, 0x0081, 0x0101, 0,      0x004b,
     0x08bb, 0x0095, 0x01b5, 0x09e1, 0x074d, 0x0a85, 0x120b, 0x08c7, 0x06f3, 0x09c3, 0x0f6b, 0x0059, 0x057f, 0x0bf1, 0x188f, 0x002f,
-    0x024b, 0x09cb, 0x04cb, 0x0693, 0x02f3, 0x06a7,
-    0,
+    0x024b, 0x09cb, 0x04cb, 0x0693, 0x02f3, 0x06a7, 0,      0,      0,      0,      0,      0,      0,      0,      0,      0x01ad,
+    0x0f57, 0x0537, 0x0087, 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 ];
 
 /**
@@ -76,8 +76,8 @@ function Modulus ( modulus ) {
         return;
 
     if ( this.limbs[0] & 1 ) {
-        var bitlen = this.bitLength+1, limbs = new Uint32Array( (bitlen+31)>>5 );
-        limbs[limbs.length-1] = 1 << (bitlen % 32);
+        var bitlen = this.bitLength+1, limbs = new Uint32Array( (bitlen+31) >> 5 );
+        limbs[limbs.length-1] = 1 << (this.bitLength % 32);
         comodulus = new BigNumber();
         comodulus.sign = 1;
         comodulus.bitLength = bitlen;
@@ -95,12 +95,11 @@ function Modulus ( modulus ) {
     }
 
     this.comodulus = comodulus;
-    this.comodulus.remainder = comodulus.divide(this).remainder;
-    this.comodulus.remainderSquare = comodulus.square().divide(this).remainder;
+    this.comodulusRemainder = comodulus.divide(this).remainder;
+    this.comodulusRemainderSquare = comodulus.square().divide(this).remainder;
 
-    var z = BigNumber_extGCD( comodulus, modulus );
-    this.comodulus.bezoutCoefficient = z.x.sign > 0 ? z.x : z.x.negate();
-    this.bezoutCoefficient = z.y.sign > 0 ? z.y : z.y.negate();
+    var z = BigNumber_extGCD( comodulus, this );
+    this.bezoutCoefficient = z.y.negate();
 }
 
 function Modulus_reduce ( a ) {
@@ -110,13 +109,13 @@ function Modulus_reduce ( a ) {
     if ( a.bitLength <= 32 && this.bitLength <= 32 )
         return new BigNumber( a.valueOf() % this.valueOf() );
 
-    var R = this.comodulus;
+    var R = this.comodulus, N = this;
     if ( R ) {
         // perform Montgomery reduction (TODO implement in asm.js later)
         var k = this.bezoutCoefficient, t;
-        a = a.multiply(R.remainder);
-        t = a.clamp(R.bitLength-1).multiply(k).clamp(R.bitLength-1).multiply(this).add(a).splice(R.bitLength);
-        if ( t.compare(this) > 0 ) t = t.subtract(this);
+        a = a.multiply(N.comodulusRemainder);
+        t = a.clamp(R.bitLength-1).multiply(k).clamp(R.bitLength-1).multiply(N).add(a).splice(R.bitLength);
+        if ( t.compare(N) >= 0 ) t = t.subtract(N);
         return t;
     }
 
