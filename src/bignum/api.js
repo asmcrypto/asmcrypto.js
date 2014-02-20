@@ -5,3 +5,4 @@ BigNumber.extGCD = BigNumber_extGCD;
 
 exports.BigNumber = BigNumber;
 exports.Modulus = Modulus;
+exports.Montgomery = Montgomery;

@@ -349,15 +349,6 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         if ( (lR|0) < (lB|0) )
             lB = lR;
 
-        HEAP32[(R|0)>>2] = 0,
-        HEAP32[(R|4)>>2] = 0,
-        HEAP32[(R|8)>>2] = 0,
-        HEAP32[(R|12)>>2] = 0,
-        HEAP32[(R|16)>>2] = 0,
-        HEAP32[(R|20)>>2] = 0,
-        HEAP32[(R|24)>>2] = 0,
-        HEAP32[(R|28)>>2] = 0;
-
         for ( ; (i|0) < (lA|0); i = (i+32)|0 ) {
             Ai = (A+i)|0;
 
@@ -846,6 +837,41 @@ function bigint_asm ( stdlib, foreign, buffer ) {
             HEAP32[(Rk|24)>>2] = r14,
             HEAP32[(Rk|28)>>2] = r15;
         }
+/*
+        for ( i = lA & -32; (i|0) < (lA|0); i = (i+4)|0 ) {
+            Ai = (A+i)|0;
+
+            ah0 = HEAP32[Ai>>2]|0,
+            al0 = ah0 & 0xffff,
+            ah0 = ah0 >>> 16;
+
+            r1 = 0;
+
+            for ( j = 0; (j|0) < (lB|0); j = (j+4)|0 ) {
+                Bj = (B+j)|0;
+                Rk = (R+(i+j|0))|0;
+
+                bh0 = HEAP32[Bj>>2]|0,
+                bl0 = bh0 & 0xffff,
+                bh0 = bh0 >>> 16;
+
+                r0 = HEAP32[Rk>>2]|0;
+
+                u = ((imul(al0, bl0)|0) + (r1 & 0xffff)|0) + (r0 & 0xffff)|0;
+                v = ((imul(ah0, bl0)|0) + (r1 >>> 16)|0) + (r0 >>> 16)|0;
+                w = ((imul(al0, bh0)|0) + (v & 0xffff)|0) + (u >>> 16)|0;
+                m = ((imul(ah0, bh0)|0) + (v >>> 16)|0) + (w >>> 16)|0;
+                r0 = (w << 16) | (u & 0xffff);
+
+                r1 = m;
+
+                HEAP32[Rk>>2] = r0;
+            }
+
+            Rk = (R+(i+j|0))|0;
+            HEAP32[Rk>>2] = r1;
+        }
+*/
     }
 
     /**
@@ -1758,9 +1784,6 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         // copy `N` to `R`
         cp( lN, N, R );
 
-        // set `Q` to zero
-        z( lD, 0, Q );
-
         // number of significant limbs in `N` (multiplied by 4)
         for ( i = (lN-1) & -4; (i|0) >= 0; i = (i-4)|0 ) {
             n = HEAP32[(N+i)>>2]|0;
@@ -1780,7 +1803,6 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         }
 
         // `D` is zero? WTF?!
-        if ( !d ) return -1;
 
         // calculate `e` — the power of 2 of the normalization factor
         while ( (d & 0x80000000) == 0 ) {
@@ -1922,46 +1944,24 @@ function bigint_asm ( stdlib, foreign, buffer ) {
             }
             HEAP32[(R+lD)>>2] = u0 >>> e;
         }
-
-        return ( lN + (e+31>>5<<2) - lD )|0;
     }
-
-    /**
-     * Reduction modulo (pseudo-)Mersenne number M such that
-     *
-     *  M = 2^(32*m)-k, 1 < m,  0 < k < 2^16.
-     *
-     * See HAC 14.47 for details
-    function pmred ( A, lA, Mm, Mk, R, lR ) {
-        A  =  A|0;
-        lA = lA|0;
-        Mm = Mm|0;
-        Mk = Mk|0;
-        R  =  R|0;
-        lR = lR|0;
-
-        // TODO
-    }
-     */
 
     /**
      * Montgomery reduction
      *
      * Definition:
      *
-     *  MREDC(A) = A×X (mod N),
-     *  M×X = 1 mod N,
-     *  N×Y = 1 mod M,
+     *  MREDC(A) = A × X (mod N),
+     *  M × X = N × Y + 1,
      *
-     * where M = 2^(32*m)-k such that N < M and 0 ≤ k < 2^16.
+     * where M = 2^(32*m) such that N < M and A < N×M
      *
      * Numbers `X` and `Y` can be calculated using Extended Euclidean Algorithm.
      */
-    function monred ( A, lA, Mm, Mk, N, lN, Y, lY, R ) {
+    function monred ( A, lA, Mm, N, lN, Y, lY, R ) {
         A  =  A|0;
         lA = lA|0;
         Mm = Mm|0;
-        Mk = Mk|0;
         N  =  N|0;
         lN = lN|0;
         Y  =  Y|0;
@@ -1970,44 +1970,23 @@ function bigint_asm ( stdlib, foreign, buffer ) {
 
         var T = 0, lT = 0, U = 0, lU = 0;
 
-        // A ← A mod M
-        if ( Mk ) {
-            // TODO
-        }
-        else {
-            lA = Mm<<2;
-        }
+        // T ← (A mod M) × Y mod M
+        lT = Mm<<2;
+        T = salloc(lT)|0;
+        z( lT, 0, T );
+        mul( A, lT, Y, lY, T, lT );
 
-        // T ← A×Y mod M
-        if ( Mk ) {
-            // TODO
-        }
-        else {
-            lT = Mm<<2;
-            T = salloc(lT)|0;
-            mul( A, lA, Y, lY, T, lT );
-        }
+        // U ← T × N
+        lU = (lT+lN+4)|0;
+        U = salloc(lU)|0;
+        z( lU, 0, U );
+        mul( T, lT, N, lN, U, lU );
 
-        // U ← T×N
-        if ( Mk ) {
-            // TODO
-        }
-        else {
-            lU = (lT+lN)|0;
-            U = salloc(lU)|0;
-            mul( T, lT, N, lN, U, lU );
-        }
-
-        // U ← A+U, exactly divisible by M
+        // U ← A + U, exactly divisible by M
         add( A, lA, U, lU, U, lU )|0;
 
         // R ← U/M
-        if ( Mk ) {
-            // TODO
-        }
-        else {
-            cp( lT, U+lT|0, R );
-        }
+        cp( lT, U+lT|0, R );
 
         sfree(lU);
         sfree(lT);

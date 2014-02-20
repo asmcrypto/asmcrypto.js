@@ -2,7 +2,7 @@
 var _mersenne_exponents = [ 2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127, 521, 607, 1279, 2203, 2281, 3217, 4253, 4423, 9689, 9941, 11213, 19937, 21701, 23209, 44497, 86243, 110503, 132049, 216091, 756839, 859433, 1257787, 1398269, 2976221, 3021377, 6972593, 13466917, 20996011, 24036583, 25964951 ];
 
 /**
- * Practical special-form Pseudo-Mersenne primes:
+ * Practical special-form pseudo-Mersenne primes:
  *
  *  P = 2^(32*m) - k
  *
@@ -17,12 +17,12 @@ var _pseudo_mersenne_k = [ 0,
     0x0471, 0x08e1, 0x025d, 0x04d1, 0x0459, 0x045b, 0x084b, 0x03c3, 0x1a43, 0x06e7, 0x0081, 0x05df, 0x0d97, 0x032f, 0x140d, 0x0615,
     0x0d0b, 0x0377, 0x00d7, 0x0729, 0x1d87, 0x0063, 0x034d, 0x0741, 0x0063, 0x0005, 0x0005, 0x0e8b, 0x0081, 0x0101, 0,      0x004b,
     0x08bb, 0x0095, 0x01b5, 0x09e1, 0x074d, 0x0a85, 0x120b, 0x08c7, 0x06f3, 0x09c3, 0x0f6b, 0x0059, 0x057f, 0x0bf1, 0x188f, 0x002f,
-    0x024b, 0x09cb, 0x04cb, 0x0693, 0x02f3, 0x06a7, 0,      0,      0,      0,      0,      0,      0,      0,      0,      0x01ad,
+    0x024b, 0x09cb, 0x04cb, 0x0693, 0x02f3, 0x06a7, 0x0aa9, 0x0a4f, 0x0ff5, 0x0437, 0,      0,      0,      0,      0,      0x01ad,
     0x0f57, 0x0537, 0x0087, 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 ];
 
 /**
- * (Pseudo-)Mersenne Prime
+ * Pseudo-Mersenne Prime
  */
 function PseudoMersennePrime ( n, k ) {
     k = k || _pseudo_mersenne_k[n];
@@ -62,7 +62,7 @@ PseudoMersennePrime.prototype = new BigNumber;
  * Since `GCD(M, R) = 1` for arbitrary `M < R` this method always work
  * and reduction modulo `R` is made easy (see HAC 14.47).
  *
- * Bézout coefficients are precalculated here using Extended Euclidean Algorithm.
+ * Bézout coefficient is precalculated here using Extended Euclidean Algorithm.
  */
 function Modulus ( modulus ) {
     BigNumber.apply( this, arguments );
@@ -98,8 +98,8 @@ function Modulus ( modulus ) {
     this.comodulusRemainder = comodulus.divide(this).remainder;
     this.comodulusRemainderSquare = comodulus.square().divide(this).remainder;
 
-    var z = BigNumber_extGCD( comodulus, this );
-    this.bezoutCoefficient = z.y.negate();
+    var k = BigNumber_extGCD( comodulus, this ).y.negate();
+    this.bezoutCoefficient = k.sign > 0 ? k : k.add(comodulus);
 }
 
 function Modulus_reduce ( a ) {
@@ -109,13 +109,18 @@ function Modulus_reduce ( a ) {
     if ( a.bitLength <= 32 && this.bitLength <= 32 )
         return new BigNumber( a.valueOf() % this.valueOf() );
 
-    var R = this.comodulus, N = this;
-    if ( R ) {
-        // perform Montgomery reduction (TODO implement in asm.js later)
-        var k = this.bezoutCoefficient, t;
-        a = a.multiply(N.comodulusRemainder);
-        t = a.clamp(R.bitLength-1).multiply(k).clamp(R.bitLength-1).multiply(N).add(a).splice(R.bitLength);
-        if ( t.compare(N) >= 0 ) t = t.subtract(N);
+    if ( this.comodulus ) {
+        var R = this.comodulus,
+            k = this.bezoutCoefficient,
+            N = this,
+            t;
+
+        t = a.clamp(R.bitLength-1).multiply(k).clamp(R.bitLength-1)
+             .multiply(N).add(a).splice(R.bitLength);
+
+        if ( t.compare(N) >= 0 )
+            t = t.subtract(N);
+
         return t;
     }
 
@@ -123,6 +128,12 @@ function Modulus_reduce ( a ) {
 }
 
 function Modulus_add ( a, b ) {
+    if ( !( a instanceof BigNumber ) )
+        a = new BigNumber(a);
+
+    if ( !( b instanceof BigNumber ) )
+        b = new BigNumber(b);
+
     // TODO
 }
 
@@ -131,7 +142,13 @@ function Modulus_subtract ( a, b ) {
 }
 
 function Modulus_multiply ( a, b ) {
-    // TODO
+    if ( !( a instanceof BigNumber ) )
+        a = new BigNumber(a);
+
+    if ( !( b instanceof BigNumber ) )
+        b = new BigNumber(b);
+
+    a.multiply(b).divide(this).remainder;
 }
 
 function Modulus_square ( a ) {
@@ -147,3 +164,71 @@ function Modulus_power ( a, e ) {
 
 var ModulusPrototype = Modulus.prototype = new BigNumber;
 ModulusPrototype.reduce = Modulus_reduce;
+
+/**
+ * Montgomery reduction
+ */
+function Montgomery ( modulus ) {
+    BigNumber.apply( this, arguments );
+
+    if ( this.valueOf() < 1 )
+        throw new RangeError();
+
+    var comodulus;
+
+    if ( this.bitLength <= 32 )
+        return;
+
+    if ( this.limbs[0] & 1 ) {
+        var bitlen = ( (this.bitLength+31) & -32 ) + 1, limbs = new Uint32Array( (bitlen+31) >> 5 );
+        limbs[limbs.length-1] = 1;
+        comodulus = new BigNumber();
+        comodulus.sign = 1;
+        comodulus.bitLength = bitlen;
+        comodulus.limbs = limbs;
+    }
+    else {
+        throw new IllegalArgumentError("bad modulus");
+    }
+
+    this.comodulus = comodulus;
+    this.comodulusRemainder = comodulus.divide(this).remainder;
+    this.comodulusRemainderSquare = comodulus.square().divide(this).remainder;
+
+    var k = BigNumber_extGCD( comodulus, this ).y.clamp(comodulus.bitLength-1);
+    this.bezoutCoefficient = k.sign < 0 ? k.negate() : comodulus.subtract(k).clamp(comodulus.bitLength-1);
+}
+
+function Montgomery_reduce ( a ) {
+    if ( !( a instanceof BigNumber ) )
+        a = new BigNumber(a);
+
+    var alimbs = a.limbs, alimbcnt = alimbs.length,
+        nlimbs = this.limbs, nlimbcnt = nlimbs.length,
+        ylimbs = this.bezoutCoefficient.limbs, ylimbcnt = ylimbs.length;
+
+    _bigint_asm.sreset();
+
+    var pA = _bigint_asm.salloc( alimbcnt<<2 ),
+        pN = _bigint_asm.salloc( nlimbcnt<<2 ),
+        pY = _bigint_asm.salloc( ylimbcnt<<2 ),
+        pR = _bigint_asm.salloc( nlimbcnt<<2 );
+
+    _bigint_asm.z( pR-pA+(nlimbcnt<<2), 0, pA );
+
+    _bigint_heap.set( alimbs, pA>>2 );
+    _bigint_heap.set( nlimbs, pN>>2 );
+    _bigint_heap.set( ylimbs, pY>>2 );
+
+    _bigint_asm.monred( pA, alimbcnt<<2, (this.comodulus.bitLength-1)>>5, pN, nlimbcnt<<2, pY, ylimbcnt<<2, pR );
+
+    var result = new BigNumber();
+    result.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+nlimbcnt ) );
+    result.bitLength = this.bitLength;
+    result.sign = 1;
+
+    return result;
+}
+
+var MontgomeryPrototype = Montgomery.prototype = new BigNumber;
+MontgomeryPrototype.reduce = Montgomery_reduce;

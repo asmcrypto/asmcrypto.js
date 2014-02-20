@@ -116,6 +116,7 @@ function BigNumber_toString ( radix ) {
         str = '';
 
     if ( radix === 16 ) {
+        // FIXME clamp last limb to (bitlen % 32)
         for ( var i = (bitlen+31>>5)-1; i >= 0; i-- ) {
             var h = limbs[i].toString(16);
             str += '00000000'.substr(h.length);
@@ -284,7 +285,7 @@ function BigNumber_add ( that ) {
         pB = _bigint_asm.salloc( blimbcnt<<2 ),
         pR = _bigint_asm.salloc( rlimbcnt<<2 );
 
-    _bigint_asm.z( pR-pA, 0, pA );
+    _bigint_asm.z( pR-pA+(rlimbcnt<<2), 0, pA );
 
     _bigint_heap.set( alimbs, pA>>2 );
     _bigint_heap.set( blimbs, pB>>2 );
@@ -342,7 +343,7 @@ function BigNumber_multiply ( that ) {
         pB = _bigint_asm.salloc( blimbcnt<<2 ),
         pR = _bigint_asm.salloc( rlimbcnt<<2 );
 
-    _bigint_asm.z( pR-pA, 0, pA );
+    _bigint_asm.z( pR-pA+(rlimbcnt<<2), 0, pA );
 
     _bigint_heap.set( alimbs, pA>>2 );
     _bigint_heap.set( blimbs, pB>>2 );
@@ -371,7 +372,7 @@ function BigNumber_square () {
     var pA = _bigint_asm.salloc( alimbcnt<<2 ),
         pR = _bigint_asm.salloc( rlimbcnt<<2 );
 
-    _bigint_asm.z( pR-pA, 0, pA );
+    _bigint_asm.z( pR-pA+(rlimbcnt<<2), 0, pA );
 
     _bigint_heap.set( alimbs, pA>>2 );
 
@@ -399,14 +400,14 @@ function BigNumber_divide ( that ) {
         pR = _bigint_asm.salloc( blimbcnt<<2 ),
         pQ = _bigint_asm.salloc( alimbcnt<<2 );
 
-    _bigint_asm.z( pQ-pA, 0, pA );
+    _bigint_asm.z( pQ-pA+(alimbcnt<<2), 0, pA );
 
     _bigint_heap.set( alimbs, pA>>2 );
     _bigint_heap.set( blimbs, pB>>2 );
 
-    qlimbcnt = _bigint_asm.div( pA, alimbcnt<<2, pB, blimbcnt<<2, pR, pQ )>>2;
+    _bigint_asm.div( pA, alimbcnt<<2, pB, blimbcnt<<2, pR, pQ );
 
-    qlimbcnt = _bigint_asm.tst( pQ, qlimbcnt<<2 )>>2;
+    qlimbcnt = _bigint_asm.tst( pQ, alimbcnt<<2 )>>2;
     if ( qlimbcnt ) {
         quotient = new BigNumber;
         quotient.limbs = new Uint32Array( _bigint_heap.subarray( pQ>>2, (pQ>>2)+qlimbcnt ) );

@@ -21,7 +21,7 @@ function BigNumber_extGCD ( a, b ) {
 
     var xi = BigNumber_ONE, xj = BigNumber_ZERO, lx = b.bitLength,
         yi = BigNumber_ZERO, yj = BigNumber_ONE, ly = a.bitLength,
-        z, r, q;
+        z, r, q; //, s = 0;
 
     z = a.divide(b);
     while ( (r = z.remainder) !== BigNumber_ZERO ) {
@@ -31,6 +31,8 @@ function BigNumber_extGCD ( a, b ) {
         z = yi.subtract( q.multiply(yj).clamp(ly) ).clamp(ly), yi = yj, yj = z;
 
         a = b, b = r;
+
+        //console.log( "S: "+(++s), "\nQ: "+q.toString(16), "\nR: "+r.toString(16), "\nXj: "+xj.toString(16), "\nYj: "+yj.toString(16) );
 
         z = a.divide(b);
     }
