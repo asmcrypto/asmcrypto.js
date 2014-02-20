@@ -1958,41 +1958,52 @@ function bigint_asm ( stdlib, foreign, buffer ) {
      *
      * Numbers `X` and `Y` can be calculated using Extended Euclidean Algorithm.
      */
-    function monred ( A, lA, Mm, N, lN, Y, lY, R ) {
+    function mredc_odd ( A, lA, N, lN, y, R ) {
         A  =  A|0;
         lA = lA|0;
-        Mm = Mm|0;
         N  =  N|0;
         lN = lN|0;
-        Y  =  Y|0;
-        lY = lY|0;
+        y  =  y|0;
         R  =  R|0;
 
-        var T = 0, lT = 0, U = 0, lU = 0;
+        var T = 0,
+            t = 0, c = 0, uh = 0, ul = 0, vl = 0, vh = 0, w0 = 0, w1 = 0, w2 = 0, r0 = 0, r1 = 0,
+            i = 0, j = 0, k = 0;
 
-        // T ← (A mod M) × Y mod M
-        lT = Mm<<2;
-        T = salloc(lT)|0;
-        z( lT, 0, T );
-        mul( A, lT, Y, lY, T, lT );
+        T = salloc(lA)|0;
 
-        // U ← T × N
-        lU = (lT+lN+4)|0;
-        U = salloc(lU)|0;
-        z( lU, 0, U );
-        mul( T, lT, N, lN, U, lU );
+        cp( lA, A, T );
 
-        // U ← A + U, exactly divisible by M
-        add( A, lA, U, lU, U, lU )|0;
+        // HAC 14.32
+        for ( i = 0; (i|0) < (lN|0); i = (i+4)|0 ) {
+            t = HEAP32[(T+i)>>2]|0;
+            uh = imul(t,y)|0, ul = uh & 0xffff, uh = uh >>> 16;
+            r1 = 0;
+            for ( j = 0; (j|0) < (lN|0); j = (j+4)|0 ) {
+                k = (i+j)|0;
+                vh = HEAP32[(N+j)>>2]|0, vl = vh & 0xffff, vh = vh >>> 16;
+                r0 = HEAP32[(T+k)>>2]|0;
+                w0 = ((imul(ul, vl)|0) + (r1 & 0xffff)|0) + (r0 & 0xffff)|0;
+                w1 = ((imul(ul, vh)|0) + (r1 >>> 16)|0) + (r0 >>> 16)|0;
+                w2 = ((imul(uh, vl)|0) + (w1 & 0xffff)|0) + (w0 >>> 16)|0;
+                r1 = ((imul(uh, vh)|0) + (w2 >>> 16)|0) + (w1 >>> 16)|0;
+                r0 = (w2 << 16) | (w0 & 0xffff);
+                HEAP32[(T+k)>>2] = r0;
+            }
+            k = (i+j)|0;
+            r0 = HEAP32[(T+k)>>2]|0;
+            w0 = ((r0 & 0xffff) + (r1 & 0xffff)|0) + c|0;
+            w1 = ((r0 >>> 16) + (r1 >>> 16)|0) + (w0 >>> 16)|0;
+            HEAP32[(T+k)>>2] = (w1 << 16) | (w0 & 0xffff);
+            c = w1 >>> 16;
+        }
 
-        // R ← U/M
-        cp( lT, U+lT|0, R );
+        cp( lN, (T+lN)|0, R );
 
-        sfree(lU);
-        sfree(lT);
+        sfree(lA);
 
-        if ( (cmp( R, lT, N, lN )|0) >= 0 ) {
-            sub( R, lT, N, lN, R, lT )|0;
+        if ( (cmp( N, lN, R, lN )|0) <= 0 ) {
+            sub( R, lN, N, lN, R, lN )|0;
         }
     }
 
@@ -2009,6 +2020,6 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         mul: mul,
         sqr: sqr,
         div: div,
-        monred: monred
+        mredc_odd: mredc_odd
     };
 }

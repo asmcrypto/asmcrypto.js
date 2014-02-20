@@ -223,10 +223,10 @@ test ( "asmCrypto.Modulus", function () {
     equal( M.reduce(987654321).valueOf(), 9, "Modulus.reduce(small)" );
 
     var M2 = new asmCrypto.Modulus(0xabcdabcdabcd);
-    equal( M2.comodulus.toString(16), "10000000000000", "M2 comodulus ok" );
-    equal( M2.comodulusRemainder.toString(16), "908590859095", "M2 comodulus remainder ok" );
-    equal( M2.comodulusRemainderSquare.toString(16), "1cf01cf02cf", "M2 comodulus remainder square ok" );
-    equal( M2.bezoutCoefficient.toString(16), "64ae21c58c6fb", "M2 Bézout coefficent ok" );
+    equal( M2.comodulus.toString(16), "10000000000000000", "M2 comodulus ok" );
+    equal( M2.comodulusRemainder.toString(16), "624f6250624f", "M2 comodulus remainder ok" );
+    equal( M2.comodulusRemainderSquare.toString(16), "399f399e399e", "M2 comodulus remainder square ok" );
+    equal( M2.bezoutCoefficient.toString(16), "52b64ae21c58c6fb", "M2 Bézout coefficent ok" );
     equal( M2.bezoutCoefficient.multiply(M2).add(1).divide(M2.comodulus).remainder.valueOf(), 0, "inverse of M2 is ok" );
 });
 
