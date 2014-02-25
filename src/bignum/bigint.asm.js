@@ -1947,7 +1947,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
     }
 
     /**
-     * Montgomery reduction
+     * Montgomery modular reduction
      *
      * Definition:
      *
@@ -1958,7 +1958,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
      *
      * Numbers `X` and `Y` can be calculated using Extended Euclidean Algorithm.
      */
-    function mredc_odd ( A, lA, N, lN, y, R ) {
+    function mredc ( A, lA, N, lN, y, R ) {
         A  =  A|0;
         lA = lA|0;
         N  =  N|0;
@@ -1970,7 +1970,8 @@ function bigint_asm ( stdlib, foreign, buffer ) {
             t = 0, c = 0, uh = 0, ul = 0, vl = 0, vh = 0, w0 = 0, w1 = 0, w2 = 0, r0 = 0, r1 = 0,
             i = 0, j = 0, k = 0;
 
-        T = salloc(lA)|0;
+        T = salloc(lN<<1)|0;
+        z(lN<<1, 0, T);
 
         cp( lA, A, T );
 
@@ -2000,7 +2001,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
 
         cp( lN, (T+lN)|0, R );
 
-        sfree(lA);
+        sfree(lN<<1);
 
         if ( (cmp( N, lN, R, lN )|0) <= 0 ) {
             sub( R, lN, N, lN, R, lN )|0;
@@ -2020,6 +2021,6 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         mul: mul,
         sqr: sqr,
         div: div,
-        mredc_odd: mredc_odd
+        mredc: mredc
     };
 }
