@@ -2003,7 +2003,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
 
         sfree(lN<<1);
 
-        if ( (cmp( N, lN, R, lN )|0) <= 0 ) {
+        if ( c | ( (cmp( N, lN, R, lN )|0) <= 0 ) ) {
             sub( R, lN, N, lN, R, lN )|0;
         }
     }
