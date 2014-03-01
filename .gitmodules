@@ -1,3 +1,6 @@
 [submodule "node_modules/uglify-js"]
 	path = node_modules/uglify-js
 	url = git@github.com:vibornoff/UglifyJS2.git
+[submodule "dep/asn1js"]
+	path = dep/asn1js
+	url = https://github.com/vibornoff/asn1js.git
