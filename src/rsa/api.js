@@ -14,8 +14,13 @@ if ( !_is_crypto_worker )
         return (new RSA({ modulus: m, privateExponent: d })).decrypt(data).result;
     }
 
+    exports.RSA = RSA;
+    RSA.encrypt = rsa_encrypt_bytes;
+    RSA.decrypt = rsa_decrypt_bytes;
+/*
     exports.RSA = {
         encrypt: rsa_encrypt_bytes,
         decrypt: rsa_decrypt_bytes
     };
+*/
 }
