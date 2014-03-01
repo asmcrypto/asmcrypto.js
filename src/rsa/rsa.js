@@ -10,6 +10,8 @@ function RSA ( options ) {
 function RSA_reset ( options ) {
     options = options || {};
 
+    this.result = null;
+
     if ( options.key ) {
         this.key = _RSA_ASN1_parse_key(options.key);
     }
@@ -18,12 +20,85 @@ function RSA_reset ( options ) {
 }
 
 function RSA_encrypt ( data ) {
-    // TODO
+    if ( !this.key )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    if ( typeof data === 'string' )
+        data = string_to_bytes(data);
+
+    if ( data instanceof ArrayBuffer )
+        data = new Uint8Array(data);
+
+    var msg;
+    if ( data instanceof Uint8Array ) {
+        if ( ( (data.length << 3) > this.key[0].bitLength ) || ( this.key[0].compare(msg = new BigNumber(data)) <= 0 ) )
+            throw new RangeError("data too large");
+    }
+    else if ( data instanceof BigNumber ) {
+        if ( ( data.bitLength > this.key[0].bitLength ) || ( this.key[0].compare(msg = data) <= 0 ) )
+            throw new RangeError("data too large");
+    }
+    else {
+        throw new TypeError("unexpected data type");
+    }
+
+    this.result = this.key[0].power( msg, this.key[1] );
+
     return this;
 }
 
 function RSA_decrypt ( data ) {
-    // TODO
+    if ( !this.key )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.key.length < 3 )
+        throw new IllegalStateError("key isn't suitable for decription");
+
+    if ( typeof data === 'string' )
+        data = string_to_bytes(data);
+
+    if ( data instanceof ArrayBuffer )
+        data = new Uint8Array(data);
+
+    var msg;
+    if ( data instanceof Uint8Array ) {
+        if ( ( (data.length << 3) > this.key[0].bitLength ) || ( this.key[0].compare(msg = new BigNumber(data)) <= 0 ) )
+            throw new RangeError("data too large");
+    }
+    else if ( data instanceof BigNumber ) {
+        if ( ( data.bitLength > this.key[0].bitLength ) || ( this.key[0].compare(msg = data) <= 0 ) )
+            throw new RangeError("data too large");
+    }
+    else {
+        throw new TypeError("unexpected data type");
+    }
+
+    if ( this.key.length > 3 ) {
+        var m = this.key[0],
+            d = this.key[2],
+            p = this.key[3],
+            q = this.key[4],
+            dp = this.key[5],
+            dq = this.key[6],
+            u = this.key[7];
+
+        var x = p.power( msg, dp ),
+            y = q.power( msg, dq );
+
+        var t = x.subtract(y);
+        if ( t.sign < 0 ) t = t.add(p);
+
+        var h = p.reduce( u.multiply(t) );
+
+        this.result = h.multiply(q).add(y).clamp(m.bitLength);
+    }
+    else {
+        var m = this.key[0],
+            d = this.key[2];
+
+        this.result = m.power( msg, d );
+    }
+
     return this;
 }
 
@@ -109,7 +184,7 @@ function _RSA_ASN1_parse_key ( key ) {
             }
 
             if ( asn1.sub[8].tag.tagNumber === 2 ) {
-                u = new Modulus( asn1.sub[8].content().replace( re_bitlen, '' ) );
+                u = new BigNumber( asn1.sub[8].content().replace( re_bitlen, '' ) );
             } else {
                 throw new IllegalArgumentError("malformed RSA private key");
             }
@@ -120,3 +195,8 @@ function _RSA_ASN1_parse_key ( key ) {
 
     throw new IllegalArgumentError("doesn't seem like a RSA key");
 }
+
+var RSAPrototype = RSA.prototype;
+RSAPrototype.reset = RSA_reset;
+RSAPrototype.encrypt = RSA_encrypt;
+RSAPrototype.decrypt = RSA_decrypt;

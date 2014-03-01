@@ -74,6 +74,9 @@ function Modulus_inverse ( a ) {
  * Modular exponentiation
  */
 function Modulus_power ( g, e ) {
+    if ( !( g instanceof BigNumber ) )
+        g = new BigNumber(e);
+
     if ( !( e instanceof BigNumber ) )
         e = new BigNumber(e);
 
@@ -87,7 +90,7 @@ function Modulus_power ( g, e ) {
     if ( e.bitLength <= 12 ) k = 2;
 
     // montgomerize base
-    g = _Montgomery_reduce( g.multiply(this.comodulusRemainderSquare), this );
+    g = _Montgomery_reduce( this.reduce(g).multiply(this.comodulusRemainderSquare), this );
 
     // precompute odd powers
     var g2 = _Montgomery_reduce( g.square(), this ),

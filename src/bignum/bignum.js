@@ -30,12 +30,12 @@ function BigNumber ( num, radix ) {
         bitLength = num.bitLength;
         sign = num.sign;
     }
-/*
-    else if ( num instanceof ArrayBuffer || num instanceof Uint8Array ) {
-        limbs = _BigNumber_fromBuffer(num);
-        bitLength = 32*(limbs.length-1);
+    else if ( num instanceof ArrayBuffer ) {
+        return _BigNumber_fromByteArray.call( this, new Uint8Array(num) );
     }
-*/
+    else if ( num instanceof Uint8Array ) {
+        return _BigNumber_fromByteArray.call( this, num );
+    }
     else {
         throw new TypeError("number is of unexpected type");
     }
@@ -73,7 +73,7 @@ function _BigNumber_fromNumber ( num ) {
 }
 
 function _BigNumber_fromHexString ( str ) {
-    var bitlen = 0, sign = 0, limbs;
+    var bitlen = 0, sign = 0, limbs = null;
 
     str = str.toUpperCase().replace( /[^0-9A-F]/g, '' ).replace( /^0+/, '' );
 
@@ -103,10 +103,38 @@ function _BigNumber_fromHexString ( str ) {
     return this;
 }
 
-/*
-function _BigNumber_fromBuffer ( buff ) {
+function _BigNumber_fromByteArray ( buff ) {
+    var bitlen = 0, sign = 0, limbs = null;
+
+    bitlen = buff.length * 8;
+
+    if ( bitlen > 0 ) {
+        limbs = new Uint32Array( (bitlen + 31) >> 5 );
+        for ( var i = buff.length-4; i >= 0 ; i -= 4 ) {
+            limbs[(buff.length-4-i)>>2] = (buff[i] << 24) | (buff[i+1] << 16) | (buff[i+2] << 8) | buff[i+3];
+        }
+        if ( i < -2 ) {
+            limbs[limbs.length-1] = (buff[0] << 16) | (buff[1] << 8) | buff[2];
+        }
+        else if ( i < -1 ) {
+            limbs[limbs.length-1] = (buff[0] << 8) | buff[1];
+        }
+        else if ( i < 0 ) {
+            limbs[limbs.length-1] = buff[0];
+        }
+
+        sign = 1;
+    }
+    else {
+        return BigNumber_ZERO;
+    }
+
+    this.limbs = limbs;
+    this.bitLength = bitlen;
+    this.sign = sign;
+
+    return this;
 }
-*/
 
 function BigNumber_toString ( radix ) {
     radix = radix || 16;
