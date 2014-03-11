@@ -166,6 +166,23 @@ function BigNumber_toString ( radix ) {
     return str;
 }
 
+function BigNumber_toBytes () {
+    var bitlen = this.bitLength,
+        limbs = this.limbs;
+
+    if ( bitlen === 0 )
+        return new uint8Array(0);
+
+    var bytelen = ( bitlen + 7 ) >> 3,
+        bytes = new Uint8Array(bytelen);
+    for ( var i = 0; i < bytelen; i++ ) {
+        var j = bytelen - i - 1;
+        bytes[i] = limbs[j>>2] >> ( (j & 3) << 3 );
+    }
+
+    return bytes;
+}
+
 // Downgrade to Number
 function BigNumber_valueOf () {
     var limbs = this.limbs,
@@ -461,6 +478,7 @@ function BigNumber_divide ( that ) {
 
 var BigNumberPrototype = BigNumber.prototype = new Number;
 BigNumberPrototype.toString = BigNumber_toString;
+BigNumberPrototype.toBytes = BigNumber_toBytes;
 BigNumberPrototype.valueOf = BigNumber_valueOf;
 BigNumberPrototype.clamp = BigNumber_clamp;
 BigNumberPrototype.splice = BigNumber_splice;

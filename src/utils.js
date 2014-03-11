@@ -9,7 +9,8 @@
  * The last option is detected here.
  */
 
-var _is_crypto_worker = ( global.document === undefined && global.location.hash.length > 0 );
+//var _is_crypto_worker = ( global.document === undefined && global.location.hash.length > 0 );
+var _is_crypto_worker = false;
 
 function string_to_bytes ( str ) {
     var i,
@@ -36,7 +37,7 @@ function hex_to_bytes ( str ) {
 }
 
 function base64_to_bytes ( str ) {
-    return string_to_bytes( global.atob( str ) );
+    return string_to_bytes( atob( str ) );
 }
 
 function bytes_to_string ( arr ) {
@@ -57,7 +58,7 @@ function bytes_to_hex ( arr ) {
 }
 
 function bytes_to_base64 ( arr ) {
-    return global.btoa( bytes_to_string(arr) );
+    return btoa( bytes_to_string(arr) );
 }
 
 function pow2_ceil ( a ) {
@@ -69,4 +70,16 @@ function pow2_ceil ( a ) {
     a |= a >>> 16;
     a += 1;
     return a;
+}
+
+function is_string ( a ) {
+    return ( typeof a === 'string' );
+}
+
+function is_buffer ( a ) {
+    return ( a instanceof ArrayBuffer );
+}
+
+function is_bytes ( a ) {
+    return ( a instanceof Uint8Array );
 }

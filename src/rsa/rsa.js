@@ -42,7 +42,7 @@ function RSA_encrypt ( data ) {
         throw new TypeError("unexpected data type");
     }
 
-    this.result = this.key[0].power( msg, this.key[1] );
+    this.result = this.key[0].power( msg, this.key[1] ).toBytes();
 
     return this;
 }
@@ -90,13 +90,13 @@ function RSA_decrypt ( data ) {
 
         var h = p.reduce( u.multiply(t) );
 
-        this.result = h.multiply(q).add(y).clamp(m.bitLength);
+        this.result = h.multiply(q).add(y).clamp(m.bitLength).toBytes();
     }
     else {
         var m = this.key[0],
             d = this.key[2];
 
-        this.result = m.power( msg, d );
+        this.result = m.power( msg, d ).toBytes();
     }
 
     return this;
@@ -196,7 +196,7 @@ function _RSA_ASN1_parse_key ( key ) {
     throw new IllegalArgumentError("doesn't seem like a RSA key");
 }
 
-var RSAPrototype = RSA.prototype;
-RSAPrototype.reset = RSA_reset;
-RSAPrototype.encrypt = RSA_encrypt;
-RSAPrototype.decrypt = RSA_decrypt;
+var RSA_prototype = RSA.prototype;
+RSA_prototype.reset = RSA_reset;
+RSA_prototype.encrypt = RSA_encrypt;
+RSA_prototype.decrypt = RSA_decrypt;
