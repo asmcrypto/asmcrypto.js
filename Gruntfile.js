@@ -21,9 +21,9 @@ module.exports = function(grunt) {
                         'src/core/pbkdf2.js',
                         'src/core/api.js',
                         'src/random/random.js',
-                        'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/modulus.js', 'src/bignum/api.js',
+                        'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/modulus.js', 'src/bignum/prime.js', 'src/bignum/api.js',
                         'src/asn1/pre-dep.js', 'dep/asn1js/asn1.js', 'src/asn1/post-dep.js',
-                        'src/rsa/rsa.js', 'src/rsa/genkey.js', 'src/rsa/mgf1.js', 'src/rsa/rsa-oeap.js', 'src/rsa/api.js',
+                        'src/rsa/rsa.js', 'src/rsa/genkey.js', 'src/rsa/rsa-oeap.js', 'src/rsa/api.js',
                     ]
                 }
             }
