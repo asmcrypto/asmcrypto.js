@@ -17,6 +17,7 @@ if ( !_is_crypto_worker )
     exports.RSA = RSA;
     RSA.encrypt = rsa_encrypt_bytes;
     RSA.decrypt = rsa_decrypt_bytes;
+    RSA.generateKey = RSA_generateKey;
 /*
     exports.RSA = {
         encrypt: rsa_encrypt_bytes,
