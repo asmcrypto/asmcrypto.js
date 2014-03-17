@@ -31,16 +31,17 @@ function RSA_encrypt ( data ) {
 
     var msg;
     if ( data instanceof Uint8Array ) {
-        if ( ( (data.length << 3) > this.key[0].bitLength ) || ( this.key[0].compare(msg = new BigNumber(data)) <= 0 ) )
-            throw new RangeError("data too large");
+        msg = new BigNumber(data);
     }
     else if ( data instanceof BigNumber ) {
-        if ( ( data.bitLength > this.key[0].bitLength ) || ( this.key[0].compare(msg = data) <= 0 ) )
-            throw new RangeError("data too large");
+        msg = data;
     }
     else {
         throw new TypeError("unexpected data type");
     }
+
+    if ( this.key[0].compare(msg) <= 0 )
+        throw new RangeError("data too large");
 
     this.result = this.key[0].power( msg, this.key[1] ).toBytes();
 
@@ -62,16 +63,17 @@ function RSA_decrypt ( data ) {
 
     var msg;
     if ( data instanceof Uint8Array ) {
-        if ( ( (data.length << 3) > this.key[0].bitLength ) || ( this.key[0].compare(msg = new BigNumber(data)) <= 0 ) )
-            throw new RangeError("data too large");
+        msg = new BigNumber(data);
     }
     else if ( data instanceof BigNumber ) {
-        if ( ( data.bitLength > this.key[0].bitLength ) || ( this.key[0].compare(msg = data) <= 0 ) )
-            throw new RangeError("data too large");
+        msg = data;
     }
     else {
         throw new TypeError("unexpected data type");
     }
+
+    if ( this.key[0].compare(msg) <= 0 )
+        throw new RangeError("data too large");
 
     if ( this.key.length > 3 ) {
         var m = this.key[0],

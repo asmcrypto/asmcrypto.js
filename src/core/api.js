@@ -17,17 +17,19 @@ exports.bytes_to_string = bytes_to_string;
 exports.bytes_to_hex = bytes_to_hex;
 exports.bytes_to_base64 = bytes_to_base64;
 
+var SHA256_instance;
+
 if ( !_is_crypto_worker )
 {
     /**
      * SHA256 exports
      */
 
-    var sha256_instance = new sha256_constructor( { heapSize: 0x100000 } );
+    SHA256_instance = new sha256_constructor( { heapSize: 0x100000 } );
 
     function sha256_bytes ( data ) {
         if ( data === undefined ) throw new SyntaxError("data required");
-        return sha256_instance.reset().process(data).finish().result;
+        return SHA256_instance.reset().process(data).finish().result;
     }
 
     function sha256_hex ( data ) {
@@ -50,7 +52,7 @@ if ( !_is_crypto_worker )
      * HMAC-SHA256 exports
      */
 
-    var hmac_sha256_instance = new hmac_sha256_constructor( { hash: sha256_instance } );
+    var hmac_sha256_instance = new hmac_sha256_constructor( { hash: SHA256_instance } );
 
     function hmac_sha256_bytes ( data, password ) {
         if ( data === undefined ) throw new SyntaxError("data required");

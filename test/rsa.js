@@ -67,3 +67,12 @@ test( "asmCrypto.RSA.decrypt", function () {
     privrsa.reset().decrypt( new asmCrypto.BigNumber('c04f466494abebb4defa00866fc5b22e7aef50a2c46f63333be21100f0fa53c686d9fdd31c1913a5950db574f0ecf216f822a95305e18c86f4de2ddc8f32a61a35957b3084addf4bb148a6222075dbc85bab1142632e0b3868eba07ccbeb1c05717a3df370fb2148d6b99558b42abe73babd742c351724014640461a484c192f') );
     equal( bytes_to_hex(privrsa.result).replace( /^0+/, '' ), '322e393f76a1c22b147e7d193c00c023afb7c1500b006ff1bc1cc8d391fc38bd', "vector 1 decrypt ok" );
 });
+
+test( "asmCrypto.RSA_OAEP.encrypt/decrypt", function () {
+    var cleartext = string_to_bytes('HelloWorld!');
+    var ciphertext = asmCrypto.RSA.encrypt( cleartext, pubkey );
+    ok( ciphertext, "OAEP encrypt" );
+
+    var result = asmCrypto.RSA.decrypt( ciphertext, privkey );
+    equal( bytes_to_string(result), 'HelloWorld!', "OAEP decrypt" );
+});
