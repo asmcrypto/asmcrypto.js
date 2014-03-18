@@ -3,8 +3,6 @@ asmCrypto
 
 JavaScript implementation of popular cryptographic utilities with performance in mind.
 
-[Grunt](http://gruntjs.com/) is required to build this.
-
 Synopsis
 --------
 
@@ -12,13 +10,6 @@ Add `<script src="path/to/asmcrypto.js"></script>` into your page.
 
     // Hash whole string at once
     digest = asmCrypto.SHA256.hex("The quick brown fox jumps over the lazy dog");
-
-    // Or hash it chunk-by-chunk
-    hash = new asmCrypto.SHA256;
-    hash.process("The quick brown");
-    hash.process(" fox jumps over the ");
-    hash.process("lazy dog");
-    digest = hash.finish().asHex(); // also you can chain method calls
 
 Index
 -----
@@ -35,6 +26,8 @@ Index
         * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
     * [Block Cipher](#aes)
         * [AES](#aes)
+    * [Asymmetric encryption](#rsa)
+        * [RSA](#rsa)
 * [Bugs & TODO](#bugs--todo)
 * [Donate](#donate)
 
@@ -56,7 +49,7 @@ Then download and build the stuff:
 
     git clone https://github.com/vibornoff/asmcrypto.js.git
     cd asmcrypto.js/
-    git submodule update --init
+    git submodule update --init --recursive
     npm install
     grunt
 
@@ -91,15 +84,11 @@ API Reference
 
 [Secure Hash Algorithm](http://en.wikipedia.org/wiki/SHA-2) — a cryptographic hash function with 256-bit output.
 
-#### Static methods and constants
+#### SHA256.BLOCK_SIZE = 64
 
-##### SHA256.BLOCK_SIZE = 64
+#### SHA256.HASH_SIZE = 32
 
-##### SHA256.HASH_SIZE = 32
-
-##### SHA256.hex( data )
-
-Shorthand for `staticSha256Instance.reset().process(data).finish().asHex()`.
+#### SHA256.hex( data )
 
 Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
 
@@ -108,9 +97,7 @@ Returns a string containing hex-encoded message digest.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-##### SHA256.base64( data )
-
-Shorthand for `staticSha256Instance.reset().process(data).finish().asBase64()`.
+#### SHA256.base64( data )
 
 Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
 
@@ -118,68 +105,6 @@ Returns a string containing hex-encoded message digest.
 
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
-
-#### Constructor
-
-##### SHA256(options)
-
-Constructs new instance of `SHA256` object.
-
-Advanced `options`:
-* `heapSize` — asm.js heap size to allocate for hasher, must be a multiple of 4096, default is 4096.
-
-#### Methods and properties
-
-##### sha256.BLOCK_SIZE = 64
-
-##### sha256.HASH_SIZE = 32
-
-##### sha256.reset()
-
-Resets internal state.
-
-##### sha256.process( data )
-
-Updates internal state with the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
-
-Throws
-* `IllegalStateError` when trying to update finish'ed state,
-* `TypeError` when something ridiculous is supplied as input data.
-
-##### sha256.finish()
-
-Finishes hash calculation.
-
-Throws
-* `IllegalStateError` when trying to finish already finish'ed state,
-
-##### sha256.asHex()
-
-Returns string representing hex-encoded message digest.
-
-Throws
-* `IllegalStateError` when trying to get non-`finish`'ed state.
-
-##### sha256.asBase64()
-
-Returns string representing base64-encoded message digest.
-
-Throws
-* `IllegalStateError` when trying to get non-`finish`'ed state.
-
-##### sha256.asArrayBuffer()
-
-Returns raw message digest as an `ArrayBuffer` object.
-
-Throws
-* `IllegalStateError` when trying to get non-`finish`'ed state.
-
-##### sha256.asBinaryString()
-
-Returns raw message digest as a binary string.
-
-Throws
-* `IllegalStateError` when trying to get non-`finish`'ed state.
 
 ### HMAC
 
@@ -188,15 +113,11 @@ Throws
 Used to calculate message authentication code with a cryptographic hash function
 in combination with a secret cryptographic key.
 
-#### Static methods and constants
-
 #### HMAC_SHA256.BLOCK_SIZE = 64
 
 #### HMAC_SHA256.HMAC_SIZE = 32
 
 #### HMAC_SHA256.hex( password, data )
-
-Shorthand for `staticHmacSha256Instance.reset(password).process(data).finish().asHex()`.
 
 Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -207,67 +128,12 @@ Throws
 
 #### HMAC_SHA256.base64( password, data )
 
-Shorthand for `staticHmacSha256Instance.reset(password).process(data).finish().asBase64()`.
-
 Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
 Returns a string containing base64-encoded message authentication code.
 
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
-
-#### Constructors
-
-##### HMAC_SHA256( password, options )
-
-Constructs an instatnce of HMAC with SHA256 underlying hash function.
-
-If `password` is specified associates it with the instance.
-
-Advanced options can be passed via an `options` object:
-* `heapSize` — asm.js heap size to allocate for hasher, must be a multiple of 4096, default is 4096.
-
-#### Methods and properties
-
-##### hmac.BLOCK_SIZE
-
-Size (in bytes) of the underlying hash function block.
-
-##### hmac.HMAC_SIZE
-
-Size (in bytes) of the output.
-
-##### hmac.reset( password )
-
-Resets internal state.
-
-If `password` is specified reassociates it with the instance (or associates it
-for the first time if it wasn't associated before).
-
-Throws
-* `IllegalStateError` when `password` is required to be associated for the first time,
-* `TypeError` when something strange provided instead of the password.
-
-##### hmac.process( data )
-
-Updates internal state with the supplied input `data`.
-
-Input data can be a binary string or instance of `ArrayBuffer`/`Uint8Array` object.
-
-Throws
-* `IllegalStateError` when trying to update `finish`'ed state or when no password associated with the instance,
-* `TypeError` when something ridiculous is supplied as input data.
-
-##### hmac.finish()
-
-Finishes HMAC calculation.
-
-Throws
-* `IllegalStateError` when trying to finish already `finish`'ed state or when no password associated with the instance,
-
-##### hmac.asHex(), hmac.asBase64(), hmac.asArrayBuffer(), hmac.asBinaryString()
-
-Same as for [SHA256](#sha256).
 
 ### PBKDF2
 
@@ -276,199 +142,111 @@ Same as for [SHA256](#sha256).
 Applies a cryptographic hash function to the input password or passphrase along with a salt value and repeats the process many times to produce a derived key,
 which can then be used as a cryptographic key in subsequent operations. The added computational work makes password cracking much more difficult.
 
-#### Constructors
+#### PBKDF2_HMAC_SHA256.bytes( password, salt, iterations, dklen )
 
-##### PBKDF2_HMAC_SHA256( password, options )
+Derive key from the `password` with `salt`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
-Constructs an instatce of PBKDF2 key deriver with HMAC-SHA256 used as pseudo-random function.
-
-If `password` is supplied, associates it with the instance.
-
-Additional options can be passed via an `options` object:
-* `count` — number of iterations to perform, default is 4096;
-* `length` — desired output key length in bytes, default is 32.
-
-Advanced options:
-* `heapSize` — asm.js heap size to allocate, must be a multiple of 4096, default is 4096.
-
-#### Methods and properties
-
-##### pbkdf2.count
-
-Number of iterations to perform.
-
-##### pbkdf2.length
-
-Desired key length.
-
-##### pbkdf2.result
-
-Derived key value.
-
-##### pbkdf2.reset( password )
-
-Reset internal state.
-
-If `password` is supplied reassociates it with the instance.
-
-Returns `this` object so method calls could be chained.
+Optional `iterations` (number of key derivatoin rounds) and `dklen` (desired key length) may be supplied.
 
 Throws
-* `TypeError` when password of unsupported type is supplied.
+* `TypeError`.
 
-##### pbkdf2.generate( salt, count, length )
+#### PBKDF2_HMAC_SHA256.hex( password, salt, iterations, dklen )
 
-Performs key derivation along with the `salt`.
+The same as above except returning value type.
 
-If `count` is supplied overrides previous setting.
+#### PBKDF2_HMAC_SHA256.base64( password, salt, iterations, dklen )
 
-If `length` is supplied overrides previous setting.
-
-Returns `this` object so method calls could be chained.
-
-Throws
-* `TypeError` when salt of unsupported type is supplied.
-
-##### pbkdf2.asHex(), pbkdf2.asBase64(), pbkdf2.asArrayBuffer(), pbkdf2.asBinaryString()
-
-Same as for [SHA256](#sha256).
+The same as above except returning value type.
 
 ### AES
 
 Advanced Encryption Standard
 
-TODO progressive ciphering docs
+#### AES.BLOCK_SIZE = 16
 
-#### Static methods and constants
+#### AES_CBC
 
-##### AES.BLOCK_SIZE = 16
+Cipher block chaining mode.
 
-##### AES.encrypt( data, key, options )
-
-Shorthand for `staticAesCbcInstance.reset(key, options).encrypt(input).result`.
+##### AES_CBC.encrypt( data, key, padding, iv )
 
 Encrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Additional `options` object can be passed to override default settings ([see below](#aesencrypt-data-options-)).
+Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
 
 Returns encrypted data as `Uint8Array`.
 
-##### AES.decrypt( data, key, options )
-
-Shorthand for `staticAesCbcInstance.reset(key, options).dencrypt(input).result`.
+##### AES_CBC.decrypt( data, key, padding, iv )
 
 Decrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Additional `options` object can be passed to override default settings ([see below](#aesdecrypt-data-options-)).
+Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
 
-Returns decrypted data as `Uint8Array` object.
+Returns encrypted data as `Uint8Array`.
 
-#### Constructors
+#### AES_CCM
 
-##### CBC_AES( key, options )
+Counter with CBC-MAC mode.
 
-Constructs an instance of AES cipher in CBC mode.
-
-If `key` is supplied creates new key schedule, `key` can be either a binary string or `Uint8Array` object or `ArrayBuffer` object.
-
-Additional `options` object can be passed:
-* `iv` — initialization vector to be used, binary string/`Uint8Array`/`ArrayBuffer`, when ommited default all-zeros-value is used;
-* `padding` — boolean value to turn on/off PKCS#7 padding, default is `true`.
-
-Advanced options:
-* `heapSize` — asm.js heap size to allocate for cipher, must be a multiple of 4096, default is 4096.
-
-##### CCM_AES( key, options )
-
-Constructs an instance of AES cipher in CCM mode.
-
-Due to JS limitations (counter is 32-bit unsigned) maximum encrypted message length is limited to near 64 GiB ( 2^36 - 16 )
-per `nonce`-`key` pair. That also limits `lengthSize` parameter maximum value to 5 (not 8 as described in RFC3610).
+Due to JS limitations (counter is 32-bit unsigned) maximum encrypted message length is limited to near 64 GiB ( 2^36 - 16 ) per `nonce`-`key` pair.
 
 Additional authenticated data `adata` maximum length is limited to 65279 bytes ( 2^16 - 2^8 ),
 wich is considered enough for the most of use-cases.
 
-If `key` is supplied creates new key schedule, `key` can be either a binary string or `Uint8Array` object or `ArrayBuffer` object.
+Optional `tagSize`, the size of the authentication tag, may be 4, 6, 8, 12, 16 (default).
 
-Additional `options` object can be passed:
-* `tagSize` — size of the authentication tag, allowed valued are 4, 6, 8, 12, 16 (default);
-* `lengthSize` — message length field size, allowed values are 2…5, default is 4;
-* `nonce` — nonce of length `(15-lengthSize)` to be used, **same nonce must not be used more than once with the same key**, can be a binary string or `Uint8Array`/`ArrayBuffer` object;
-* `adata` — additional authenticated data of length no more than 65279 bytes, can be a binary string or `Uint8Array`/`ArrayBuffer` object.
+Keep in mind that **same nonce must not be used more than once with the same key**.
 
-Advanced options:
-* `heapSize` — asm.js heap size to allocate for cipher, must be a multiple of 4096, default is 4096.
+##### AES_CCM.encrypt( data, key, nonce, adata, tagsize )
 
-Progressive ciphering options:
-* `iv` — initialization vector to be used, a binary string or `Uint8Array`/`ArrayBuffer` object, when ommited default all-zeros-value is used;
-* `counter` — initial internal counter value, default is 1,
-* `dataLength` — length of the ciphered data, maximum value is 68719476720 bytes.
+Encrypts supplied `data` with `key`-`nonce` in CCM mode.
 
-#### Methods and properties
+Returns encrypted data as `Uint8Array`.
 
-##### aes.BLOCK_SIZE = 16
+##### AES_CCM.decrypt( data, key, nonce, adata, tagsize )
 
-##### aes.KEY_SIZE = 16
+Decrypts supplied `data` with `key`-`nonce` in CCM mode.
 
-##### aes.result
+Returns encrypted data as `Uint8Array`.
 
-Cipher operation result as `Uint8Array` object.
+### RSA
 
-##### aes.reset( key, options )
+#### RSA.generateKey( bitlen, pubexp )
 
-Reset internal state. Both arguments are optional.
+Generate RSA private key of `bitlen` length along with the public exponent `pubexp`.
 
-If `key` is supplied, creates new key schedule.
+Run 50 rounds of Miller-Rabin test for each prime candidate.
 
-If either `options.iv` or `options.padding` is supplied, replaces defaults.
+#### RSA_OAEP_SHA256.encrypt( data, key, label )
 
-Returns `this` object so method calls could be chained.
+TODO
 
-Throws
-* `TypeError` when something ridiculous is supplied instead of the key/iv,
-* `IllegalArgumentError` when the key/iv of illegal or unsupported size is supplied.
+#### RSA_OAEP_SHA256.decrypt( data, key, label )
 
-##### aes.encrypt( data, options )
+TODO
 
-Encrypts the supplied `data`, it can be either binary string or `Uint8Array` object or `ArrayBuffer` object.
+#### RSA_PSS_SHA256.sign( data, key, slen )
 
-Additional `options` object can be passed to override corresponding settings.
+TODO
 
-Returns `this` object so method calls could be chained.
+#### RSA_PSS_SHA256.verify( signature, data, key, slen )
 
-Throws
-* `TypeError` in case of bizzarie stuff supplied instead of the data,
-* `IllegalArgumentError` when padding is turned off and data length isn't multiple of block size,
-* `IllegalStateError` when trying to encrypt data without the key being initialized prior.
-
-##### aes.decrypt( data, options )
-
-Decrypts the supplied `data`, it can be either binary string or `Uint8Array` object or `ArrayBuffer` object.
-
-Additional `options` object can be passed to override corresponding settings.
-
-Returns `this` object so method calls could be chained.
-
-Throws
-* `TypeError` in case of bizzarie stuff supplied instead of data,
-* `IllegalArgumentError` when data length isn't multiple of block size,
-* `IllegalStateError` when trying to decrypt data without the key being initialized prior.
+TODO
 
 Bugs & TODO
 -----------
 
-* PBKDF2-HMAC-SHA256: probable OOB write during first iteration of a block;
-* AES: testing of progressive ciphering needed
+* Progressive operations are temporary fade out, they'll be back with WebCrypto API;
 * Moar docs needed ☺
 
 Not yet implemented:
 * aes-gcm,
+* sha1,
 * scrypt,
-* rsa, dsa, ecdsa.
+* dsa, ecdsa.
 
 Donate
 ------
 
-If you like this stuff feel free to donate some funds to:
-* My Bitcoin address `1CiGzP1EFLTftqkfvVtbwvZ9Koiuoc4FSC`
-* [My Flattr account](https://flattr.com/submit/auto?user_id=vibornoff&url=https%3A%2F%2Fgithub.com%2Fvibornoff%2Fasmcrypto.js&title=asmCrypto.js&language=en_US&&category=software)
+If you like this stuff feel free to donate some funds to `1CiGzP1EFLTftqkfvVtbwvZ9Koiuoc4FSC` ☺
