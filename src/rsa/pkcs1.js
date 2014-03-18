@@ -208,7 +208,6 @@ function RSA_PSS_sign ( data ) {
         throw new IllegalStateError("no key is associated with the instance");
 
     var key_bits = this.key[0].bitLength,
-        key_size = Math.ceil( key_bits / 8 ),
         hash_size = this.hash.HASH_SIZE,
         message_length = Math.ceil( ( key_bits - 1 ) / 8 ),
         salt_length = this.saltLength,
@@ -252,7 +251,6 @@ function RSA_PSS_verify ( signature, data ) {
         throw new IllegalStateError("no key is associated with the instance");
 
     var key_bits = this.key[0].bitLength,
-        key_size = Math.ceil( key_bits / 8 ),
         hash_size = this.hash.HASH_SIZE,
         message_length = Math.ceil( ( key_bits - 1 ) / 8 ),
         salt_length = this.saltLength,

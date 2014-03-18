@@ -47,7 +47,7 @@ function BigNumber ( num, radix ) {
 
 function _BigNumber_fromNumber ( num ) {
     var absnum = Math.abs(num),
-        limbs, biglen;
+        limbs, bitlen;
 
     if ( absnum > 0xffffffff ) {
         limbs = new Uint32Array(2);
@@ -290,8 +290,8 @@ function BigNumber_compare ( that ) {
     if ( !( that instanceof BigNumber ) )
         that = new BigNumber(that);
 
-    var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
-        bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
+    var alimbs = this.limbs, alimbcnt = alimbs.length,
+        blimbs = that.limbs, blimbcnt = blimbs.length,
         z = 0;
 
     if ( this.sign < that.sign )
@@ -377,7 +377,7 @@ function BigNumber_multiply ( that ) {
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
         bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
-        rbitlen, rlimbcnt, rsign = 0, result = new BigNumber;
+        rbitlen, rlimbcnt, result = new BigNumber;
 
     rbitlen = abitlen + bbitlen;
     rlimbcnt = ( rbitlen + 31 ) >> 5;

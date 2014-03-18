@@ -57,7 +57,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         A = A|0;
         B = B|0;
 
-        var i = 0, Ai = 0, Bi = 0;
+        var i = 0;
 
         if ( (A|0) > (B|0) ) {
             for ( ; (i|0) < (l|0); i = (i+4)|0 ) {
@@ -76,7 +76,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         z = z|0;
         A = A|0;
 
-        var i = 0, Ai = 0;
+        var i = 0;
 
         for ( ; (i|0) < (l|0); i = (i+4)|0 ) {
             HEAP32[(A+i)>>2] = z;
@@ -1775,7 +1775,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         Q  =  Q|0;
 
         var n = 0, d = 0, e = 0,
-            u1 = 0, u0 = 0, uh = 0, um = 0, ul = 0,
+            u1 = 0, u0 = 0,
             v0 = 0, vh = 0, vl = 0,
             qh = 0, ql = 0, rh = 0, rl = 0,
             t1 = 0, t2 = 0, m = 0, c = 0,

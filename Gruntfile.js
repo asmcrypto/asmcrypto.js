@@ -5,12 +5,21 @@ module.exports = function(grunt) {
         uglify: {
             core: {
                 options: {
+                    mangle: true,
+                    compress: true,
+                    beautify: false,
+                    sourceMap: 'asmcrypto.js.map',
+                    wrap: 'asmCrypto'
+                },
+/*
+                options: {
                     mangle: false,
                     compress: false,
                     beautify: true,
                     sourceMap: 'asmcrypto.js.map',
                     wrap: 'asmCrypto'
                 },
+*/
                 files: {
                     'asmcrypto.js': [
                         'src/utils.js',

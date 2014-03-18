@@ -1,17 +1,5 @@
 "use strict";
 
-/**
- * May be run as:
- * plain script (from <script> tag or whatever),
- * plain worker script (calling importScripts from worker),
- * multipart crypto-operation worker (calling new Worker and passing options via url-fragment).
- *
- * The last option is detected here.
- */
-
-//var _is_crypto_worker = ( global.document === undefined && global.location.hash.length > 0 );
-var _is_crypto_worker = false;
-
 function string_to_bytes ( str ) {
     var i,
         len=str.length,
