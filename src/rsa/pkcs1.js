@@ -167,7 +167,146 @@ function RSA_MGF1_generate( seed, length ) {
     return mask;
 }
 
+function RSA_PSS ( options ) {
+    options = options || {};
+
+    if ( !options.hash )
+        throw new SyntaxError("option 'hash' is required");
+
+    if ( !options.hash.HASH_SIZE )
+        throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");
+
+    this.hash = options.hash;
+
+    this.saltLength = 4;
+
+    this.reset(options);
+}
+
+function RSA_PSS_reset ( options ) {
+    options = options || {};
+
+    RSA_reset.call( this, options );
+
+    var slen = options.saltLength;
+    if ( slen !== undefined ) {
+        if ( !is_number(slen) || slen < 0 )
+            throw new TypeError("saltLength should be a non-negative number");
+
+        if ( this.key !== null && Math.ceil( ( this.key[0].bitLength - 1 ) / 8 ) < this.hash.HASH_SIZE + slen + 2 )
+            throw new SyntaxError("saltLength is too large");
+
+        this.saltLength = slen;
+    }
+    else {
+        this.saltLength = 4;
+    }
+}
+
+function RSA_PSS_sign ( data ) {
+    if ( !this.key )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    var key_bits = this.key[0].bitLength,
+        key_size = Math.ceil( key_bits / 8 ),
+        hash_size = this.hash.HASH_SIZE,
+        message_length = Math.ceil( ( key_bits - 1 ) / 8 ),
+        salt_length = this.saltLength,
+        ps_length = message_length - salt_length - hash_size - 2;
+
+    var message = new Uint8Array(message_length),
+        h_block = message.subarray( message_length - hash_size - 1, message_length - 1 ),
+        d_block = message.subarray( 0, message_length - hash_size - 1 ),
+        d_salt = d_block.subarray( ps_length + 1 );
+
+    var m_block = new Uint8Array( 8 + hash_size + salt_length ),
+        m_hash = m_block.subarray( 8, 8 + hash_size ),
+        m_salt = m_block.subarray( 8 + hash_size );
+
+    m_hash.set( this.hash.reset().process(data).finish().result );
+
+    if ( salt_length > 0 )
+        Random_getBytes.call( this, m_salt );
+
+    d_block[ps_length] = 1;
+    d_salt.set(m_salt);
+
+    h_block.set( this.hash.reset().process(m_block).finish().result );
+
+    var d_block_mask = RSA_MGF1_generate.call( this, h_block, d_block.length );
+    for ( var i = 0; i < d_block.length; i++ )
+        d_block[i] ^= d_block_mask[i];
+
+    message[message_length-1] = 0xbc;
+
+    var zbits = 8*message_length - key_bits + 1;
+    if ( zbits % 8 ) message[0] &= (0xff >>> zbits);
+
+    RSA_decrypt.call( this, message );
+
+    return this;
+}
+
+function RSA_PSS_verify ( signature, data ) {
+    if ( !this.key )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    var key_bits = this.key[0].bitLength,
+        key_size = Math.ceil( key_bits / 8 ),
+        hash_size = this.hash.HASH_SIZE,
+        message_length = Math.ceil( ( key_bits - 1 ) / 8 ),
+        salt_length = this.saltLength,
+        ps_length = message_length - salt_length - hash_size - 2;
+
+    RSA_encrypt.call( this, signature );
+
+    var message = this.result;
+    if ( message[message_length-1] !== 0xbc )
+        throw new SecurityError("bad signature");
+
+    var h_block = message.subarray( message_length - hash_size - 1, message_length - 1 ),
+        d_block = message.subarray( 0, message_length - hash_size - 1 ),
+        d_salt = d_block.subarray( ps_length + 1 );
+
+    var zbits = 8*message_length - key_bits + 1;
+    if ( (zbits % 8) && (message[0] >>> (8-zbits)) )
+        throw new SecurityError("bad signature");
+
+    var d_block_mask = RSA_MGF1_generate.call( this, h_block, d_block.length );
+    for ( var i = 0; i < d_block.length; i++ )
+        d_block[i] ^= d_block_mask[i];
+
+    if ( zbits % 8 ) message[0] &= (0xff >>> zbits);
+
+    for ( var i = 0; i < ps_length; i++ ) {
+        if ( d_block[i] !== 0 )
+            throw new SecurityError("bad signature");
+    }
+    if ( d_block[ps_length] !== 1 )
+        throw new SecurityError("bad signature");
+
+    var m_block = new Uint8Array( 8 + hash_size + salt_length ),
+        m_hash = m_block.subarray( 8, 8 + hash_size ),
+        m_salt = m_block.subarray( 8 + hash_size );
+
+    m_hash.set( this.hash.reset().process(data).finish().result );
+    m_salt.set( d_salt );
+
+    var h_block_verify = this.hash.reset().process(m_block).finish().result;
+    for ( var i = 0; i < hash_size; i++ ) {
+        if ( h_block[i] !== h_block_verify[i] )
+            throw new SecurityError("bad signature");
+    }
+
+    return this;
+}
+
 var RSA_OAEP_prototype = RSA_OAEP.prototype;
 RSA_OAEP_prototype.reset = RSA_OAEP_reset;
 RSA_OAEP_prototype.encrypt = RSA_OAEP_encrypt;
 RSA_OAEP_prototype.decrypt = RSA_OAEP_decrypt;
+
+var RSA_PSS_prototype = RSA_PSS.prototype;
+RSA_PSS_prototype.reset = RSA_PSS_reset;
+RSA_PSS_prototype.sign = RSA_PSS_sign;
+RSA_PSS_prototype.verify = RSA_PSS_verify;

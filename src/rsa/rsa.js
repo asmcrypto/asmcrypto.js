@@ -12,8 +12,31 @@ function RSA_reset ( options ) {
 
     this.result = null;
 
-    if ( options.key ) {
-        this.key = _RSA_ASN1_parse_key(options.key);
+    var key = options.key
+    if ( key !== undefined ) {
+        if ( is_string(key) || is_buffer(key) || is_bytes(key) ) {
+            this.key = _RSA_ASN1_parse_key(options.key);
+            return;
+        }
+        else if ( key instanceof Array ) {
+            var l = key.length;
+            if ( l !== 2 && l !== 3 && l !== 8 )
+                throw new TypeError("unexpected key type");
+
+            if ( !( l[0] instanceof Modulus ) )
+                l[0] = new Modulus( l[0] );
+
+            if ( l > 3 ) {
+                if ( !( l[3] instanceof Modulus ) )
+                    l[3] = new Modulus( l[3] );
+
+                if ( !( l[4] instanceof Modulus ) )
+                    l[4] = new Modulus( l[4] );
+            }
+        }
+        else {
+            throw new TypeError("unexpected key type");
+        }
     }
 
     return this;

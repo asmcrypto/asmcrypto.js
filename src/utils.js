@@ -72,6 +72,10 @@ function pow2_ceil ( a ) {
     return a;
 }
 
+function is_number ( a ) {
+    return ( typeof a === 'number' );
+}
+
 function is_string ( a ) {
     return ( typeof a === 'string' );
 }
