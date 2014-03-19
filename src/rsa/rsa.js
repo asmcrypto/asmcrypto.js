@@ -21,7 +21,7 @@ function RSA_reset ( options ) {
         else if ( key instanceof Array ) {
             var l = key.length;
             if ( l !== 2 && l !== 3 && l !== 8 )
-                throw new TypeError("unexpected key type");
+                throw new SyntaxError("unexpected key type");
 
             if ( !( l[0] instanceof Modulus ) )
                 l[0] = new Modulus( l[0] );
