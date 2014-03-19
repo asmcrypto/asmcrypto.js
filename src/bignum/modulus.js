@@ -24,8 +24,13 @@ function Modulus () {
         this.coefficient = k < 0 ? -k : 0x100000000-k;
     }
     else {
-        // TODO Montgomery reduction with respect to (pseudo-)Mersenne prime
-        // TODO Barrett reduction for even moduli greater than the largest configured pseudo-Mersenne prime
+        /**
+         * TODO even modulus reduction
+         * Modulus represented as `N = 2^U * V`, where `V` is odd and thus `GCD(2^U, V) = 1`.
+         * Calculation `A = TR' mod V` is made as for odd modulo using Montgomery method.
+         * Calculation `B = TR' mod 2^U` is easy as modulus is a power of 2.
+         * Using Chinese Remainder Theorem and Garner's Algorithm restore `TR' mod N` from `A` and `B`.
+         */
         return;
     }
 
