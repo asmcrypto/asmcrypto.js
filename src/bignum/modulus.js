@@ -20,8 +20,8 @@ function Modulus () {
         comodulus.bitLength = bitlen;
         comodulus.limbs = limbs;
 
-        var k = BigNumber_extGCD( comodulus, this ).y.clamp(comodulus.bitLength-1);
-        this.bezoutCoefficient = k.sign < 0 ? k.negate() : comodulus.subtract(k).clamp(comodulus.bitLength-1);
+        var k = Number_extGCD( 0x100000000, this.limbs[0] ).y;
+        this.coefficient = k < 0 ? -k : 0x100000000-k;
     }
     else {
         // TODO Montgomery reduction with respect to (pseudo-)Mersenne prime
@@ -59,7 +59,6 @@ function Modulus_reduce ( a ) {
 
 /**
  * Modular inverse
- * TODO `A^(φ(M)-1) mod M` when the factorization of `M` is known
  */
 function Modulus_inverse ( a ) {
     a = this.reduce(a);
@@ -80,6 +79,16 @@ function Modulus_power ( g, e ) {
     if ( !( e instanceof BigNumber ) )
         e = new BigNumber(e);
 
+    // count exponent set bits
+    var c = 0;
+    for ( var i = 0; i < e.limbs.length; i++ ) {
+        var t = e.limbs[i];
+        while ( t ) {
+            if ( t & 1 ) c++;
+            t >>>= 1;
+        }
+    }
+
     // window size parameter
     var k = 8;
     if ( e.bitLength <= 4536 ) k = 7;
@@ -88,6 +97,7 @@ function Modulus_power ( g, e ) {
     if ( e.bitLength <= 210 ) k = 4;
     if ( e.bitLength <= 60 ) k = 3;
     if ( e.bitLength <= 12 ) k = 2;
+    if ( c <= (1 << (k-1)) ) k = 1;
 
     // montgomerize base
     g = _Montgomery_reduce( this.reduce(g).multiply(this.comodulusRemainderSquare), this );
@@ -132,7 +142,7 @@ function Modulus_power ( g, e ) {
 function _Montgomery_reduce ( a, n ) {
     var alimbs = a.limbs, alimbcnt = alimbs.length,
         nlimbs = n.limbs, nlimbcnt = nlimbs.length,
-        ylimbs = n.bezoutCoefficient.limbs;
+        y = n.coefficient;
 
     _bigint_asm.sreset();
 
@@ -145,7 +155,7 @@ function _Montgomery_reduce ( a, n ) {
     _bigint_heap.set( alimbs, pA>>2 );
     _bigint_heap.set( nlimbs, pN>>2 );
 
-    _bigint_asm.mredc( pA, alimbcnt<<2, pN, nlimbcnt<<2, ylimbs[0], pR );
+    _bigint_asm.mredc( pA, alimbcnt<<2, pN, nlimbcnt<<2, y, pR );
 
     var result = new BigNumber();
     result.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+nlimbcnt ) );
