@@ -4,7 +4,7 @@
 function rsa_generate_key ( bitlen, e ) {
     if ( bitlen === undefined ) throw new SyntaxError("bitlen required");
     if ( e === undefined ) throw new SyntaxError("e required");
-    var key = RSA_generate_key( bitlen, e );
+    var key = RSA_generateKey( bitlen, e );
     for ( var i = 0; i < key.length; i++ ) {
         if ( key[i] instanceof BigNumber )
             key[i] = key[i].toBytes();

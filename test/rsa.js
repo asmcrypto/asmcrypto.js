@@ -21,6 +21,12 @@ test( "asmCrypto.RSA", function () {
     equal( typeof asmCrypto.RSA_OAEP_SHA256, 'object', "RSA_OAEP exported" );
     equal( typeof asmCrypto.RSA_PSS_SHA256, 'object', "RSA_PSS exported" );
 });
+
+test( "asmCrypto.RSA.generateKey", function () {
+    var key = asmCrypto.RSA.generateKey( 1024, 65537 );
+    ok( key, "generateKey" );
+});
+
 /*
 test( "asmCrypto.RSA.encrypt", function () {
     var pubrsa = new asmCrypto.RSA( { key: pubkey } );
