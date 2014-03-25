@@ -1,5 +1,4 @@
-var _aes_block_size = 16,
-    _aes_zero_iv = new Uint8Array(_aes_block_size);
+var _aes_block_size = 16;
 
 function _aes_constructor ( options ) {
     options = options || {};
@@ -51,7 +50,7 @@ function _aes_reset ( options ) {
 
         this.key = key;
 
-        asm.init_key_128.apply( asm, key );
+        asm.init_key_128.call( asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15] );
     }
 
     return this;
@@ -78,11 +77,11 @@ function _aes_init_iv ( iv ) {
             throw new IllegalArgumentError("illegal iv size");
 
         this.iv = iv;
-        asm.init_state.apply( asm, iv );
+        asm.init_state.call( asm, iv[0], iv[1], iv[2], iv[3], iv[4], iv[5], iv[6], iv[7], iv[8], iv[9], iv[10], iv[11], iv[12], iv[13], iv[14], iv[15] );
     }
     else {
         this.iv = null;
-        asm.init_state.apply( asm, _aes_zero_iv );
+        asm.init_state.call( asm, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
     }
 }
 

@@ -37,6 +37,10 @@ module.exports = function(grunt) {
             }
         },
 
+        qunit: {
+            all: ['test.html']
+        },
+
         clean: [
             'asmcrypto.js',
             'asmcrypto.js.map'
@@ -44,7 +48,9 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-clean');
 
     grunt.registerTask('default', ['uglify:core']);
+    grunt.registerTask('test', ['qunit']);
 };
