@@ -11,35 +11,63 @@ var _bigint_heap = new Uint32Array(0x100000),
 
 var _BigNumber_ZERO_limbs = new Uint32Array(0);
 
-function BigNumber ( num, radix ) {
+function BigNumber ( num ) {
     var limbs = _BigNumber_ZERO_limbs,
-        bitLength = 0,
+        bitlen = 0,
         sign = 0;
+
+    if ( is_string(num) )
+        num = string_to_bytes(num);
+
+    if ( is_buffer(num) )
+        num = new Uint8Array(num);
 
     if ( num === undefined ) {
         // do nothing
     }
     else if ( is_number(num) ) {
-        return _BigNumber_fromNumber.call( this, num );
-    }
-    else if ( is_string(num) ) {
-        switch ( radix || 16 ) {
-            case 16:
-                return _BigNumber_fromHexString.call( this, num );
-
-            default:
-                throw new IllegalArgumentError("bad radix");
+        var absnum = Math.abs(num);
+        if ( absnum > 0xffffffff ) {
+            limbs = new Uint32Array(2);
+            limbs[0] = absnum|0;
+            limbs[1] = (absnum/0x100000000)|0;
+            bitlen = 52;
         }
-    }
-    else if ( is_buffer(num) ) {
-        return _BigNumber_fromByteArray.call( this, new Uint8Array(num) );
+        else if ( absnum > 0 ) {
+            limbs = new Uint32Array(1);
+            limbs[0] = absnum;
+            bitlen = 32;
+        }
+        else {
+            limbs = _BigNumber_ZERO_limbs;
+            bitlen = 0;
+        }
+        sign = num < 0 ? -1 : 1;
     }
     else if ( is_bytes(num) ) {
-        return _BigNumber_fromByteArray.call( this, num );
+        bitlen = num.length * 8;
+        if ( !bitlen )
+            return BigNumber_ZERO;
+
+        limbs = new Uint32Array( (bitlen + 31) >> 5 );
+        for ( var i = num.length-4; i >= 0 ; i -= 4 ) {
+            limbs[(num.length-4-i)>>2] = (num[i] << 24) | (num[i+1] << 16) | (num[i+2] << 8) | num[i+3];
+        }
+        if ( i === -3 ) {
+            limbs[limbs.length-1] = num[0];
+        }
+        else if ( i === -2 ) {
+            limbs[limbs.length-1] = (num[0] << 8) | num[1];
+        }
+        else if ( i === -1 ) {
+            limbs[limbs.length-1] = (num[0] << 16) | (num[1] << 8) | num[2];
+        }
+
+        sign = 1;
     }
     else if ( typeof num === 'object' && num !== null ) {
         limbs = new Uint32Array( num.limbs );
-        bitLength = num.bitLength;
+        bitlen = num.bitLength;
         sign = num.sign;
     }
     else {
@@ -47,99 +75,8 @@ function BigNumber ( num, radix ) {
     }
 
     this.limbs = limbs;
-    this.bitLength = bitLength;
-    this.sign = sign;
-}
-
-function _BigNumber_fromNumber ( num ) {
-    var absnum = Math.abs(num),
-        limbs, bitlen;
-
-    if ( absnum > 0xffffffff ) {
-        limbs = new Uint32Array(2);
-        limbs[0] = absnum|0;
-        limbs[1] = (absnum/0x100000000)|0;
-        bitlen = 52;
-    }
-    else if ( absnum > 0 ) {
-        limbs = new Uint32Array(1);
-        limbs[0] = absnum;
-        bitlen = 32;
-    }
-    else {
-        limbs = _BigNumber_ZERO_limbs;
-        bitlen = 0;
-    }
-
-    this.limbs = limbs;
-    this.bitLength = bitlen;
-    this.sign = ( num <= 0 ? num < 0 ? -1 : 0 : 1 );
-
-    return this;
-}
-
-function _BigNumber_fromHexString ( str ) {
-    var bitlen = 0, sign = 0, limbs = null;
-
-    str = str.toUpperCase().replace( /[^0-9A-F]/g, '' ).replace( /^0+/, '' );
-
-    bitlen = str.length * 4;
-
-    if ( bitlen > 0 ) {
-        if ( str.length % 8 ) {
-            str = ( '00000000'.substr( str.length % 8 ) ) + str;
-        }
-
-        limbs = new Uint32Array( (bitlen + 31) >> 5 );
-        for ( var i = 0; i < str.length; i += 8 ) {
-            var l = parseInt( str.substr(i, 8), 16 );
-            limbs[(str.length-i-8)>>3] = l;
-        }
-
-        sign = 1;
-    }
-    else {
-        return BigNumber_ZERO;
-    }
-
-    this.limbs = limbs;
     this.bitLength = bitlen;
     this.sign = sign;
-
-    return this;
-}
-
-function _BigNumber_fromByteArray ( buff ) {
-    var bitlen = 0, sign = 0, limbs = null;
-
-    bitlen = buff.length * 8;
-
-    if ( bitlen > 0 ) {
-        limbs = new Uint32Array( (bitlen + 31) >> 5 );
-        for ( var i = buff.length-4; i >= 0 ; i -= 4 ) {
-            limbs[(buff.length-4-i)>>2] = (buff[i] << 24) | (buff[i+1] << 16) | (buff[i+2] << 8) | buff[i+3];
-        }
-        if ( i === -3 ) {
-            limbs[limbs.length-1] = buff[0];
-        }
-        else if ( i === -2 ) {
-            limbs[limbs.length-1] = (buff[0] << 8) | buff[1];
-        }
-        else if ( i === -1 ) {
-            limbs[limbs.length-1] = (buff[0] << 16) | (buff[1] << 8) | buff[2];
-        }
-
-        sign = 1;
-    }
-    else {
-        return BigNumber_ZERO;
-    }
-
-    this.limbs = limbs;
-    this.bitLength = bitlen;
-    this.sign = sign;
-
-    return this;
 }
 
 function BigNumber_toString ( radix ) {
