@@ -120,13 +120,13 @@ function _BigNumber_fromByteArray ( buff ) {
             limbs[(buff.length-4-i)>>2] = (buff[i] << 24) | (buff[i+1] << 16) | (buff[i+2] << 8) | buff[i+3];
         }
         if ( i === -3 ) {
-            limbs[limbs.length-1] = (buff[0] << 16) | (buff[1] << 8) | buff[2];
+            limbs[limbs.length-1] = buff[0];
         }
         else if ( i === -2 ) {
             limbs[limbs.length-1] = (buff[0] << 8) | buff[1];
         }
         else if ( i === -1 ) {
-            limbs[limbs.length-1] = buff[0];
+            limbs[limbs.length-1] = (buff[0] << 16) | (buff[1] << 8) | buff[2];
         }
 
         sign = 1;
