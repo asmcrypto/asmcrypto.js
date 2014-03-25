@@ -35,20 +35,20 @@ function hmac_sha256_constructor ( options ) {
 function _hmac_key ( hash, password ) {
     var key;
 
-    if ( password instanceof ArrayBuffer || password instanceof Uint8Array ) {
+    if ( is_buffer(password) || is_bytes(password) ) {
         key = new Uint8Array(hash.BLOCK_SIZE);
 
         if ( password.byteLength > this.hash.BLOCK_SIZE ) {
             key.set( new Uint8Array( hash.reset().process(password).finish().result ) );
         }
-        else if ( password instanceof ArrayBuffer ) {
+        else if ( is_buffer(password) ) {
             key.set( new Uint8Array(password) );
         }
         else {
             key.set(password);
         }
     }
-    else if ( typeof password === 'string' ) {
+    else if ( is_string(password) ) {
         key = new Uint8Array(hash.BLOCK_SIZE);
 
         if ( password.length > hash.BLOCK_SIZE ) {
@@ -67,10 +67,10 @@ function _hmac_key ( hash, password ) {
 }
 
 function _hmac_init_verify ( verify ) {
-    if ( verify instanceof ArrayBuffer || verify instanceof Uint8Array ) {
+    if ( is_buffer(verify) || is_bytes(verify) ) {
         verify = new Uint8Array(verify);
     }
-    else if ( typeof verify === 'string' ) {
+    else if ( is_string(verify) ) {
         verify = string_to_bytes(verify);
     }
     else {
@@ -87,13 +87,13 @@ function hmac_reset ( options ) {
     options = options || {};
     var password = options.password;
 
-    if ( this.key === null && typeof password !== 'string' && !password )
+    if ( this.key === null && !is_string(password) && !password )
         throw new IllegalStateError("no key is associated with the instance");
 
     this.result = null;
     this.hash.reset();
 
-    if ( password || typeof password === 'string' )
+    if ( password || is_string(password) )
         this.key = _hmac_key( this.hash, password );
 
     var ipad = new Uint8Array(this.key);
@@ -117,13 +117,13 @@ function hmac_sha256_reset ( options ) {
     options = options || {};
     var password = options.password;
 
-    if ( this.key === null && typeof password !== 'string' && !password )
+    if ( this.key === null && !is_string(password) && !password )
         throw new IllegalStateError("no key is associated with the instance");
 
     this.result = null;
     this.hash.reset();
 
-    if ( password || typeof password === 'string' ) {
+    if ( password || is_string(password) ) {
         this.key = _hmac_key( this.hash, password );
         this.hash.reset().asm.hmac_init(
             (this.key[0]<<24)|(this.key[1]<<16)|(this.key[2]<<8)|(this.key[3]),

@@ -43,7 +43,7 @@ function Modulus () {
  * Modular reduction
  */
 function Modulus_reduce ( a ) {
-    if ( !( a instanceof BigNumber ) )
+    if ( !is_big_number(a) )
         a = new BigNumber(a);
 
     if ( a.bitLength <= 32 && this.bitLength <= 32 )
@@ -78,10 +78,10 @@ function Modulus_inverse ( a ) {
  * Modular exponentiation
  */
 function Modulus_power ( g, e ) {
-    if ( !( g instanceof BigNumber ) )
-        g = new BigNumber(e);
+    if ( !is_big_number(g) )
+        g = new BigNumber(g);
 
-    if ( !( e instanceof BigNumber ) )
+    if ( !is_big_number(e) )
         e = new BigNumber(e);
 
     // count exponent set bits

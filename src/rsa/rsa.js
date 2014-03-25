@@ -47,17 +47,17 @@ function RSA_encrypt ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
-    if ( typeof data === 'string' )
+    if ( is_string(data) )
         data = string_to_bytes(data);
 
-    if ( data instanceof ArrayBuffer )
+    if ( is_buffer(data) )
         data = new Uint8Array(data);
 
     var msg;
-    if ( data instanceof Uint8Array ) {
+    if ( is_bytes(data) ) {
         msg = new BigNumber(data);
     }
-    else if ( data instanceof BigNumber ) {
+    else if ( is_big_number(data) ) {
         msg = data;
     }
     else {
@@ -79,17 +79,17 @@ function RSA_decrypt ( data ) {
     if ( this.key.length < 3 )
         throw new IllegalStateError("key isn't suitable for decription");
 
-    if ( typeof data === 'string' )
+    if ( is_string(data) )
         data = string_to_bytes(data);
 
-    if ( data instanceof ArrayBuffer )
+    if ( is_buffer(data) )
         data = new Uint8Array(data);
 
     var msg;
-    if ( data instanceof Uint8Array ) {
+    if ( is_bytes(data) ) {
         msg = new BigNumber(data);
     }
-    else if ( data instanceof BigNumber ) {
+    else if ( is_big_number(data) ) {
         msg = data;
     }
     else {

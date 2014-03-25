@@ -32,10 +32,10 @@ function _aes_reset ( options ) {
 
     var key = options.key;
     if ( key !== undefined ) {
-        if ( key instanceof ArrayBuffer || key instanceof Uint8Array ) {
+        if ( is_buffer(key) || is_bytes(key) ) {
             key = new Uint8Array(key);
         }
-        else if ( typeof key === 'string' ) {
+        else if ( is_string(key) ) {
             var str = key;
             key = new Uint8Array(str.length);
             for ( var i = 0; i < str.length; ++i )
@@ -60,10 +60,10 @@ function _aes_init_iv ( iv ) {
     var asm = this.asm;
 
     if ( iv !== undefined ) {
-        if ( iv instanceof Uint8Array || iv instanceof ArrayBuffer ) {
+        if ( is_buffer(iv) || is_bytes(iv) ) {
             iv = new Uint8Array(iv);
         }
-        else if ( typeof iv === 'string' ) {
+        else if ( is_string(iv) ) {
             var str = iv;
             iv = new Uint8Array(str.length);
             for ( var i = 0; i < str.length; ++i )
@@ -89,10 +89,10 @@ function _aes_heap_write ( heap, hpos, data, dpos, dlen ) {
     var hlen = heap.byteLength - hpos,
         wlen = (hlen < dlen) ? hlen : dlen;
 
-    if ( data instanceof ArrayBuffer || data instanceof Uint8Array ) {
+    if ( is_buffer(data) || is_bytes(data) ) {
         heap.set( new Uint8Array( (data.buffer||data), dpos, wlen ), hpos );
     }
-    else if ( typeof data === 'string' ) {
+    else if ( is_string(data) ) {
         for ( var i = 0; i < wlen; ++i ) heap[ hpos + i ] = data.charCodeAt( dpos + i );
     }
     else {

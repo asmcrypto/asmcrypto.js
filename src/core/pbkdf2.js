@@ -14,7 +14,7 @@ function pbkdf2_constructor ( options ) {
     this.result = null;
 
     var password = options.password;
-    if ( password || typeof password === 'string' )
+    if ( password || is_string(password) )
         this.reset(options);
 
     return this;
@@ -43,7 +43,7 @@ function pbkdf2_generate ( salt, count, length ) {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 
-    if ( !salt && typeof salt !== 'string' )
+    if ( !salt && !is_string(salt) )
         throw new IllegalArgumentError("bad 'salt' value");
 
     count = count || this.count;
@@ -71,7 +71,7 @@ function pbkdf2_hmac_sha256_generate ( salt, count, length ) {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 
-    if ( !salt && typeof salt !== 'string' )
+    if ( !salt && !is_string(salt) )
         throw new IllegalArgumentError("bad 'salt' value");
 
     count = count || this.count;

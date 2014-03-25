@@ -1,3 +1,9 @@
+function is_big_number ( a ) {
+    return ( a instanceof BigNumber );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 var _bigint_heap = new Uint32Array(0x100000),
     _bigint_asm = bigint_asm( global, null, _bigint_heap.buffer );
 
@@ -10,13 +16,13 @@ function BigNumber ( num, radix ) {
         bitLength = 0,
         sign = 0;
 
-    if ( typeof num === 'undefined' ) {
+    if ( num === undefined ) {
         // do nothing
     }
-    else if ( typeof num === 'number' ) {
+    else if ( is_number(num) ) {
         return _BigNumber_fromNumber.call( this, num );
     }
-    else if ( typeof num === 'string' ) {
+    else if ( is_string(num) ) {
         switch ( radix || 16 ) {
             case 16:
                 return _BigNumber_fromHexString.call( this, num );
@@ -25,10 +31,10 @@ function BigNumber ( num, radix ) {
                 throw new IllegalArgumentError("bad radix");
         }
     }
-    else if ( num instanceof ArrayBuffer ) {
+    else if ( is_buffer(num) ) {
         return _BigNumber_fromByteArray.call( this, new Uint8Array(num) );
     }
-    else if ( num instanceof Uint8Array ) {
+    else if ( is_bytes(num) ) {
         return _BigNumber_fromByteArray.call( this, num );
     }
     else if ( typeof num === 'object' && num !== null ) {
@@ -287,7 +293,7 @@ function BigNumber_negate () {
 }
 
 function BigNumber_compare ( that ) {
-    if ( !( that instanceof BigNumber ) )
+    if ( !is_big_number(that) )
         that = new BigNumber(that);
 
     var alimbs = this.limbs, alimbcnt = alimbs.length,
@@ -308,7 +314,7 @@ function BigNumber_compare ( that ) {
 }
 
 function BigNumber_add ( that ) {
-    if ( !( that instanceof BigNumber ) )
+    if ( !is_big_number(that) )
         that = new BigNumber(that);
 
     if ( !this.sign )
@@ -362,14 +368,14 @@ function BigNumber_add ( that ) {
 }
 
 function BigNumber_subtract ( that ) {
-    if ( !( that instanceof BigNumber ) )
+    if ( !is_big_number(that) )
         that = new BigNumber(that);
 
     return this.add( that.negate() );
 }
 
 function BigNumber_multiply ( that ) {
-    if ( !( that instanceof BigNumber ) )
+    if ( !is_big_number(that) )
         that = new BigNumber(that);
 
     if ( !this.sign || !that.sign )
@@ -431,7 +437,7 @@ function BigNumber_square () {
 }
 
 function BigNumber_divide ( that ) {
-    if ( !( that instanceof BigNumber ) )
+    if ( !is_big_number(that) )
         that = new BigNumber(that);
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,

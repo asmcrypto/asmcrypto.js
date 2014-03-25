@@ -97,7 +97,7 @@ function ccm_aes_reset ( options ) {
 
     var tagSize = options.tagSize;
     if ( tagSize !== undefined ) {
-        if ( typeof tagSize !== 'number' )
+        if ( !is_number(tagSize) )
             throw new TypeError("tagSize must be a number");
 
         if ( tagSize < 4 || tagSize > 16 || tagSize & 1 )
@@ -112,10 +112,10 @@ function ccm_aes_reset ( options ) {
     var lengthSize = options.lengthSize,
         nonce = options.nonce;
     if ( nonce !== undefined ) {
-        if ( nonce instanceof Uint8Array || nonce instanceof ArrayBuffer ) {
+        if ( is_buffer(nonce) || is_bytes(nonce) ) {
             nonce = new Uint8Array(nonce);
         }
-        else if ( typeof nonce === 'string' ) {
+        else if ( is_string(nonce) ) {
             var str = nonce;
             nonce = new Uint8Array(str.length);
             for ( var i = 0; i < str.length; ++i )
@@ -137,7 +137,7 @@ function ccm_aes_reset ( options ) {
     }
 
     if ( lengthSize !== undefined ) {
-        if ( typeof lengthSize !== 'number' )
+        if ( !is_number(lengthSize) )
             throw new TypeError("lengthSize must be a number");
 
         if ( lengthSize < 2 || lengthSize > 5 || nonce.length + lengthSize !== 15 )
@@ -156,7 +156,7 @@ function ccm_aes_reset ( options ) {
         if ( iv === null )
             throw new IllegalStateError("iv is also required");
 
-        if ( typeof counter !== 'number' )
+        if ( !is_number(counter) )
             throw new TypeError("counter must be a number");
 
         this.counter = counter;
@@ -167,7 +167,7 @@ function ccm_aes_reset ( options ) {
 
     var dataLength = options.dataLength;
     if ( dataLength !== undefined ) {
-        if ( typeof dataLength !== 'number' )
+        if ( !is_number(dataLength) )
             throw new TypeError("dataLength must be a number");
 
         if ( dataLength < 0 || dataLength > _ccm_data_maxLength || dataLength > ( Math.pow( 2, 8*lengthSize ) - 1 ) )
@@ -177,7 +177,7 @@ function ccm_aes_reset ( options ) {
 
         var dataLeft = options.dataLeft || dataLength;
 
-        if ( typeof dataLeft !== 'number' )
+        if ( !is_number(dataLeft) )
             throw new TypeError("dataLeft must be a number");
 
         if ( dataLeft < 0 || dataLeft > dataLength )
@@ -195,10 +195,10 @@ function ccm_aes_reset ( options ) {
         if ( iv !== null )
             throw new IllegalStateError("you must specify either adata or iv, not both");
 
-        if ( adata instanceof ArrayBuffer || adata instanceof Uint8Array ) {
+        if ( is_buffer(adata) || is_bytes(adata) ) {
             adata = new Uint8Array(adata);
         }
-        else if ( typeof adata === 'string' ) {
+        else if ( is_string(adata) ) {
             var str = adata;
             adata = new Uint8Array(str.length);
             for ( var i = 0; i < str.length; ++i )

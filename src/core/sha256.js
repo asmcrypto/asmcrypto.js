@@ -33,11 +33,11 @@ function sha256_process ( data ) {
 
     var dpos = 0, dlen = 0, clen = 0;
 
-    if ( data instanceof ArrayBuffer || data instanceof Uint8Array ) {
+    if ( is_buffer(data) || is_bytes(data) ) {
         dpos = data.byteOffset||0;
         dlen = data.byteLength;
     }
-    else if ( typeof data === 'string' ) {
+    else if ( is_string(data) ) {
         dlen = data.length;
     }
     else {
@@ -48,7 +48,7 @@ function sha256_process ( data ) {
         clen = this.heap.byteLength - this.pos - this.len;
         clen = ( clen < dlen ) ? clen : dlen;
 
-        if ( data instanceof ArrayBuffer || data instanceof Uint8Array ) {
+        if ( is_buffer(data) || is_bytes(data) ) {
             this.heap.set( new Uint8Array( (data.buffer||data), dpos, clen ), this.pos + this.len );
         } else {
             for ( var i = 0; i < clen; i++ ) this.heap[ this.pos + this.len + i ] = data.charCodeAt( dpos + i );

@@ -38,10 +38,10 @@ function Number_extGCD ( a, b ) {
 }
 
 function BigNumber_extGCD ( a, b ) {
-    if ( !( a instanceof BigNumber ) )
+    if ( !is_big_number(a) )
         a = new BigNumber(a);
 
-    if ( !( b instanceof BigNumber ) )
+    if ( !is_big_number(b) )
         b = new BigNumber(b);
 
     var sa = a.sign, sb = b.sign;
