@@ -353,6 +353,7 @@ function ccm_aes_decrypt_process ( data ) {
         heap = this.heap,
         nonce = this.nonce,
         counter = this.counter,
+        tagSize = this.tagSize,
         pos = this.pos,
         len = this.len,
         rpos = 0,
@@ -374,7 +375,7 @@ function ccm_aes_decrypt_process ( data ) {
         dlen -= wlen;
 
         asm_args[0] = pos;
-        asm_args[1] = len  - ( len % _aes_block_size || ( dlen ? 0 : _aes_block_size ) );
+        asm_args[1] = len + dlen - tagSize >= _aes_block_size ? dlen >= tagSize ? len & ~15 : (len + dlen - tagSize) & ~15 : 0;
         asm_args[16] = (counter/0x100000000)>>>0;
         asm_args[17] = counter>>>0;
 
