@@ -77,7 +77,7 @@ See benchmarks:
 * [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
 * [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2),
 * [AES](http://jsperf.com/aes),
-* [Modular exponentiation (used internally in RSA)](http://jsperf.com/jsbn-vs-bigint-js-modular-exponentiation-montgomery/3).
+* [Modular exponentiation (used internally in RSA)](http://jsperf.com/jsbn-vs-bigint-js-modular-exponentiation-montgomery/4).
 
 API Reference
 -------------
