@@ -54,7 +54,7 @@ function BigNumber_isProbablePrime ( paranoia ) {
     t.limbs[0] -= 1;
     while ( t.limbs[s>>5] === 0 ) s += 32;
     while ( ( ( t.limbs[s>>5] >> (s & 31) ) & 1 ) === 0 ) s++;
-    t = t.splice(s+1);
+    t = t.splice(s);
 
     var m = new Modulus(this),
         m1 = this.subtract(BigNumber_ONE),

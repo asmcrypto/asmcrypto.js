@@ -180,39 +180,46 @@ function BigNumber_clamp ( b ) {
 }
 
 function BigNumber_splice ( f, b ) {
+    if ( !is_number(f) )
+        throw new TypeError("TODO");
+
+    if ( b !== undefined && !is_number(b) )
+        throw new TypeError("TODO");
+
     var limbs = this.limbs,
         bitlen = this.bitLength;
 
-    // FIXME check f is number and in a valid range
-    // FIXME check b is number and in a valid range
+    if ( f < 0 )
+        throw new RangeError("TODO");
 
-    if ( b === undefined )
+    if ( f >= bitlen )
+        return BigNumber_ZERO;
+
+    if ( b === undefined || b > bitlen - f )
         b = bitlen - f;
 
-    if ( f === 0 )
-        return this.clamp(b);
-
     var spliced = new BigNumber, slimbs,
-        n = f >> 5, m = (f + b + 31) >> 5,
-        t = (f-1) % 32, k = b % 32;
+        n = f >> 5, m = (f + b + 31) >> 5, l = (b + 31) >> 5,
+        t = f % 32, k = b % 32;
 
-    slimbs = new Uint32Array( limbs.subarray(n,m) );
+    slimbs = new Uint32Array(l);
+    if ( t ) {
+        for ( var i = 0; i < m-n-1; i++ ) {
+            slimbs[i] = (limbs[n+i]>>>t) | ( limbs[n+i+1]<<(32-t) );
+        }
+        slimbs[i] = limbs[n+i]>>>t;
+    }
+    else {
+        slimbs.set( limbs.subarray(n, m) );
+    }
+
+    if ( k ) {
+        slimbs[l-1] &= (-1 >>> (32-k));
+    }
 
     spliced.limbs = slimbs
     spliced.bitLength = b;
     spliced.sign = this.sign;
-
-    if ( t ) {
-        slimbs[0] >>>= t;
-        for ( var i = 1; i < slimbs.length; i++ ) {
-            slimbs[i-1] |= slimbs[i] << (32-t);
-            slimbs[i] >>>= t;
-        }
-    }
-
-    if ( k ) {
-        slimbs[m-n-1] &= (-1 >>> (32-k));
-    }
 
     return spliced;
 }

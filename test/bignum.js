@@ -59,6 +59,13 @@ test( "new asmCrypto.BigNumber()", function () {
     equal( verylarge.toString(16), '3f70f29d3f3ae354a6d2536ceafba83cfc787cd91e7acd2b6bde05e62beb8295ae18e3f786726f8d034bbc15bf8331df959f59d431736d5f306aaba63dacec279484e39d76db9b527738072af15730e8b9956a64e8e4dbe868f77d1414a8a8b8bf65380a1f008d39c5fabe1a9f8343929342ab7b4f635bdc52532d764701ff3d8072c475c012ff0c59373e8bc423928d99f58c3a6d9f6ab21ee20bc8e8818fc147db09f60c81906f2c6f73dc69725f075853a89f0cd02a30a8dd86b660ccdeffc292f398efb54088c822774445a6afde471f7dd327ef9996296898a5747726ccaeeceeb2e459df98b4128cb5ab8c7cd20c563f960a1aa770f3c81f13f967b6cc', "verylarge.toString()" );
 });
 
+test( "asmCrypto.BigNumber.splice", function () {
+    var deadbeefcafe = new asmCrypto.BigNumber(0xdeadbeefcafe);
+    equal( deadbeefcafe.splice(0).valueOf(), 0xdeadbeefcafe, "splice(0)" );
+    equal( deadbeefcafe.splice(52).valueOf(), 0, "splice(bitLength)" );
+    equal( deadbeefcafe.splice(24,16).valueOf(), 0xadbe, "splice(middle)" );
+});
+
 test( "asmCrypto.BigNumber.compare", function () {
     var deadbeefcafe = new asmCrypto.BigNumber(0xdeadbeefcafe),
         ffffffff = new asmCrypto.BigNumber(0xffffffff),
@@ -217,7 +224,7 @@ test( "asmCrypto.BigNumber.extGCD", function () {
     equal( z.y.toString(16), '2a54a02a4b2182e2ea06578065a9608f53c45bd34ab2d3c47c18bca20e2bf9d93f6ac1aecc7a4bf18cfbc073db8cd0829b656bcb1f7a52b10bdc463ac246f11a30c0cc4ea00f093fcb0b4809a2b83bfb627789c6daac33d467a2b7bcda403018b344ca065fecccd2922afd53268ea599b17b96f29fe9fa4487cd0df93db31f3197a1973fafdd5f37a9f80f2554947ed63ffa4f12f0c5eefec24e9192ddcbc19ad179f76d95e361250300f18de3f7c9a067b84ccba3b31e1d1cf4379a492aa916882e09fa6836e3524b9bf750cf8f8dddbb48dd2ac0a9cfdfe6409330c0d62f08d13ec220436482bb39db9b1c595c5e0e0b743344620ac8eb0e18b0d3c641f305', "y ok" );
 });
 
-test ( "asmCrypto.Modulus", function () {
+test( "asmCrypto.Modulus", function () {
     var M = new asmCrypto.Modulus(123456789);
 
     ok( M, "new Modulus" );
@@ -237,10 +244,15 @@ test ( "asmCrypto.Modulus", function () {
     equal( M3.coefficient.toString(16), "39be0cfb", "M3 coefficent ok" );
 });
 
-test ( "asmCrypto.Modulus.power", function () {
+test( "asmCrypto.Modulus.power", function () {
     var base = new asmCrypto.BigNumber(asmCrypto.hex_to_bytes('3f70f29d3f3ae354a6d2536ceafba83cfc787cd91e7acd2b6bde05e62beb8295ae18e3f786726f8d034bbc15bf8331df959f59d431736d5f306aaba63dacec279484e39d76db9b527738072af15730e8b9956a64e8e4dbe868f77d1414a8a8b8bf65380a1f008d39c5fabe1a9f8343929342ab7b4f635bdc52532d764701ff3d8072c475c012ff0c59373e8bc423928d99f58c3a6d9f6ab21ee20bc8e8818fc147db09f60c81906f2c6f73dc69725f075853a89f0cd02a30a8dd86b660ccdeffc292f398efb54088c822774445a6afde471f7dd327ef9996296898a5747726ccaeeceeb2e459df98b4128cb5ab8c7cd20c563f960a1aa770f3c81f13f967b6cc')),
         modulus = new asmCrypto.Modulus(asmCrypto.hex_to_bytes('c7f1bc1dfb1be82d244aef01228c1409c198894eca9e21430f1669b4aa3864c9f37f3d51b2b4ba1ab9e80f59d267fda1521e88b05117993175e004543c6e3611242f24432ce8efa3b81f0ff660b4f91c5d52f2511a6f38181a7bf9abeef72db056508bbb4eeb5f65f161dd2d5b439655d2ae7081fcc62fdcb281520911d96700c85cdaf12e7d1f15b55ade867240722425198d4ce39019550c4c8a921fc231d3e94297688c2d77cd68ee8fdeda38b7f9a274701fef23b4eaa6c1a9c15b2d77f37634930386fc20ec291be95aed9956801e1c76601b09c413ad915ff03bfdc0b6b233686ae59e8caf11750b509ab4e57ee09202239baee3d6e392d1640185e1cd')),
         exponent = new asmCrypto.BigNumber(asmCrypto.hex_to_bytes('322e393f76a1c22b147e7d193c00c023afb7c1500b006ff1bc1cc8d391fc38bd'));
 
     equal( modulus.power( base, exponent ).toString(16), '5b3823974b3eda87286d3f38499de290bd575d8b02f06720acacf3d50950f9ca0ff6b749f3be03913ddca0b291e0b263bdab6c9cb97e4ab47ee9c235ff20931a8ca358726fab93614e2c549594f5c50b1c979b34f840b6d4fc51d6feb2dd072995421d17862cb405e040fc1ed662a3245a1f97bbafa6d1f7f76c7db6a802e3037acdf01ab5053f5da518d6753477193b9c25e1720519dcb9e2f6e70d5786656d356151845a49861dfc40187eff0e85cd18b1f3f3b97c476472edfa090b868b2388edfffecc521c20df8cebb8aacfb3669b020330dd6ea64b2a3067a972b8f249bccc19347eff43893e916f0949bd5789a5cce0f8b7cd87cece909d679345c0d4', "Modulus.power ok" );
+});
+
+test( "asmCrypto.isProbablePrime", function () {
+    var p = new asmCrypto.BigNumber(asmCrypto.hex_to_bytes('8844ae66464b4b7db53644be87617124f314a1d8243d347867c8cfd6afb595bdb88ce63538fbd6c3f8461133d77ed4f5ef403f48c65b7340c683839c00bc7874bff3e9ffe7916a3ca085c7096f31871f2d628198f9c1deaeaefa581ebaef834a89afdf663b9570287a257bd6e4f507cede3b31eda6bd7fd4f8ae3c5b8791d89f'));
+    ok( p.isProbablePrime(), "p is probable prime" );
 });
