@@ -25,6 +25,11 @@ test( "asmCrypto.RSA", function () {
 test( "asmCrypto.RSA.generateKey", function () {
     var key = asmCrypto.RSA.generateKey( 1024, 65537 );
     ok( key, "generateKey" );
+
+    var m = new asmCrypto.Modulus( key[0] ),
+        e = new asmCrypto.BigNumber( key[1] ),
+        d = new asmCrypto.BigNumber( key[2] );
+    equal( m.power( m.power( 1234567890, e ), d ).valueOf(), 1234567890, "private exponent match" );
 });
 
 /*

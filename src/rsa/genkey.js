@@ -39,7 +39,7 @@ function RSA_generateKey ( bitlen, e ) {
 
     var m = new Modulus( p.multiply(q) );
 
-    var d = m.inverse(e);
+    var d = new Modulus( p1.multiply(q1) ).inverse(e);
 
     var dp = d.divide(p1).remainder,
         dq = d.divide(q1).remainder;
