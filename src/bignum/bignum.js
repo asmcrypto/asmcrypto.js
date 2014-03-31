@@ -114,7 +114,7 @@ function BigNumber_toBytes () {
         limbs = this.limbs;
 
     if ( bitlen === 0 )
-        return new uint8Array(0);
+        return new Uint8Array(0);
 
     var bytelen = ( bitlen + 7 ) >> 3,
         bytes = new Uint8Array(bytelen);

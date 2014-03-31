@@ -10,34 +10,36 @@ function RSA_generateKey ( bitlen, e ) {
 
     if ( bitlen < 512 )
         throw new IllegalArgumentError("bit length is too small");
-    if ( pow2_ceil(bitlen) !== bitlen )
-        throw new IllegalArgumentError("bit length should be a power of 2");
 
-    var limbcnt = ((bitlen>>1) + 31) >> 5;
+    var m, e, d, p, q, p1, q1, dp, dq, u;
 
-    var p = new BigNumber;
-    p.sign = 1;
-    p.bitLength = bitlen>>1;
-    p.limbs = new Uint32Array(limbcnt);
+    var pbitlen = bitlen >> 1, plimbcnt = (pbitlen + 31) >> 5, plimbs;
+
+    var qbitlen = bitlen - pbitlen, qlimbcnt = (qbitlen + 31) >> 5, qlimbs;
+
+    p = new BigNumber({ sign: 1, bitLength: pbitlen, limbs: plimbcnt }), plimbs = p.limbs;
     while ( true ) {
-        Random_getBytes(p.limbs.buffer); p.limbs[0] |= 1;
-        p.limbs[limbcnt-1] &= pow2_ceil( (bitlen>>1) & 31 ) - 1;
+        Random_getBytes(plimbs.buffer);
+        plimbs[0] |= 1;
+        plimbs[plimbcnt-1] |= 1 << ((pbitlen - 1) & 31);
+        if ( pbitlen & 31 ) plimbs[plimbcnt-1] &= pow2_ceil(pbitlen & 31) - 1;
         if ( p.isProbablePrime(100) ) break;
     }
-    var p1 = new BigNumber(p); p1.limbs[0] ^= 1;
 
-    var q = new BigNumber;
-    q.sign = 1;
-    q.bitLength = bitlen>>1;
-    q.limbs = new Uint32Array(limbcnt);
+    q = new BigNumber({ sign: 1, bitLength: qbitlen, limbs: qlimbcnt }), qlimbs = q.limbs;
     while ( true ) {
-        Random_getBytes(q.limbs.buffer); q.limbs[0] |= 1;
-        q.limbs[limbcnt-1] &= pow2_ceil( (bitlen>>1) & 31 ) - 1;
-        if ( q.isProbablePrime(100) ) break;
+        Random_getBytes(qlimbs.buffer);
+        qlimbs[0] |= 1;
+        qlimbs[qlimbcnt-1] |= 1 << ((qbitlen - 1) & 31);
+        if ( qbitlen & 31 ) qplimbs[qlimbcnt-1] &= pow2_ceil(qbitlen & 31) - 1;
+        if ( q.isProbablePrime(2) ) {
+            m = new Modulus( p.multiply(q) );
+            if ( m.splice(bitlen-1).valueOf() && q.isProbablePrime(98) ) break;
+        }
     }
-    var q1 = new BigNumber(q); q1.limbs[0] ^= 1;
 
-    var m = new Modulus( p.multiply(q) );
+    var p1 = new BigNumber(p); p1.limbs[0] ^= 1;
+    var q1 = new BigNumber(q); q1.limbs[0] ^= 1;
 
     var d = new Modulus( p1.multiply(q1) ).inverse(e);
 

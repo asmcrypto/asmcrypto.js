@@ -28,8 +28,19 @@ test( "asmCrypto.RSA.generateKey", function () {
 
     var m = new asmCrypto.Modulus( key[0] ),
         e = new asmCrypto.BigNumber( key[1] ),
-        d = new asmCrypto.BigNumber( key[2] );
-    equal( m.power( m.power( 1234567890, e ), d ).valueOf(), 1234567890, "private exponent match" );
+        d = new asmCrypto.BigNumber( key[2] ),
+        p = new asmCrypto.BigNumber( key[3] ),
+        q = new asmCrypto.BigNumber( key[4] ),
+        dp = new asmCrypto.BigNumber( key[5] ),
+        dq = new asmCrypto.BigNumber( key[6] ),
+        qi = new asmCrypto.BigNumber( key[7] );
+
+    equal( p.multiply(q).toString(16), m.toString(16), "m == p*q" );
+    equal( e.multiply(d).divide(p.subtract(1).multiply(q.subtract(1))).remainder.toString(16), '1', "e*d == 1 mod (p-1)(q-1)" );
+    equal( d.divide(p.subtract(1)).remainder.toString(16), dp.toString(16), "dp == d mod (p-1)" );
+    equal( d.divide(q.subtract(1)).remainder.toString(16), dq.toString(16), "dq == d mod (q-1)" );
+    equal( qi.multiply(q).divide(p).remainder.toString(16), '1', "qi*q == 1 mod p" );
+    equal( m.splice(m.bitLength-1).valueOf(), 1, "m highest bit is 1" );
 });
 
 /*

@@ -112,7 +112,7 @@ function RSA_decrypt ( data ) {
             y = q.power( msg, dq );
 
         var t = x.subtract(y);
-        if ( t.sign < 0 ) t = t.add(p);
+        while ( t.sign < 0 ) t = t.add(p);
 
         var h = p.reduce( u.multiply(t) );
 
