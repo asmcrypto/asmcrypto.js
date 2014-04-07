@@ -38,7 +38,7 @@ function _hmac_key ( hash, password ) {
     if ( is_buffer(password) || is_bytes(password) ) {
         key = new Uint8Array(hash.BLOCK_SIZE);
 
-        if ( password.byteLength > this.hash.BLOCK_SIZE ) {
+        if ( password.byteLength > hash.BLOCK_SIZE ) {
             key.set( new Uint8Array( hash.reset().process(password).finish().result ) );
         }
         else if ( is_buffer(password) ) {
