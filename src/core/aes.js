@@ -8,7 +8,6 @@ function _aes_constructor ( options ) {
         throw new IllegalArgumentError("heapSize must be a positive number and multiple of 4096");
 
     this.BLOCK_SIZE = _aes_block_size;
-    this.KEY_SIZE   = 16; // TODO support of 192- and 256-bit keys
 
     this.heap = options.heap || new Uint8Array(options.heapSize);
     this.asm = options.asm || aes_asm( global, null, this.heap.buffer );
@@ -45,12 +44,18 @@ function _aes_reset ( options ) {
             throw new TypeError("unexpected key type");
         }
 
-        if ( key.length !== this.KEY_SIZE )
+        if ( key.length === 16 ) {
+            this.key = key;
+            asm.init_key_128.call(asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
+        } else if ( key.length === 24 ) {
+            // TODO support of 192-bit keys
             throw new IllegalArgumentError("illegal key size");
-
-        this.key = key;
-
-        asm.init_key_128.call( asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15] );
+        } else if ( key.length === 32 ) {
+            this.key = key;
+            asm.init_key_256.call(asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15], key[16], key[17], key[18], key[19], key[20], key[21], key[22], key[23], key[24], key[25], key[26], key[27], key[28], key[29], key[30], key[31]);
+        } else {
+            throw new IllegalArgumentError("illegal key size");
+        }
     }
 
     return this;
