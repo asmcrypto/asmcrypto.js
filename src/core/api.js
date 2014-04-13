@@ -159,7 +159,7 @@ exports.AES_CCM = {
  * AES-CFB exports
  */
 
-var cfb_aes_instance = new cfb_aes_constructor( { heapSize: 0x100000 } );
+var cfb_aes_instance = new cfb_aes_constructor( { heap: cbc_aes_instance.heap, asm: cbc_aes_instance.asm } );
 
 function cfb_aes_encrypt_bytes ( data, key, padding, iv ) {
     if ( data === undefined ) throw new SyntaxError("data required");
