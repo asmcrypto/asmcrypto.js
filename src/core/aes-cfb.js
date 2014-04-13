@@ -50,7 +50,7 @@ function cfb_aes_encrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.cfb_encrypt( pos, len );
+        wlen = asm.cfb_encrypt( pos, _aes_block_size * Math.floor( len / _aes_block_size ) );
 
         result.set( heap.subarray( pos, pos+wlen ), rpos );
         rpos += wlen;
@@ -78,16 +78,9 @@ function cfb_aes_encrypt_finish () {
     var asm = this.asm,
         heap = this.heap,
         pos = this.pos,
-        len = this.len,
-        rlen = _aes_block_size * Math.ceil( len / _aes_block_size );
+        len = this.len;
 
-    var result = new Uint8Array(rlen);
-
-    if ( len < rlen ) {
-        var plen = _aes_block_size - len % _aes_block_size;
-        for ( var p = 0; p < plen; ++p ) heap[ pos + len + p ] = plen;
-        len += plen;
-    }
+    var result = new Uint8Array(len);
 
     asm.cfb_encrypt( pos, len );
 
@@ -135,7 +128,7 @@ function cfb_aes_decrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.cfb_decrypt( pos, len );
+        wlen = asm.cfb_decrypt( pos, _aes_block_size * Math.floor( len / _aes_block_size ) );
 
         result.set( heap.subarray( pos, pos+wlen ), rpos );
         rpos += wlen;
