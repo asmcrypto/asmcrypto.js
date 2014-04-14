@@ -1,1 +1,3 @@
-exports.getRandomValues = _global_crypto ? _global_crypto.getRandomValues : Random_getValues;
+exports.ISAAC = ISAAC;
+
+exports.getRandomValues = Random_getValues;
