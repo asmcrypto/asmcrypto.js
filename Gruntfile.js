@@ -29,7 +29,7 @@ module.exports = function(grunt) {
                         'src/core/hmac.js',
                         'src/core/pbkdf2.js',
                         'src/core/api.js',
-                        'src/random/random.js',
+                        'src/random/random.js', 'src/random/api.js',
                         'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/modulus.js', 'src/bignum/prime.js', 'src/bignum/api.js',
                         'src/rsa/rsa.js', 'src/rsa/genkey.js', 'src/rsa/pkcs1.js', 'src/rsa/api.js',
                     ]

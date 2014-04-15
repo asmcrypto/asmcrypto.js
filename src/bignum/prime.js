@@ -64,7 +64,7 @@ function BigNumber_isProbablePrime ( paranoia ) {
 
     paranoia >>>= 1;
     while ( --paranoia >= 0 ) {
-        Random_getBytes(a.limbs.buffer);
+        Random_getValues(a.limbs);
         if ( a.limbs[0] < 2 ) a.limbs[0] += 2;
         while ( a.compare(m1) >= 0 ) a.limbs[l] >>>= 1;
 

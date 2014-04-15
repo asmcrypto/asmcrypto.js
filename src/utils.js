@@ -75,3 +75,11 @@ function is_buffer ( a ) {
 function is_bytes ( a ) {
     return ( a instanceof Uint8Array );
 }
+
+function is_typed_array ( a ) {
+    return ( a instanceof Int8Array ) || ( a instanceof Uint8Array )
+        || ( a instanceof Int16Array ) || ( a instanceof Uint16Array )
+        || ( a instanceof Int32Array ) || ( a instanceof Uint32Array )
+        || ( a instanceof Float32Array )
+        || ( a instanceof Float64Array );
+}

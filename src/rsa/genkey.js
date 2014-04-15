@@ -19,7 +19,7 @@ function RSA_generateKey ( bitlen, e ) {
 
     p = new BigNumber({ sign: 1, bitLength: pbitlen, limbs: plimbcnt }), plimbs = p.limbs;
     while ( true ) {
-        Random_getBytes(plimbs.buffer);
+        Random_getValues(plimbs);
         plimbs[0] |= 1;
         plimbs[plimbcnt-1] |= 1 << ((pbitlen - 1) & 31);
         if ( pbitlen & 31 ) plimbs[plimbcnt-1] &= pow2_ceil(pbitlen & 31) - 1;
@@ -28,7 +28,7 @@ function RSA_generateKey ( bitlen, e ) {
 
     q = new BigNumber({ sign: 1, bitLength: qbitlen, limbs: qlimbcnt }), qlimbs = q.limbs;
     while ( true ) {
-        Random_getBytes(qlimbs.buffer);
+        Random_getValues(qlimbs);
         qlimbs[0] |= 1;
         qlimbs[qlimbcnt-1] |= 1 << ((qbitlen - 1) & 31);
         if ( qbitlen & 31 ) qplimbs[qlimbcnt-1] &= pow2_ceil(qbitlen & 31) - 1;

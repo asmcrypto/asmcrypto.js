@@ -74,7 +74,7 @@ function RSA_OAEP_encrypt ( data ) {
     data_block.set( this.hash.reset().process( this.label || '' ).finish().result, 0 );
     data_block[ hash_size + ps_length ] = 1;
 
-    Random_getBytes.call( this, seed );
+    Random_getValues(seed);
 
     var data_block_mask = RSA_MGF1_generate.call( this, seed, data_block.length );
     for ( var i = 0; i < data_block.length; i++ )
@@ -225,7 +225,7 @@ function RSA_PSS_sign ( data ) {
     m_hash.set( this.hash.reset().process(data).finish().result );
 
     if ( salt_length > 0 )
-        Random_getBytes.call( this, m_salt );
+        Random_getValues(m_salt);
 
     d_block[ps_length] = 1;
     d_salt.set(m_salt);
