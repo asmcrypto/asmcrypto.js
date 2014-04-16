@@ -1,7 +1,7 @@
-var _sha256_block_size = 64,
-    _sha256_hash_size = 32;
+var _sha512_block_size = 128,
+    _sha512_hash_size = 64;
 
-function sha256_constructor ( options ) {
+function sha512_constructor ( options ) {
     options = options || {};
     options.heapSize = options.heapSize || 4096;
 
@@ -9,15 +9,15 @@ function sha256_constructor ( options ) {
         throw new IllegalArgumentError("heapSize must be a positive number and multiple of 4096");
 
     this.heap = options.heap || new Uint8Array(options.heapSize);
-    this.asm = options.asm || sha256_asm( global, null, this.heap.buffer );
+    this.asm = options.asm || sha512_asm( global, null, this.heap.buffer );
 
-    this.BLOCK_SIZE = _sha256_block_size;
-    this.HASH_SIZE = _sha256_hash_size;
+    this.BLOCK_SIZE = _sha512_block_size;
+    this.HASH_SIZE = _sha512_hash_size;
 
     this.reset();
 }
 
-function sha256_reset () {
+function sha512_reset () {
     this.result = null;
     this.pos = 0;
     this.len = 0;
@@ -27,7 +27,7 @@ function sha256_reset () {
     return this;
 }
 
-function sha256_process ( data ) {
+function sha512_process ( data ) {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 
@@ -70,14 +70,14 @@ function sha256_process ( data ) {
     return this;
 }
 
-function sha256_finish () {
+function sha512_finish () {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 
     this.asm.finish( this.pos, this.len, 0 );
 
-    this.result = new Uint8Array(_sha256_hash_size);
-    this.result.set( this.heap.subarray( 0, _sha256_hash_size ) );
+    this.result = new Uint8Array(_sha512_hash_size);
+    this.result.set( this.heap.subarray( 0, _sha512_hash_size ) );
 
     this.pos = 0;
     this.len = 0;
@@ -85,9 +85,9 @@ function sha256_finish () {
     return this;
 }
 
-sha256_constructor.BLOCK_SIZE = _sha256_block_size;
-sha256_constructor.HASH_SIZE = _sha256_hash_size;
-var sha256_prototype = sha256_constructor.prototype;
-sha256_prototype.reset =   sha256_reset;
-sha256_prototype.process = sha256_process;
-sha256_prototype.finish =  sha256_finish;
+sha512_constructor.BLOCK_SIZE = _sha512_block_size;
+sha512_constructor.HASH_SIZE = _sha512_hash_size;
+var sha512_prototype = sha512_constructor.prototype;
+sha512_prototype.reset =   sha512_reset;
+sha512_prototype.process = sha512_process;
+sha512_prototype.finish =  sha512_finish;

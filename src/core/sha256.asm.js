@@ -565,7 +565,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
             length = ( length - hashed )|0;
         }
 
-        hashed = ( hashed + length )|0
+        hashed = ( hashed + length )|0;
         TOTAL = ( TOTAL + length )|0;
 
         HEAP[offset|length] = 0x80;
@@ -586,7 +586,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
 
         HEAP[offset|59] = TOTAL>>>29;
         HEAP[offset|60] = TOTAL>>>21&255;
-        HEAP[offset|61] = TOTAL>>>13&255
+        HEAP[offset|61] = TOTAL>>>13&255;
         HEAP[offset|62] = TOTAL>>>5&255;
         HEAP[offset|63] = TOTAL<<3&255;
         _core_heap(offset);
@@ -736,7 +736,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         offset = offset|0;
         length = length|0;
         block = block|0;
-        count = count|0
+        count = count|0;
         output = output|0;
 
         var h0 = 0, h1 = 0, h2 = 0, h3 = 0, h4 = 0, h5 = 0, h6 = 0, h7 = 0,
