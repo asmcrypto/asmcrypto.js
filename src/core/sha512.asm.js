@@ -50,7 +50,7 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         w15l = w15l|0;
 
         var ah = 0, al = 0, bh = 0, bl = 0, ch = 0, cl = 0, dh = 0, dl = 0, eh = 0, el = 0, fh = 0, fl = 0, gh = 0, gl = 0, hh = 0, hl = 0,
-            th = 0, tl = 0, xh = 0, xl = 0;
+            th = 0, tl = 0, xl = 0;
 
         ah = H0h;
         al = H0l;
