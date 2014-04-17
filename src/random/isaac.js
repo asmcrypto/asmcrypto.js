@@ -44,7 +44,9 @@ var ISAAC = ( function () {
         cnt = 0,              // counter
         gnt = 0;              // generation counter
 
-    seed( Math.random() * 0x100000000 );
+    var s = new Uint32Array(256);
+    for ( var i = 0; i < s.length; i++ ) s[i] = Math.random() * 0x100000000;
+    seed(s);
 
     /* public: initialisation */
     function reset() {
@@ -59,16 +61,21 @@ var ISAAC = ( function () {
 
         a = b = c = d = e = f = g = h = 0x9e3779b9; // the golden ratio
 
-        if ( is_number(s) ) {
-            s = new Uint32Array(2);
-            s[0] = ( s / 0x100000000 ) | 0;
-            s[1] = s | 0;
-        }
-        else if ( is_string(s) ) {
-            s = string_to_bytes(s);
-        }
-        else {
-            throw new TypeError();
+        if ( !is_typed_array(s) ) {
+            if ( is_number(s) ) {
+                s = new Uint32Array(2);
+                s[0] = ( s / 0x100000000 ) | 0;
+                s[1] = s | 0;
+            }
+            else if ( is_string(s) ) {
+                s = string_to_bytes(s);
+            }
+            else if ( is_buffer(s) || s instanceof Array ) {
+                s = new Uint8Array(s);
+            }
+            else {
+                throw new TypeError("bad seed type");
+            }
         }
 
         reset();
