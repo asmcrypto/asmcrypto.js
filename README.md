@@ -20,24 +20,33 @@ Index
 * [API Reference](#api-reference)
     * [Message Digest](#sha256)
         * [SHA256](#sha256)
+        * [SHA512](#sha512)
     * [Hash-based Message Authentication](#hmac)
         * [HMAC-SHA256](#hmac_sha256)
+        * [HMAC-SHA512](#hmac_sha512)
     * [Password-based Key Derivation](#pbkdf2)
         * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
+        * [PBKDF2-HMAC-SHA512](#pbkdf2_hmac_sha512)
     * [Block Cipher](#aes)
-        * [AES](#aes)
+        * [AES-CBC](#aes_cbc)
+        * [AES-CFB](#aes_cfb)
+        * [AES-CCM](#aes_ccm)
     * [Asymmetric encryption](#rsa)
         * [RSA](#rsa)
+        * [RSA-OAEP-SHA256](#rsa_oaep_sha256)
+        * [RSA-OAEP-SHA512](#rsa_oaep_sha256)
+        * [RSA-PSS-SHA256](#rsa_pss_sha512)
+        * [RSA-PSS-SHA512](#rsa_pss_sha512)
 * [Bugs & TODO](#bugs--todo)
 * [Donate](#donate)
 
 Download
 --------
 
-* [Minified JS file](http://vibornoff.com/asmcrypto.js) 140KB,
-* [Minified-and-gzipped JS file](http://vibornoff.com/asmcrypto.js.gz) 40KB,
-* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 244KB,
-* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 116KB.
+* [Minified JS file](http://vibornoff.com/asmcrypto.js) 240KB,
+* [Minified-and-gzipped JS file](http://vibornoff.com/asmcrypto.js.gz) 45KB,
+* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 430KB,
+* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 170KB.
 
 Build & Test
 ------------
@@ -82,15 +91,28 @@ See benchmarks:
 API Reference
 -------------
 
-### SHA256
+### SHA2
 
-[Secure Hash Algorithm](http://en.wikipedia.org/wiki/SHA-2) — a cryptographic hash function with 256-bit output.
+[Secure Hash Algorithm](http://en.wikipedia.org/wiki/SHA-2) — a cryptographic hash functions family.
 
-#### SHA256.BLOCK_SIZE = 64
+#### SHA256
 
-#### SHA256.HASH_SIZE = 32
+A cryptographic hash fuction with 256-bit output.
 
-#### SHA256.hex( data )
+##### SHA256.BLOCK_SIZE = 64
+
+##### SHA256.HASH_SIZE = 32
+
+##### SHA256.bytes( data )
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns raw message digest as an `Uint8Array` object.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### SHA256.hex( data )
 
 Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
 
@@ -99,7 +121,42 @@ Returns a string containing hex-encoded message digest.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-#### SHA256.base64( data )
+##### SHA256.base64( data )
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns a string containing hex-encoded message digest.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+#### SHA512
+
+A cryptographic hash function with 512-bit output.
+
+##### SHA512.BLOCK_SIZE = 128
+
+##### SHA512.HASH_SIZE = 64
+
+##### SHA512.bytes( data )
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns raw message digest as an `Uint8Array` object.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### SHA512.hex( data )
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns a string containing hex-encoded message digest.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### SHA512.base64( data )
 
 Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
 
@@ -115,11 +172,22 @@ Throws
 Used to calculate message authentication code with a cryptographic hash function
 in combination with a secret cryptographic key.
 
-#### HMAC_SHA256.BLOCK_SIZE = 64
+#### HMAC_SHA256
 
-#### HMAC_SHA256.HMAC_SIZE = 32
+##### HMAC_SHA256.BLOCK_SIZE = 64
 
-#### HMAC_SHA256.hex( password, data )
+##### HMAC_SHA256.HMAC_SIZE = 32
+
+##### HMAC_SHA256.bytes( password, data )
+
+Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns araw message authentication code as an `Uint8Array` object.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### HMAC_SHA256.hex( password, data )
 
 Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -128,9 +196,42 @@ Returns a string containing hex-encoded message authentication code.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-#### HMAC_SHA256.base64( password, data )
+##### HMAC_SHA256.base64( password, data )
 
 Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns a string containing base64-encoded message authentication code.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+#### HMAC_SHA512
+
+##### HMAC_SHA512.BLOCK_SIZE = 128
+
+##### HMAC_SHA512.HMAC_SIZE = 64
+
+##### HMAC_SHA512.bytes( password, data )
+
+Calculates HMAC-SHA512 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns araw message authentication code as an `Uint8Array` object.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### HMAC_SHA512.hex( password, data )
+
+Calculates HMAC-SHA512 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns a string containing hex-encoded message authentication code.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### HMAC_SHA512.base64( password, data )
+
+Calculates HMAC-SHA512 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
 Returns a string containing base64-encoded message authentication code.
 
@@ -144,7 +245,9 @@ Throws
 Applies a cryptographic hash function to the input password or passphrase along with a salt value and repeats the process many times to produce a derived key,
 which can then be used as a cryptographic key in subsequent operations. The added computational work makes password cracking much more difficult.
 
-#### PBKDF2_HMAC_SHA256.bytes( password, salt, iterations, dklen )
+#### PBKDF2_HMAC_SHA526
+
+##### PBKDF2_HMAC_SHA256.bytes( password, salt, iterations, dklen )
 
 Derive key from the `password` with `salt`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -153,11 +256,30 @@ Optional `iterations` (number of key derivatoin rounds) and `dklen` (desired key
 Throws
 * `TypeError`.
 
-#### PBKDF2_HMAC_SHA256.hex( password, salt, iterations, dklen )
+##### PBKDF2_HMAC_SHA256.hex( password, salt, iterations, dklen )
 
 The same as above except returning value type.
 
-#### PBKDF2_HMAC_SHA256.base64( password, salt, iterations, dklen )
+##### PBKDF2_HMAC_SHA256.base64( password, salt, iterations, dklen )
+
+The same as above except returning value type.
+
+#### PBKDF2_HMAC_SHA512
+
+##### PBKDF2_HMAC_SHA512.bytes( password, salt, iterations, dklen )
+
+Derive key from the `password` with `salt`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Optional `iterations` (number of key derivatoin rounds) and `dklen` (desired key length) may be supplied.
+
+Throws
+* `TypeError`.
+
+##### PBKDF2_HMAC_SHA512.hex( password, salt, iterations, dklen )
+
+The same as above except returning value type.
+
+##### PBKDF2_HMAC_SHA512.base64( password, salt, iterations, dklen )
 
 The same as above except returning value type.
 
@@ -169,8 +291,8 @@ Advanced Encryption Standard
 
 #### AES_CBC
 
-Cipher block chaining mode.
-
+Cipher Block Chaining Mode.
+s
 ##### AES_CBC.encrypt( data, key, padding, iv )
 
 Encrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
@@ -182,6 +304,26 @@ Returns encrypted data as `Uint8Array`.
 ##### AES_CBC.decrypt( data, key, padding, iv )
 
 Decrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
+
+Returns encrypted data as `Uint8Array`.
+
+#### AES_CFB
+
+Cipher Feedback Mode.
+
+##### AES_CFB.encrypt( data, key, padding, iv )
+
+Encrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
+
+Returns encrypted data as `Uint8Array`.
+
+##### AES_CFB.decrypt( data, key, padding, iv )
+
+Decrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
 Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
 
@@ -220,19 +362,43 @@ Generate RSA private key of `bitlen` length along with the public exponent `pube
 
 Run 50 rounds of Miller-Rabin test for each prime candidate.
 
-#### RSA_OAEP_SHA256.encrypt( data, key, label )
+#### RSA_OAEP_SHA256
+
+##### RSA_OAEP_SHA256.encrypt( data, key, label )
 
 TODO
 
-#### RSA_OAEP_SHA256.decrypt( data, key, label )
+##### RSA_OAEP_SHA256.decrypt( data, key, label )
 
 TODO
 
-#### RSA_PSS_SHA256.sign( data, key, slen )
+#### RSA_OAEP_SHA512
+
+##### RSA_OAEP_SHA512.encrypt( data, key, label )
 
 TODO
 
-#### RSA_PSS_SHA256.verify( signature, data, key, slen )
+##### RSA_OAEP_SHA512.decrypt( data, key, label )
+
+TODO
+
+#### RSA_PSS_SHA256
+
+##### RSA_PSS_SHA256.sign( data, key, slen )
+
+TODO
+
+##### RSA_PSS_SHA256.verify( signature, data, key, slen )
+
+TODO
+
+#### RSA_PSS_SHA512
+
+##### RSA_PSS_SHA512.sign( data, key, slen )
+
+TODO
+
+##### RSA_PSS_SHA512.verify( signature, data, key, slen )
 
 TODO
 
