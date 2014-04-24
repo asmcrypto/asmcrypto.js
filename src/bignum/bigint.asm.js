@@ -1,7 +1,9 @@
 // imul polyfill for IE
 if ( global.Math.imul === undefined ) {
     global.Math.imul = function imul_polyfill ( a, b ) {
-        return ( (a>>>0) * (b>>>0) )|0;
+        var ah = a >>> 16, al = a & 0xffff, bh = b >>> 16, bl = b & 0xffff;
+        a = al * bl | 0, b = ( al * bh & 0xffff ) + ( ah * bl & 0xffff ) + ( a >>> 16 ) | 0;
+        return ( a & 0xffff ) | ( b << 16 );
     }
 }
 

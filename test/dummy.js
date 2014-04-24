@@ -87,3 +87,7 @@ test( "divide with remainder", function () {
     equal( ((qh<<16)|ql)>>>0, q0, "quotient ok" );
     equal( n0>>>0, r0, "remainder ok" );
 });
+
+test( "imul", function () {
+    equal( Math.imul(-338592732,968756475)|0, 787375948, "imul works fine" );
+});
