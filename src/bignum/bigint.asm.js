@@ -148,7 +148,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         }
 
         for ( ; (i|0) >= 0; i = (i-4)|0 ) {
-            a = HEAP32[(A+i)>>2]>>>0, b = HEAP32[(B+i)>>2]>>>0;
+            a = HEAP32[(A+i)>>2]|0, b = HEAP32[(B+i)>>2]|0;
             if ( (a>>>0) < (b>>>0) ) return -1;
             if ( (a>>>0) > (b>>>0) ) return 1;
         }
