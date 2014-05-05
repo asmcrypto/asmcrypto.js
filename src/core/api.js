@@ -21,6 +21,34 @@ exports.bytes_to_base64 = bytes_to_base64;
  * SHA256 exports
  */
 
+var SHA1_instance = new sha1_constructor( { heapSize: 0x100000 } );
+
+function sha1_bytes ( data ) {
+    if ( data === undefined ) throw new SyntaxError("data required");
+    return SHA1_instance.reset().process(data).finish().result;
+}
+
+function sha1_hex ( data ) {
+    var result = sha1_bytes(data);
+    return bytes_to_hex(result);
+}
+
+function sha1_base64 ( data ) {
+    var result = sha1_bytes(data);
+    return bytes_to_base64(result);
+}
+
+exports.SHA1 = {
+    bytes: sha1_bytes,
+    hex: sha1_hex,
+    base64: sha1_base64
+};
+
+
+/**
+ * SHA256 exports
+ */
+
 var SHA256_instance = new sha256_constructor( { heapSize: 0x100000 } );
 
 function sha256_bytes ( data ) {
@@ -72,6 +100,35 @@ exports.SHA512 = {
 };
 
 /**
+ * HMAC-SHA1 exports
+ */
+
+var hmac_sha1_instance = new hmac_sha1_constructor( { hash: SHA1_instance } );
+
+function hmac_sha1_bytes ( data, password ) {
+    if ( data === undefined ) throw new SyntaxError("data required");
+    if ( password === undefined ) throw new SyntaxError("password required");
+    return hmac_sha1_instance.reset( { password: password } ).process(data).finish().result;
+}
+
+function hmac_sha1_hex ( data, password ) {
+    var result = hmac_sha1_bytes( data, password );
+    return bytes_to_hex(result);
+}
+
+function hmac_sha1_base64 ( data, password ) {
+    var result = hmac_sha1_bytes( data, password );
+    return bytes_to_base64(result);
+}
+
+exports.HMAC =
+exports.HMAC_SHA1 = {
+    bytes: hmac_sha1_bytes,
+    hex: hmac_sha1_hex,
+    base64: hmac_sha1_base64
+};
+
+/**
  * HMAC-SHA256 exports
  */
 
@@ -93,7 +150,6 @@ function hmac_sha256_base64 ( data, password ) {
     return bytes_to_base64(result);
 }
 
-exports.HMAC =
 exports.HMAC_SHA256 = {
     bytes: hmac_sha256_bytes,
     hex: hmac_sha256_hex,
@@ -129,6 +185,34 @@ exports.HMAC_SHA512 = {
 };
 
 /**
+ * PBKDF2-HMAC-SHA1 exports
+ */
+var pbkdf2_hmac_sha1_instance = new pbkdf2_hmac_sha1_constructor( { hmac: hmac_sha1_instance } );
+
+function pbkdf2_hmac_sha1_bytes ( password, salt, iterations, dklen ) {
+    if ( password === undefined ) throw new SyntaxError("password required");
+    if ( salt === undefined ) throw new SyntaxError("salt required");
+    return pbkdf2_hmac_sha1_instance.reset( { password: password } ).generate( salt, iterations, dklen ).result;
+}
+
+function pbkdf2_hmac_sha1_hex ( password, salt, iterations, dklen ) {
+    var result = pbkdf2_hmac_sha1_bytes( password, salt, iterations, dklen );
+    return bytes_to_hex(result);
+}
+
+function pbkdf2_hmac_sha1_base64 ( password, salt, iterations, dklen ) {
+    var result = pbkdf2_hmac_sha1_bytes( password, salt, iterations, dklen );
+    return bytes_to_base64(result);
+}
+
+exports.PBKDF2 =
+exports.PBKDF2_HMAC_SHA1 = {
+    bytes: pbkdf2_hmac_sha1_bytes,
+    hex: pbkdf2_hmac_sha1_hex,
+    base64: pbkdf2_hmac_sha1_base64
+};
+
+/**
  * PBKDF2-HMAC-SHA256 exports
  */
 
@@ -150,7 +234,6 @@ function pbkdf2_hmac_sha256_base64 ( password, salt, iterations, dklen ) {
     return bytes_to_base64(result);
 }
 
-exports.PBKDF2 =
 exports.PBKDF2_HMAC_SHA256 = {
     bytes: pbkdf2_hmac_sha256_bytes,
     hex: pbkdf2_hmac_sha256_hex,
