@@ -19,12 +19,15 @@ Index
 * [Performance](#performance)
 * [API Reference](#api-reference)
     * [Message Digest](#sha256)
+        * [SHA1](#sha1)
         * [SHA256](#sha256)
         * [SHA512](#sha512)
     * [Hash-based Message Authentication](#hmac)
+        * [HMAC-SHA1](#hmac_sha1)
         * [HMAC-SHA256](#hmac_sha256)
         * [HMAC-SHA512](#hmac_sha512)
     * [Password-based Key Derivation](#pbkdf2)
+        * [PBKDF2-HMAC-SHA1](#pbkdf2_hmac_sha1)
         * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
         * [PBKDF2-HMAC-SHA512](#pbkdf2_hmac_sha512)
     * [Block Cipher](#aes)
@@ -37,6 +40,7 @@ Index
         * [RSA-OAEP-SHA512](#rsa_oaep_sha256)
         * [RSA-PSS-SHA256](#rsa_pss_sha512)
         * [RSA-PSS-SHA512](#rsa_pss_sha512)
+    * [Cryptographically secure pseudorandom number generator](#cryptographically_secure_pseudorandom_number_generator)
 * [Bugs & TODO](#bugs--todo)
 * [Donate](#donate)
 
@@ -91,11 +95,48 @@ See benchmarks:
 API Reference
 -------------
 
-### SHA2
+### Message Digest
 
-[Secure Hash Algorithm](http://en.wikipedia.org/wiki/SHA-2) — a cryptographic hash functions family.
+#### SHA1
+
+[Secure Hash Algorithm](http://en.wikipedia.org/wiki/SHA-1) — a cryptographic hash function with 160-bit output.
+
+A cryptographic hash fuction with 256-bit output.
+
+##### SHA1.BLOCK_SIZE = 64
+
+##### SHA1.HASH_SIZE = 20
+
+##### SHA1.bytes( data )
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns raw message digest as an `Uint8Array` object.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### SHA1.hex( data )
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns a string containing hex-encoded message digest.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### SHA1.base64( data )
+
+Calculates message digest of the supplied input `data` (can be a binary string or `ArrayBuffer`/`Uint8Array` object).
+
+Returns a string containing hex-encoded message digest.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
 
 #### SHA256
+
+[Secure Hash Algorithm](http://en.wikipedia.org/wiki/SHA-2) — a cryptographic hash functions family.
 
 A cryptographic hash fuction with 256-bit output.
 
@@ -172,6 +213,39 @@ Throws
 Used to calculate message authentication code with a cryptographic hash function
 in combination with a secret cryptographic key.
 
+#### HMAC_SHA1
+
+##### HMAC_SHA1.BLOCK_SIZE = 64
+
+##### HMAC_SHA1.HMAC_SIZE = 20
+
+##### HMAC_SHA1.bytes( password, data )
+
+Calculates HMAC-SHA1 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns araw message authentication code as an `Uint8Array` object.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### HMAC_SHA1.hex( password, data )
+
+Calculates HMAC-SHA1 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns a string containing hex-encoded message authentication code.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
+##### HMAC_SHA1.base64( password, data )
+
+Calculates HMAC-SHA1 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Returns a string containing base64-encoded message authentication code.
+
+Throws
+* `TypeError` when something ridiculous is supplied as input data.
+
 #### HMAC_SHA256
 
 ##### HMAC_SHA256.BLOCK_SIZE = 64
@@ -244,6 +318,25 @@ Throws
 
 Applies a cryptographic hash function to the input password or passphrase along with a salt value and repeats the process many times to produce a derived key,
 which can then be used as a cryptographic key in subsequent operations. The added computational work makes password cracking much more difficult.
+
+#### PBKDF2_HMAC_SHA1
+
+##### PBKDF2_HMAC_SHA1.bytes( password, salt, iterations, dklen )
+
+Derive key from the `password` with `salt`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
+
+Optional `iterations` (number of key derivatoin rounds) and `dklen` (desired key length) may be supplied.
+
+Throws
+* `TypeError`.
+
+##### PBKDF2_HMAC_SHA1.hex( password, salt, iterations, dklen )
+
+The same as above except returning value type.
+
+##### PBKDF2_HMAC_SHA1.base64( password, salt, iterations, dklen )
+
+The same as above except returning value type.
 
 #### PBKDF2_HMAC_SHA526
 
@@ -402,6 +495,10 @@ TODO
 
 TODO
 
+### Cryptographically secure pseudorandom number generator
+
+TODO
+
 Bugs & TODO
 -----------
 
@@ -410,9 +507,9 @@ Bugs & TODO
 
 Not yet implemented:
 * aes-gcm,
-* sha1,
 * scrypt,
-* dsa, ecdsa.
+* dsa, ecdsa,
+* rsa-pkcs-v1.5
 
 Donate
 ------
