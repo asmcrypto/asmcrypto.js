@@ -25,7 +25,7 @@ module.exports = function(grunt) {
                         'src/utils.js',
                         'src/core/errors.js',
                         'src/core/aes.asm.js', 'src/core/aes.js', 'src/core/aes-cbc.js', 'src/core/aes-ccm.js', 'src/core/aes-cfb.js',
-                        'src/core/sha256.asm.js', 'src/core/sha256.js', 'src/core/sha512.asm.js', 'src/core/sha512.js',
+                        'src/core/sha1.asm.js', 'src/core/sha1.js', 'src/core/sha256.asm.js', 'src/core/sha256.js', 'src/core/sha512.asm.js', 'src/core/sha512.js',
                         'src/core/hmac.js',
                         'src/core/pbkdf2.js',
                         'src/core/api.js',
