@@ -40,7 +40,7 @@ Index
         * [RSA-OAEP-SHA512](#rsa_oaep_sha256)
         * [RSA-PSS-SHA256](#rsa_pss_sha512)
         * [RSA-PSS-SHA512](#rsa_pss_sha512)
-    * [Cryptographically secure pseudorandom number generator](#cryptographically_secure_pseudorandom_number_generator)
+    * [Cryptographically secure pseudorandom number generator](#cryptographically-secure-pseudorandom-number-generator)
 * [Bugs & TODO](#bugs--todo)
 * [Donate](#donate)
 
