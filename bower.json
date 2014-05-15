@@ -1,0 +1,24 @@
+{
+  "name": "asmcrypto",
+  "main": "asmcrypto.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "test",
+    "test.html",
+    "Gruntfile.js",
+    "package.json"
+  ],
+  "keywords": [
+    "crypto",
+    "asmcrypto",
+    "webcrypto",
+    "library",
+    "sha", "sha1", "sha256", "sha512",
+    "hmac",
+    "pbkdf", "pbkdf2",
+    "aes", "aes256", "cbc", "ccm", "cfb",
+    "rsa", "oaep", "pss", "pkcs"
+  ]
+}
