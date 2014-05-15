@@ -57,32 +57,12 @@ var ISAAC = ( function () {
 
     /* public: seeding function */
     function seed ( s ) {
-        var a, b, c, d, e, f, g, h, i;
+        var a, b, c, d, e, f, g, h, i, n;
 
-        a = b = c = d = e = f = g = h = 0x9e3779b9; // the golden ratio
+        // the golden ratio
+        a = b = c = d = e = f = g = h = 0x9e3779b9;
 
-        if ( !is_typed_array(s) ) {
-            if ( is_number(s) ) {
-                s = new Uint32Array(2);
-                s[0] = ( s / 0x100000000 ) | 0;
-                s[1] = s | 0;
-            }
-            else if ( is_string(s) ) {
-                s = string_to_bytes(s);
-            }
-            else if ( is_buffer(s) || s instanceof Array ) {
-                s = new Uint8Array(s);
-            }
-            else {
-                throw new TypeError("bad seed type");
-            }
-        }
-
-        reset();
-        for ( i = 0; i < s.length; i++ ) {
-            r[i & 0xff] += s[i];
-        }
-
+        // scramble it
         for ( i = 0; i < 4; i++ ) {
             a ^= b <<  11; d = (d + a)|0; b = (b + c)|0;
             b ^= c >>>  2; e = (e + b)|0; c = (c + d)|0;
@@ -94,6 +74,43 @@ var ISAAC = ( function () {
             h ^= a >>>  9; c = (c + h)|0; a = (a + b)|0;
         }
 
+        if ( !is_typed_array(s) ) {
+            if ( is_number(s) ) {
+                n = s, s = new Uint8Array(7), i = 0;
+                for ( i = 0; i < s.length; i++ ) {
+                    s[i] = n;
+                    n /= 256;
+                }
+            }
+            else if ( is_string(s) ) {
+                s = string_to_bytes(s);
+            }
+            else if ( is_buffer(s) ) {
+                s = new Uint8Array(s);
+            }
+            else {
+                throw new TypeError("bad seed type");
+            }
+        }
+        else {
+            s = new Uint8Array(s.buffer);
+        }
+
+        reset();
+
+        // compress the seed
+        for ( i = 0, n = 0; i < s.length; i++ ) {
+            n <<= 4, n |= s[i];
+            if ( (i & 3) !== 3 ) continue;
+            r[(i >> 2) & 255] ^= n;
+            n = 0;
+        }
+        if ( (i & 3) !== 0 ) {
+            r[(i >> 2) & 255] ^= n;
+            n = 0;
+        }
+
+        // mix it
         for ( i = 0; i < 256; i += 8 ) {
             a = (a + r[i|0])|0; b = (b + r[i|1])|0;
             c = (c + r[i|2])|0; d = (d + r[i|3])|0;
@@ -119,6 +136,7 @@ var ISAAC = ( function () {
             m[i|7] = h;
         }
 
+        // mix it again
         for ( i = 0; i < 256; i += 8 ) {
             a = (a + m[i|0])|0; b = (b + m[i|1])|0;
             c = (c + m[i|2])|0; d = (d + m[i|3])|0;
@@ -144,7 +162,8 @@ var ISAAC = ( function () {
             m[i|7] = h;
         }
 
-        prng(1), gnt = 256; // fill in the first set of results
+        // fill in the first set of results
+        prng(1), gnt = 256;
     }
 
     /* public: isaac generator, n = number of run */
