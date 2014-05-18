@@ -39,21 +39,11 @@
 var ISAAC = ( function () {
     var m = new Uint32Array(256), // internal memory
         r = new Uint32Array(256), // result array
+        z = new Uint32Array(256), // zero vector
         acc = 0,              // accumulator
         brs = 0,              // last result
         cnt = 0,              // counter
         gnt = 0;              // generation counter
-
-    var s = new Uint32Array(256);
-    for ( var i = 0; i < s.length; i++ ) s[i] = Math.random() * 0x100000000;
-    seed(s);
-
-    /* public: initialisation */
-    function reset() {
-        acc = brs = cnt = gnt = 0;
-        for( var i = 0; i < 256; ++i )
-            m[i] = r[i] = 0;
-    }
 
     /* public: seeding function */
     function seed ( s ) {
@@ -81,10 +71,13 @@ var ISAAC = ( function () {
             s = new Uint8Array(s.buffer);
         }
 
-        reset();
+        // reset
+        acc = brs = cnt = gnt = 0;
+        m.set(z);
 
-        // compress the seed
+        // preprocess the seed
         l = s.length;
+        if ( l === 0 ) s = z, l = 1;
         for ( j = 0; j < l; j += 1024 )
         {
             // process seed chunk, pad with zeros up to 1024 octets
@@ -209,7 +202,6 @@ var ISAAC = ( function () {
 
     /* return class object */
     return {
-        'reset': reset,
         'seed':  seed,
         'prng':  prng,
         'rand':  rand
