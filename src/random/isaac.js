@@ -49,6 +49,18 @@ var ISAAC = ( function () {
     function seed ( s ) {
         var a, b, c, d, e, f, g, h, i, j, k, n, l;
 
+        /* private mixing function */
+        function mix () {
+            a ^= b <<  11; d = (d + a)|0; b = (b + c)|0;
+            b ^= c >>>  2; e = (e + b)|0; c = (c + d)|0;
+            c ^= d <<   8; f = (f + c)|0; d = (d + e)|0;
+            d ^= e >>> 16; g = (g + d)|0; e = (e + f)|0;
+            e ^= f <<  10; h = (h + e)|0; f = (f + g)|0;
+            f ^= g >>>  4; a = (a + f)|0; g = (g + h)|0;
+            g ^= h <<   8; b = (b + g)|0; h = (h + a)|0;
+            h ^= a >>>  9; c = (c + h)|0; a = (a + b)|0;
+        }
+
         if ( !is_typed_array(s) ) {
             if ( is_number(s) ) {
                 n = s, s = new Uint8Array(7), i = 0;
@@ -81,25 +93,19 @@ var ISAAC = ( function () {
         for ( j = 0; j < l; j += 1024 )
         {
             // process seed chunk, pad with zeros up to 1024 octets
-            for ( k = j, i = 0; i < 1024; k = j + (++i) | 0 ) {
-                n <<= 4, n |= (k < l) ? s[k] : 0;
-                r[(k >> 2) & 255] = n, n = 0;
+            r.set(z);
+            for ( k = j, i = 0; ( i < 1024 ) && ( k < l ); k = j | (++i) ) {
+                n = r[(k >> 2) & 255];
+                n <<= 4, n |= s[k];
+                r[(k >> 2) & 255] = n;
             }
 
             // the golden ratio
             a = b = c = d = e = f = g = h = 0x9e3779b9;
 
             // scramble it
-            for ( i = 0; i < 4; i++ ) {
-                a ^= b <<  11; d = (d + a)|0; b = (b + c)|0;
-                b ^= c >>>  2; e = (e + b)|0; c = (c + d)|0;
-                c ^= d <<   8; f = (f + c)|0; d = (d + e)|0;
-                d ^= e >>> 16; g = (g + d)|0; e = (e + f)|0;
-                e ^= f <<  10; h = (h + e)|0; f = (f + g)|0;
-                f ^= g >>>  4; a = (a + f)|0; g = (g + h)|0;
-                g ^= h <<   8; b = (b + g)|0; h = (h + a)|0;
-                h ^= a >>>  9; c = (c + h)|0; a = (a + b)|0;
-            }
+            for ( i = 0; i < 4; i++ )
+                mix();
 
             // mix it and combine with the internal state
             for ( i = 0; i < 256; i += 8 ) {
@@ -108,15 +114,9 @@ var ISAAC = ( function () {
                 e = (e + r[i|4])|0; f = (f + r[i|5])|0;
                 g = (g + r[i|6])|0; h = (h + r[i|7])|0;
 
-                a ^= b <<  11; d = (d + a)|0; b = (b + c)|0;
-                b ^= c >>>  2; e = (e + b)|0; c = (c + d)|0;
-                c ^= d <<   8; f = (f + c)|0; d = (d + e)|0;
-                d ^= e >>> 16; g = (g + d)|0; e = (e + f)|0;
-                e ^= f <<  10; h = (h + e)|0; f = (f + g)|0;
-                f ^= g >>>  4; a = (a + f)|0; g = (g + h)|0;
-                g ^= h <<   8; b = (b + g)|0; h = (h + a)|0;
-                h ^= a >>>  9; c = (c + h)|0; a = (a + b)|0;
+                mix();
 
+                // chain with previously mixed chunk
                 m[i|0] ^= a,
                 m[i|1] ^= b,
                 m[i|2] ^= c,
@@ -134,14 +134,7 @@ var ISAAC = ( function () {
                 e = (e + m[i|4])|0; f = (f + m[i|5])|0;
                 g = (g + m[i|6])|0; h = (h + m[i|7])|0;
 
-                a ^= b <<  11; d = (d + a)|0; b = (b + c)|0;
-                b ^= c >>>  2; e = (e + b)|0; c = (c + d)|0;
-                c ^= d <<   8; f = (f + c)|0; d = (d + e)|0;
-                d ^= e >>> 16; g = (g + d)|0; e = (e + f)|0;
-                e ^= f <<  10; h = (h + e)|0; f = (f + g)|0;
-                f ^= g >>>  4; a = (a + f)|0; g = (g + h)|0;
-                g ^= h <<   8; b = (b + g)|0; h = (h + a)|0;
-                h ^= a >>>  9; c = (c + h)|0; a = (a + b)|0;
+                mix();
 
                 m[i|0] = a,
                 m[i|1] = b,
