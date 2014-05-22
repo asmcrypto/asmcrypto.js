@@ -39,7 +39,6 @@
 var ISAAC = ( function () {
     var m = new Uint32Array(256), // internal memory
         r = new Uint32Array(256), // result array
-        z = new Uint32Array(256), // zero vector
         acc = 0,              // accumulator
         brs = 0,              // last result
         cnt = 0,              // counter
@@ -80,17 +79,11 @@ var ISAAC = ( function () {
             s = new Uint8Array(s.buffer);
         }
 
-        // reset
-        acc = brs = cnt = gnt = 0;
-        m.set(z);
-
         // preprocess the seed
         l = s.length;
-        if ( l === 0 ) s = z, l = 1;
         for ( j = 0; j < l; j += 1024 )
         {
             // process seed chunk, pad with zeros up to 1024 octets
-            r.set(z);
             for ( k = j, i = 0; ( i < 1024 ) && ( k < l ); k = j | (++i) ) {
                 n = r[(k >> 2) & 255];
                 n <<= 8, n |= s[k];
