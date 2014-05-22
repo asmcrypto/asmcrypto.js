@@ -44,9 +44,9 @@ var ISAAC = ( function () {
         cnt = 0,              // counter
         gnt = 0;              // generation counter
 
-    /* public: seeding function */
-    function seed ( s ) {
-        var a, b, c, d, e, f, g, h, i, j, k, n, l;
+    /* private: randinit function, same as ISAAC reference implementation */
+    function randinit() {
+        var a, b, c, d, e, f, g, h;
 
         /* private mixing function */
         function mix () {
@@ -59,6 +59,41 @@ var ISAAC = ( function () {
             g ^= h <<   8; b = (b + g)|0; h = (h + a)|0;
             h ^= a >>>  9; c = (c + h)|0; a = (a + b)|0;
         }
+
+        // the golden ratio
+        a = b = c = d = e = f = g = h = 0x9e3779b9;
+
+        // scramble it
+        for ( var i = 0; i < 4; i++ )
+            mix();
+
+        // mix it and combine with the internal state
+        for ( var i = 0; i < 256; i += 8 ) {
+            a = (a + r[i|0])|0; b = (b + r[i|1])|0;
+            c = (c + r[i|2])|0; d = (d + r[i|3])|0;
+            e = (e + r[i|4])|0; f = (f + r[i|5])|0;
+            g = (g + r[i|6])|0; h = (h + r[i|7])|0;
+            mix();
+            m.set([a, b, c, d, e, f, g, h], i);
+        }
+
+        // mix it again
+        for ( var i = 0; i < 256; i += 8 ) {
+            a = (a + m[i|0])|0; b = (b + m[i|1])|0;
+            c = (c + m[i|2])|0; d = (d + m[i|3])|0;
+            e = (e + m[i|4])|0; f = (f + m[i|5])|0;
+            g = (g + m[i|6])|0; h = (h + m[i|7])|0;
+            mix();
+            m.set([a, b, c, d, e, f, g, h], i);
+        }
+
+        // fill in the first set of results
+        prng(1), gnt = 256;
+    }
+
+    /* public: seeding function */
+    function seed ( s ) {
+        var i, j, k, n, l;
 
         if ( !is_typed_array(s) ) {
             if ( is_number(s) ) {
@@ -87,58 +122,10 @@ var ISAAC = ( function () {
             for ( k = j, i = 0; ( i < 1024 ) && ( k < l ); k = j | (++i) ) {
                 n = r[(k >> 2) & 255];
                 n <<= 8, n |= s[k];
-                r[(k >> 2) & 255] = n;
+                r[(k >> 2) & 255] ^= n;
             }
-
-            // the golden ratio
-            a = b = c = d = e = f = g = h = 0x9e3779b9;
-
-            // scramble it
-            for ( i = 0; i < 4; i++ )
-                mix();
-
-            // mix it and combine with the internal state
-            for ( i = 0; i < 256; i += 8 ) {
-                a = (a + r[i|0])|0; b = (b + r[i|1])|0;
-                c = (c + r[i|2])|0; d = (d + r[i|3])|0;
-                e = (e + r[i|4])|0; f = (f + r[i|5])|0;
-                g = (g + r[i|6])|0; h = (h + r[i|7])|0;
-
-                mix();
-
-                // chain with previously mixed chunk
-                m[i|0] ^= a,
-                m[i|1] ^= b,
-                m[i|2] ^= c,
-                m[i|3] ^= d,
-                m[i|4] ^= e,
-                m[i|5] ^= f,
-                m[i|6] ^= g,
-                m[i|7] ^= h;
-            }
-
-            // mix it again
-            for ( i = 0; i < 256; i += 8 ) {
-                a = (a + m[i|0])|0; b = (b + m[i|1])|0;
-                c = (c + m[i|2])|0; d = (d + m[i|3])|0;
-                e = (e + m[i|4])|0; f = (f + m[i|5])|0;
-                g = (g + m[i|6])|0; h = (h + m[i|7])|0;
-
-                mix();
-
-                m[i|0] = a,
-                m[i|1] = b,
-                m[i|2] = c,
-                m[i|3] = d,
-                m[i|4] = e,
-                m[i|5] = f,
-                m[i|6] = g,
-                m[i|7] = h;
-            }
+            randinit();
         }
-
-        // fill in the first set of results
-        prng(1), gnt = 256;
     }
 
     /* public: isaac generator, n = number of run */
