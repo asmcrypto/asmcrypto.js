@@ -94,6 +94,11 @@ function Random_seed ( buffer ) {
  * are produced and performed by calling seeding routine without arguments (see docs above).
  */
 function Random_getValues ( buffer, allow_weak ) {
+    // set a weak seed. we do this unconditionally, to raise the cost of
+    // an attack in case the system RNG is weak.
+    if ( !_random_weak_seeded )
+        _random_weak_seed();
+
     if ( !is_buffer(buffer) && !is_typed_array(buffer) )
         throw new TypeError("unexpected buffer type");
 
@@ -104,10 +109,6 @@ function Random_getValues ( buffer, allow_weak ) {
 
     // if we don't have a strong rng
     if ( !_global_crypto && !_random_seeded ) {
-        // set a weak seed
-        if ( allow_weak && !_random_weak_seeded )
-            _random_weak_seed();
-
         // warn or error
         if ( !allow_weak ) {
             throw new Error("WebCrypto not available, and asmCrypto PRNG hasn't been properly seeded");
