@@ -63,11 +63,8 @@ var ISAAC = ( function () {
 
         if ( !is_typed_array(s) ) {
             if ( is_number(s) ) {
-                n = s, s = new Uint8Array(7), i = 0;
-                for ( i = 0; i < s.length; i++ ) {
-                    s[i] = n;
-                    n /= 256;
-                }
+                n = new Float64Array(1), n[0] = s;
+                s = new Uint8Array(n.buffer);
             }
             else if ( is_string(s) ) {
                 s = string_to_bytes(s);
@@ -96,7 +93,7 @@ var ISAAC = ( function () {
             r.set(z);
             for ( k = j, i = 0; ( i < 1024 ) && ( k < l ); k = j | (++i) ) {
                 n = r[(k >> 2) & 255];
-                n <<= 4, n |= s[k];
+                n <<= 8, n |= s[k];
                 r[(k >> 2) & 255] = n;
             }
 
