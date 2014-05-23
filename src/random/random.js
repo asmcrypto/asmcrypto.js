@@ -7,9 +7,10 @@ var _global_console = global.console,
 var _isaac_rand = ISAAC.rand,
     _isaac_seed = ISAAC.seed;
 
-var _random_weak_seeded = false,
+var _isaac_weak_seeded = false,
+    _isaac_seeded = false,
     _bytes_entropy_required = 64,
-    _random_seeded = false;
+    _assume_strong_system_rng = false;
 
 
 function _bytes_entropy_estimate(byte_array) {
@@ -28,7 +29,7 @@ function _bytes_entropy_estimate(byte_array) {
 }
 
 
-function _random_weak_seed() {
+function _isaac_weak_seed() {
     var buffer = new Float64Array(3);
     buffer[0] = _global_date_now();
     buffer[1] = _global_math_random();
@@ -39,7 +40,16 @@ function _random_weak_seed() {
     if ( _global_performance !== undefined ) buffer[0] ^= 1000 * _global_performance.now() | 0;
 
     _isaac_seed(buffer);
-    _random_weak_seeded = true;
+
+    if ( _global_crypto ) {
+        // we assume the system rng is weak:
+        // if the system rng is strong, then this code path is never called
+        var bytes = new Uint32Array(256);
+        _global_crypto.getRandomValues(bytes);
+        _isaac_seed(bytes);
+    }
+
+    _isaac_weak_seeded = true;
 }
 
 
@@ -50,7 +60,8 @@ function _random_weak_seed() {
  * Returns true if seeding took place, otherwise false.
  *
  * A false return value means the input was not secure; however a true return
- * value does NOT mean the input is necessarily secure.
+ * value does NOT mean the input is necessarily secure, though asmCrypto will
+ * be forced to assume this.
  *
  * The input buffer will be zeroed to discourage reuse. You should not copy it
  * or use it anywhere else before passing it into this function.
@@ -70,35 +81,55 @@ function Random_seed ( buffer ) {
         _isaac_seed(bytes);
         // don't let the user use these bytes again
         for (var i=0; i<bytes.length; i++) bytes[i] = 0;
-        return _random_seeded = true;
+        return _isaac_seeded = true;
     }
 }
 
 /**
  * getValues
  *
- * Populates the buffer with cryptographically secure random values.
- * Delegates to `crypto.getRandomValues` if it is available.
+ * Populates the buffer with cryptographically secure random values. These are
+ * calculated using `crypto.getRandomValues` if it is available, as well as our
+ * own ISAAC PRNG implementation.
  *
- * Otherwise, we fall back to asmCrypto's own implementation of the ISAAC PRNG.
- * This must be first seeded using `Random.seed`, which has requirements on
- * the randomness you give it.
+ * If your system RNG is not known to be strong (currently we assume not for
+ * all cases), then you are required to seed ISAAC using `Random.seed`, which
+ * has requirements on the randomness you give it.
  *
- * If you don't manually call `Random.seed`, and allow_weak is true, we will
- * proceed using a weak seed from things like high-resolution time and one
- * single value from the insecure Math.random(). In this case you'll still get
- * warnings into the console every time you request new random values.
+ * If you don't do this, and allow_weak is true, we will proceed using a weak
+ * seed from arbitrary data like high-resolution time and one single value from
+ * the insecure Math.random(). You'll also get warnings into the console every
+ * time you request new random values.
  *
  * Take a note that, as PRNG is guaranteed to have cycles at least 2^40 values long,
  * it must be reseeded from time to time. It happens automatically every time 2^40 values
  * are produced and performed by calling seeding routine without arguments (see docs above).
  */
 function Random_getValues ( buffer, allow_weak ) {
-    // set a weak seed. we do this unconditionally, to raise the cost of
-    // an attack in case the system RNG is weak.
-    if ( !_random_weak_seeded )
-        _random_weak_seed();
+    var have_strong_system_rng = ( _global_crypto !== undefined ) && _assume_strong_system_rng;
+    var have_strong_isaac_rng = _isaac_seeded;
 
+    // if we have no strong sources then the RNG is weak, handle it
+    if ( !have_strong_system_rng && !have_strong_isaac_rng ) {
+        if ( !allow_weak ) {
+            throw new Error("No strong RNGs available. Try calling " +
+                "asmCrypto.Random.seed() with good entropy.");
+        }
+
+        // opportunistically seed ISAAC with a weak seed
+        // only defense-in-depth; we don't rely on this in other logic
+        if ( !_isaac_seeded && !_isaac_weak_seeded ) {
+            _isaac_weak_seed();
+        }
+
+        // warn about ISAAC
+        if ( !_isaac_seeded && _global_console !== undefined ) {
+            _global_console.warn("asmCrypto PRNG hasn't been properly seeded; " +
+                "your security is greatly lowered.");
+        }
+    }
+
+    // proceed to get random values
     if ( !is_buffer(buffer) && !is_typed_array(buffer) )
         throw new TypeError("unexpected buffer type");
 
@@ -107,21 +138,12 @@ function Random_getValues ( buffer, allow_weak ) {
         bytes = new Uint8Array( ( buffer.buffer || buffer ), bpos, blen ),
         i, r;
 
-    // if we don't have a strong rng
-    if ( !_global_crypto && !_random_seeded ) {
-        // warn or error
-        if ( !allow_weak ) {
-            throw new Error("WebCrypto not available, and asmCrypto PRNG hasn't been properly seeded");
-        } else if ( _global_console !== undefined ) {
-            _global_console.warn("asmCrypto PRNG hasn't been properly seeded " +
-                "and produces potentially weak values");
-        }
-    }
-
-    if ( _global_crypto ) {
+    // apply system rng
+    if ( _global_crypto !== undefined ) {
         _global_crypto.getRandomValues(bytes);
     }
 
+    // apply isaac rng
     // TODO reseed upon reaching 2^40 mark
     for ( i = 0; i < blen; i++ ) {
         if ( (i & 3) === 0 ) r = _isaac_rand();
