@@ -16,6 +16,9 @@ var privkey = [
     asmCrypto.hex_to_bytes('261a93613a93e438fa62858758d1db3b3db8366319517c039acfcc0ce04cd0d7349d7e8d8cb0e8a05ac966d04c18c81c49025de2b50bb87f78facccd19cd8602')
 ];
 
+// don't do this at the real code
+asmCrypto.getRandomValues.seed( asmCrypto.string_to_bytes('012345678901234567890123456789') );
+
 test( "asmCrypto.RSA", function () {
     equal( typeof asmCrypto.RSA, 'object', "RSA exported" );
     equal( typeof asmCrypto.RSA_OAEP_SHA256, 'object', "RSA_OAEP exported" );

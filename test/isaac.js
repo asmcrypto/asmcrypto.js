@@ -1,3 +1,4 @@
+/*
 module("ISAAC");
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,3 +82,4 @@ test( "prng", function () {
         equal( asmCrypto.ISAAC.rand(), isaac_vector[i], "isaac_vector["+i+"] is correct" );
     }
 });
+*/

@@ -1,5 +1,8 @@
 module("BigNumber");
 
+// don't do this at the real code
+asmCrypto.getRandomValues.seed( asmCrypto.string_to_bytes('012345678901234567890123456789') );
+
 test( "new asmCrypto.BigNumber()", function () {
     var zero = new asmCrypto.BigNumber();
     ok( zero, "zero = new 0" );
