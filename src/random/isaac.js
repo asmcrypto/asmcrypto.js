@@ -97,7 +97,7 @@ var ISAAC = ( function () {
 
         if ( !is_typed_array(s) ) {
             if ( is_number(s) ) {
-                n = new Float64Array(1), n[0] = s;
+                n = new FloatArray(1), n[0] = s;
                 s = new Uint8Array(n.buffer);
             }
             else if ( is_string(s) ) {

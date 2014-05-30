@@ -101,6 +101,9 @@ module.exports = function(grunt) {
                         // 'exports-rng' (depends on 'rng')
                         'src/random/exports.js',
 
+                        // 'globals-rng' (depends on 'rng')
+                        'src/random/globals.js',
+
                         // 'bn' (depends on 'common', 'rng')
                         'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/modulus.js', 'src/bignum/prime.js',
 

@@ -6,10 +6,12 @@ var _global_crypto = global.crypto || global.Crypto || global.msCrypto,
 
 var _isaac_rand = ISAAC.rand,
     _isaac_seed = ISAAC.seed,
+    _isaac_counter = 0,
     _isaac_weak_seeded = false,
     _isaac_seeded = false;
 
-var _random_guaranteed_entropy = 0;
+var _random_guaranteed_entropy = 0,
+    _random_required_entropy = 256;
 
 var _assume_strong_system_rng = false;
 
@@ -21,7 +23,7 @@ var _assume_strong_system_rng = false;
  * Subsequent call adds no entropy at the worst case and up to ~20 bits at the best.
  */
 function Random_weak_seed () {
-    var buffer = new Float64Array(3);
+    var buffer = new FloatArray(3);
     buffer[0] = _global_date_now();
     buffer[1] = _global_math_random();
     if ( _global_performance !== undefined ) buffer[2] = _global_performance.now();
@@ -84,7 +86,9 @@ function Random_seed ( seed ) {
     // don't let the user use these bytes again
     for ( var i = 0; i < buff.length; i++ ) buff[i] = 0;
 
-    return _isaac_seeded = true;
+    _isaac_seeded = ( _random_guaranteed_entropy  >= _random_required_entropy );
+
+    return _isaac_seeded;
 }
 
 /**
@@ -108,18 +112,16 @@ function Random_seed ( seed ) {
  * are produced and performed by calling seeding routine without arguments (see docs above).
  */
 function Random_getValues ( buffer, allow_weak ) {
-    var have_strong_system_rng = ( _global_crypto !== undefined ) && _assume_strong_system_rng;
+    // opportunistically seed ISAAC with a weak seed; this prevents predictible output
+    // in case of seeding with predictible seed prior to the first call to `getValues`
+    if ( !_isaac_weak_seeded )
+        Random_weak_seed();
 
     // if we have no strong sources then the RNG is weak, handle it
-    if ( !have_strong_system_rng && !_isaac_seeded ) {
+    var have_strong_system_rng = ( _global_crypto !== undefined ) && _assume_strong_system_rng;
+    if ( !_isaac_seeded && !have_strong_system_rng ) {
         if ( !allow_weak ) {
-            throw new Error("No strong RNGs available. Try calling asmCrypto.Random.seed() with good entropy.");
-        }
-
-        // opportunistically seed ISAAC with a weak seed
-        // only defense-in-depth; we don't rely on this in other logic
-        if ( !_isaac_weak_seeded ) {
-            Random_weak_seed();
+            throw new Error("No strong RNGs available. Try calling asmCrypto.random.seed() with good entropy.");
         }
 
         // warn about ISAAC
@@ -143,10 +145,34 @@ function Random_getValues ( buffer, allow_weak ) {
     }
 
     // apply isaac rng
-    // TODO reseed upon reaching 2^40 mark
     for ( i = 0; i < blen; i++ ) {
-        if ( (i & 3) === 0 ) r = _isaac_rand();
+        if ( (i & 3) === 0 ) {
+            if ( _isaac_counter >= 0x10000000000 ) {
+                Random_weak_seed();
+                _isaac_counter = 0;
+            }
+            r = _isaac_rand();
+            _isaac_counter++;
+        }
         bytes[i] ^= r;
         r >>>= 8;
     }
+}
+
+/**
+ * getNumber
+ *
+ * A drop-in `Math.random` replacement.
+ * Intended for prevention of random material leakage out of the user's host.
+ */
+function Random_getNumber () {
+    if ( _isaac_counter >= 0x10000000000 ) {
+        Random_weak_seed();
+        _isaac_counter = 0;
+    }
+
+    var n = ( 0x100000 * _isaac_rand() + ( _isaac_rand() >>> 12 ) ) / 0x10000000000000;
+    _isaac_counter += 2;
+
+    return n;
 }
