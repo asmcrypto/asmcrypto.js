@@ -26,7 +26,7 @@ test( "asmCrypto.RSA", function () {
 });
 
 test( "asmCrypto.RSA.generateKey", function () {
-    var key = asmCrypto.RSA.generateKey( 1024, 65537 );
+    var key = asmCrypto.RSA.generateKey( 1024, 3 );
     ok( key, "generateKey" );
 
     var m = new asmCrypto.Modulus( key[0] ),

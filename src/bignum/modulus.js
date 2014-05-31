@@ -68,10 +68,13 @@ function Modulus_reduce ( a ) {
 function Modulus_inverse ( a ) {
     a = this.reduce(a);
 
-    var k = BigNumber_extGCD( this, a ).y;
-    if ( k.sign < 0 ) k = k.add(this).clamp(this.bitLength);
+    var r = BigNumber_extGCD( this, a );
+    if ( r.gcd.valueOf() !== 1 ) return null;
 
-    return k;
+    r = r.y;
+    if ( r.sign < 0 ) r = r.add(this).clamp(this.bitLength);
+
+    return r;
 }
 
 /**
