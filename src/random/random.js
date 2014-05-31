@@ -10,17 +10,17 @@ var _isaac_rand = ISAAC.rand,
     _isaac_weak_seeded = false,
     _isaac_seeded = false;
 
-var _random_guaranteed_entropy = 0,
+var _random_estimated_entropy = 0,
     _random_required_entropy = 256;
 
-var _assume_strong_system_rng = false;
+var _assume_strong_system_rng = true;
 
 /**
  * weak_seed
  *
- * Seeds RNG with high-resolution time and single `Math.random()` value.
- * First call adds ~50 bits of entropy at the worst case and up to ~80 bits at the best.
- * Subsequent call adds no entropy at the worst case and up to ~20 bits at the best.
+ * Seeds RNG with high-resolution time and single `Math.random()` value, and
+ * various other sources. We estimate this may give between ~50-~80 bits of
+ * unpredictableness, but this has not been analysed thoroughly or precisely.
  */
 function Random_weak_seed () {
     var buffer = new FloatArray(3);
@@ -28,40 +28,42 @@ function Random_weak_seed () {
     buffer[1] = _global_math_random();
     if ( _global_performance !== undefined ) buffer[2] = _global_performance.now();
 
-    buffer = new Uint32Array( pbkdf2_hmac_sha256_bytes( buffer.buffer, global.location.href, 4096, 1024 ).buffer );
+    // Some clarification about brute-force attack cost:
+    // - entire bitcoin network network at ~10^16 hash guesses per second;
+    // - each PBKDF2 iteration requires the same number of hashing operations as bitcoin nonce guess;
+    // - attacker having such a hashing power is able to break worst-case 50 bits of the randomness in ~3 hours;
+    // Sounds sad though attacker having such a hashing power more likely would prefer to mine bitcoins and earn ~$100000 in 3 hours.
+    buffer = new Uint32Array( pbkdf2_hmac_sha256_bytes( buffer.buffer, global.location.href, 100000, 32 ).buffer );
 
     if ( _global_performance !== undefined ) buffer[0] ^= 1000 * _global_performance.now() | 0;
 
     _isaac_seed(buffer);
 
     if ( _global_crypto !== undefined ) {
-        // we assume the system rng is weak:
-        // if the system rng is strong, then this code path is never called
+        // if we're seeding ISAAC then assume the system RNG is weak
         buffer = new Uint32Array(256);
         _global_crypto.getRandomValues(buffer);
         _isaac_seed(buffer);
     }
 
     if ( !_isaac_weak_seeded ) {
-        _random_guaranteed_entropy += 50;
+        _random_estimated_entropy += 50;
     }
     else if ( _global_performance !== undefined ) {
-        _random_guaranteed_entropy += 20;
+        _random_estimated_entropy += 20;
     }
 
     _isaac_weak_seeded = true;
 }
 
-
 /**
  * seed
  *
  * Seeds PRNG with supplied random values if these values have enough entropy.
- * Returns true if seeding took place, otherwise false.
- *
- * A false return value means the input was not secure; however a true return
- * value does NOT mean the input is necessarily secure, though asmCrypto will
- * be forced to assume this.
+
+ * A false return value means the RNG is currently insecure; however a true
+ * return value does not mean it is necessarily secure (depending on how you
+ * collected the seed) though asmCrypto will be forced to assume this.
  *
  * The input buffer will be zeroed to discourage reuse. You should not copy it
  * or use it anywhere else before passing it into this function.
@@ -80,13 +82,20 @@ function Random_seed ( seed ) {
 
     _isaac_seed(buff);
 
-    // TODO change to the estimated value
-    _random_guaranteed_entropy += 8 * blen;
-
     // don't let the user use these bytes again
-    for ( var i = 0; i < buff.length; i++ ) buff[i] = 0;
+    var saw_nonzero = false;
+    for ( var i = 0; i < buff.length; i++ ) {
+        if ( buff[i] ) saw_nonzero = true;
+        buff[i] = 0;
+    }
 
-    _isaac_seeded = ( _random_guaranteed_entropy  >= _random_required_entropy );
+    if ( saw_nonzero ) {
+        // TODO we could make a better estimate, but half-length is a prudent
+        // simple measure that seems unlikely to over-estimate
+        _random_estimated_entropy += 4 * blen;
+    }
+
+    _isaac_seeded = ( _random_estimated_entropy  >= _random_required_entropy );
 
     return _isaac_seeded;
 }
@@ -98,22 +107,24 @@ function Random_seed ( seed ) {
  * calculated using `crypto.getRandomValues` if it is available, as well as our
  * own ISAAC PRNG implementation.
  *
- * If your system RNG is not known to be strong (currently we assume not for
- * all cases), then you are required to seed ISAAC using `Random.seed`, which
- * has requirements on the randomness you give it.
+ * If the former is not available (older browsers such as IE10 [1]), then the
+ * latter *must* be seeded using `Random.seed`, unless `allow_weak` is true.
  *
- * If you don't do this, and allow_weak is true, we will proceed using a weak
- * seed from arbitrary data like high-resolution time and one single value from
- * the insecure Math.random(). You'll also get warnings into the console every
- * time you request new random values.
+ * *We assume the system RNG is strong*; if you cannot afford this risk, then
+ * you should also seed ISAAC using `Random.seed`. This is advisable for very
+ * important situations, such as generation of long-term secrets. See also [2].
  *
- * Take a note that, as PRNG is guaranteed to have cycles at least 2^40 values long,
- * it must be reseeded from time to time. It happens automatically every time 2^40 values
- * are produced and performed by calling seeding routine without arguments (see docs above).
+ * [1] https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
+ * [2] https://en.wikipedia.org/wiki/Dual_EC_DRBG
+ *
+ * In all cases, we opportunistically seed using various arbitrary sources
+ * such as high-resolution time and one single value from the insecure
+ * Math.random(); however this is not reliable as a strong security measure.
  */
 function Random_getValues ( buffer, allow_weak ) {
-    // opportunistically seed ISAAC with a weak seed; this prevents predictible output
-    // in case of seeding with predictible seed prior to the first call to `getValues`
+    // opportunistically seed ISAAC with a weak seed; this hopefully makes an
+    // attack harder in the case where the system RNG is weak *and* we haven't
+    // seeded ISAAC. but don't make any guarantees to the user about this.
     if ( !_isaac_weak_seeded )
         Random_weak_seed();
 
