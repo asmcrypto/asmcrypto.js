@@ -53,6 +53,8 @@ function Random_weak_seed () {
         _random_estimated_entropy += 20;
     }
 
+    _isaac_counter = 0;
+
     _isaac_weak_seeded = true;
 }
 
@@ -93,6 +95,7 @@ function Random_seed ( seed ) {
         // TODO we could make a better estimate, but half-length is a prudent
         // simple measure that seems unlikely to over-estimate
         _random_estimated_entropy += 4 * blen;
+        _isaac_counter = 0;
     }
 
     _isaac_seeded = ( _random_estimated_entropy  >= _random_required_entropy );
@@ -158,10 +161,7 @@ function Random_getValues ( buffer, allow_weak ) {
     // apply isaac rng
     for ( i = 0; i < blen; i++ ) {
         if ( (i & 3) === 0 ) {
-            if ( _isaac_counter >= 0x10000000000 ) {
-                Random_weak_seed();
-                _isaac_counter = 0;
-            }
+            if ( _isaac_counter >= 0x10000000000 ) Random_weak_seed();
             r = _isaac_rand();
             _isaac_counter++;
         }
@@ -177,10 +177,7 @@ function Random_getValues ( buffer, allow_weak ) {
  * Intended for prevention of random material leakage out of the user's host.
  */
 function Random_getNumber () {
-    if ( _isaac_counter >= 0x10000000000 ) {
-        Random_weak_seed();
-        _isaac_counter = 0;
-    }
+    if ( _isaac_counter >= 0x10000000000 ) Random_weak_seed();
 
     var n = ( 0x100000 * _isaac_rand() + ( _isaac_rand() >>> 12 ) ) / 0x10000000000000;
     _isaac_counter += 2;

@@ -60,6 +60,8 @@ var ISAAC = ( function () {
             h ^= a >>>  9; c = (c + h)|0; a = (a + b)|0;
         }
 
+        acc = brs = cnt = 0;
+
         // the golden ratio
         a = b = c = d = e = f = g = h = 0x9e3779b9;
 
