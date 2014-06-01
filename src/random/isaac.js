@@ -120,11 +120,9 @@ var ISAAC = ( function () {
         l = s.length;
         for ( j = 0; j < l; j += 1024 )
         {
-            // process seed chunk, pad with zeros up to 1024 octets
+            // xor each chunk of 1024 bytes with r, for randinit() to mix in
             for ( k = j, i = 0; ( i < 1024 ) && ( k < l ); k = j | (++i) ) {
-                n = r[(k >> 2) & 255];
-                n <<= 8, n |= s[k];
-                r[(k >> 2) & 255] ^= n;
+                r[i >> 2] ^= ( s[k] << ( (i & 3) << 3 ) );
             }
             randinit();
         }
