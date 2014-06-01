@@ -59,7 +59,7 @@ function RSA_generateKey ( bitlen, e ) {
 
         // check `p*q` bit length
         m = new Modulus( p.multiply(q) );
-        if ( !m.limbs[ ( (bitlen + 31) >> 5 ) - 1 ] >>> ( (bitlen - 1) & 31) ) continue;
+        if ( !( m.limbs[ ( (bitlen + 31) >> 5 ) - 1 ] >>> ( (bitlen - 1) & 31) ) ) continue;
 
         // q-1
         q1limbs.set(qlimbs);
