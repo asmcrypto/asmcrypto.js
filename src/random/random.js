@@ -1,8 +1,12 @@
-var _global_crypto = global.crypto || global.msCrypto,
-    _global_console = global.console,
+var _global_console = global.console,
     _global_date_now = global.Date.now,
     _global_math_random = global.Math.random,
-    _global_performance = global.performance;
+    _global_performance = global.performance,
+    _global_crypto = global.crypto || global.msCrypto,
+    _global_crypto_getRandomValues;
+
+if ( _global_crypto !== undefined )
+    _global_crypto_getRandomValues = _global_crypto.getRandomValues;
 
 var _isaac_rand = ISAAC.rand,
     _isaac_seed = ISAAC.seed,
@@ -11,46 +15,50 @@ var _isaac_rand = ISAAC.rand,
     _isaac_seeded = false;
 
 var _random_estimated_entropy = 0,
-    _random_required_entropy = 256;
-
-var _assume_strong_system_rng = true;
+    _random_required_entropy = 256,
+    _random_allow_weak = false;
 
 /**
  * weak_seed
  *
- * Seeds RNG with high-resolution time and single `Math.random()` value, and
- * various other sources. We estimate this may give between ~50-~80 bits of
- * unpredictableness, but this has not been analysed thoroughly or precisely.
+ * Seeds RNG with native `crypto.getRandomValues` output or with high-resolution
+ * time and single `Math.random()` value, and various other sources.
+ *
+ * We estimate this may give at least ~50 bits of unpredictableness,
+ * but this has not been analysed thoroughly or precisely.
  */
 function Random_weak_seed () {
-    var buffer = new FloatArray(3);
-    buffer[0] = _global_date_now();
-    buffer[1] = _global_math_random();
-    if ( _global_performance !== undefined ) buffer[2] = _global_performance.now();
-
-    // Some clarification about brute-force attack cost:
-    // - entire bitcoin network network at ~10^16 hash guesses per second;
-    // - each PBKDF2 iteration requires the same number of hashing operations as bitcoin nonce guess;
-    // - attacker having such a hashing power is able to break worst-case 50 bits of the randomness in ~3 hours;
-    // Sounds sad though attacker having such a hashing power more likely would prefer to mine bitcoins and earn ~$100000 in 3 hours.
-    buffer = new Uint32Array( pbkdf2_hmac_sha256_bytes( buffer.buffer, global.location.href, 100000, 32 ).buffer );
-
-    if ( _global_performance !== undefined ) buffer[0] ^= 1000 * _global_performance.now() | 0;
-
-    _isaac_seed(buffer);
-
     if ( _global_crypto !== undefined ) {
-        // if we're seeding ISAAC then assume the system RNG is weak
-        buffer = new Uint32Array(256);
-        _global_crypto.getRandomValues(buffer);
-        _isaac_seed(buffer);
-    }
+        buffer = new Uint8Array(32);
+        _global_crypto_getRandomValues.call( _global_crypto, buffer );
 
-    if ( !_isaac_weak_seeded ) {
-        _random_estimated_entropy += 50;
+        _isaac_seed(buffer);
+
+        _random_estimated_entropy += 256;
     }
-    else if ( _global_performance !== undefined ) {
-        _random_estimated_entropy += 20;
+    else {
+        // Some clarification about brute-force attack cost:
+        // - entire bitcoin network operates at ~10^16 hash guesses per second;
+        // - each PBKDF2 iteration requires the same number of hashing operations as bitcoin nonce guess;
+        // - attacker having such a hashing power is able to break worst-case 50 bits of the randomness in ~3 hours;
+        // Sounds sad though attacker having such a hashing power more likely would prefer to mine bitcoins.
+        var buffer = new FloatArray(3);
+        buffer[0] = _global_date_now();
+        buffer[1] = _global_math_random();
+        if ( _global_performance !== undefined ) buffer[2] = _global_performance.now();
+
+        buffer = new Uint32Array( pbkdf2_hmac_sha256_bytes( buffer.buffer, global.location.href, 100000, 32 ).buffer );
+
+        if ( _global_performance !== undefined ) buffer[0] ^= 1000 * _global_performance.now() | 0;
+
+        _isaac_seed(buffer);
+
+        if ( !_isaac_weak_seeded ) {
+            _random_estimated_entropy += 50;
+        }
+        else if ( _global_performance !== undefined ) {
+            _random_estimated_entropy += 20;
+        }
     }
 
     _isaac_counter = 0;
@@ -62,7 +70,7 @@ function Random_weak_seed () {
  * seed
  *
  * Seeds PRNG with supplied random values if these values have enough entropy.
-
+ *
  * A false return value means the RNG is currently insecure; however a true
  * return value does not mean it is necessarily secure (depending on how you
  * collected the seed) though asmCrypto will be forced to assume this.
@@ -111,7 +119,7 @@ function Random_seed ( seed ) {
  * own ISAAC PRNG implementation.
  *
  * If the former is not available (older browsers such as IE10 [1]), then the
- * latter *must* be seeded using `Random.seed`, unless `allow_weak` is true.
+ * latter *must* be seeded using `Random.seed`, unless `asmCrypto.random.allowWeak` is true.
  *
  * *We assume the system RNG is strong*; if you cannot afford this risk, then
  * you should also seed ISAAC using `Random.seed`. This is advisable for very
@@ -124,7 +132,7 @@ function Random_seed ( seed ) {
  * such as high-resolution time and one single value from the insecure
  * Math.random(); however this is not reliable as a strong security measure.
  */
-function Random_getValues ( buffer, allow_weak ) {
+function Random_getValues ( buffer ) {
     // opportunistically seed ISAAC with a weak seed; this hopefully makes an
     // attack harder in the case where the system RNG is weak *and* we haven't
     // seeded ISAAC. but don't make any guarantees to the user about this.
@@ -132,16 +140,12 @@ function Random_getValues ( buffer, allow_weak ) {
         Random_weak_seed();
 
     // if we have no strong sources then the RNG is weak, handle it
-    var have_strong_system_rng = ( _global_crypto !== undefined ) && _assume_strong_system_rng;
-    if ( !_isaac_seeded && !have_strong_system_rng ) {
-        if ( !allow_weak ) {
-            throw new Error("No strong RNGs available. Try calling asmCrypto.random.seed() with good entropy.");
-        }
+    if ( !_isaac_seeded ) {
+        if ( !_random_allow_weak && _global_crypto === undefined )
+            throw new SecurityError("No strong RNGs available. Try calling asmCrypto.random.seed() with good entropy.");
 
-        // warn about ISAAC
-        if ( _global_console !== undefined ) {
-            _global_console.warn("asmCrypto PRNG hasn't been properly seeded; your security is greatly lowered.");
-        }
+        if ( _global_console !== undefined )
+            _global_console.warn("asmCrypto PRNG hasn't been seeded; your security is greatly lowered. Try calling asmCrypto.random.seed() with good entropy.");
     }
 
     // proceed to get random values
@@ -154,9 +158,8 @@ function Random_getValues ( buffer, allow_weak ) {
         i, r;
 
     // apply system rng
-    if ( _global_crypto !== undefined ) {
-        _global_crypto.getRandomValues(bytes);
-    }
+    if ( _global_crypto !== undefined )
+        _global_crypto_getRandomValues.call( _global_crypto, bytes );
 
     // apply isaac rng
     for ( i = 0; i < blen; i++ ) {
