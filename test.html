@@ -5,6 +5,14 @@
 <title>asmCrypto test suite</title>
 <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.12.0.css">
 <script src="http://code.jquery.com/qunit/qunit-1.12.0.js"></script>
+<script>
+function skip () {
+    test( arguments[0] + ' (SKIPPED)', function () {
+        expect(0);
+        document.getElementById(QUnit.config.current.id).style.background = '#ffff99';
+    });
+}
+</script>
 <script src="asmcrypto.js"></script>
 <script src="test/dummy.js"></script>
 <script src="test/sha1.js"></script>

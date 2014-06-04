@@ -1,7 +1,7 @@
 /**
  * PBKDF2-HMAC-SHA1 exports
  */
-if ( pbkdf2_hmac_sha1_constructor !== undefined )
+if ( typeof pbkdf2_hmac_sha1_constructor !== 'undefined' )
 {
     var pbkdf2_hmac_sha1_instance = new pbkdf2_hmac_sha1_constructor( { hmac: hmac_sha1_instance } );
 
@@ -32,7 +32,7 @@ if ( pbkdf2_hmac_sha1_constructor !== undefined )
 /**
  * PBKDF2-HMAC-SHA256 exports
  */
-if ( pbkdf2_hmac_sha256_constructor !== undefined )
+if ( typeof pbkdf2_hmac_sha256_constructor !== 'undefined' )
 {
     var pbkdf2_hmac_sha256_instance = new pbkdf2_hmac_sha256_constructor( { hmac: hmac_sha256_instance } );
 
@@ -62,7 +62,7 @@ if ( pbkdf2_hmac_sha256_constructor !== undefined )
 /**
  * PBKDF2-HMAC-SHA512 exports
  */
-if ( pbkdf2_hmac_sha512_constructor !== undefined )
+if ( typeof pbkdf2_hmac_sha512_constructor !== 'undefined' )
 {
     var pbkdf2_hmac_sha512_instance = new pbkdf2_hmac_sha512_constructor( { hmac: hmac_sha512_instance } );
 

@@ -1,4 +1,4 @@
-var _global_crypto = global.crypto || global.Crypto || global.msCrypto,
+var _global_crypto = global.crypto || global.msCrypto,
     _global_console = global.console,
     _global_date_now = global.Date.now,
     _global_math_random = global.Math.random,

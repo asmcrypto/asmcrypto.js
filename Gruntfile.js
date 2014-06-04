@@ -40,10 +40,10 @@ module.exports = function(grunt) {
 
                         // 'aes-ccm' (depends on 'aes')
                         'src/aes/aes-ccm.js',
-
+/*
                         // 'aes-cfb' (depends on 'aes', off by default)
                         'src/aes/aes-cfb.js',
-
+*/
                         // 'exports-aes' (depends on 'aes')
                         'src/aes/exports.js',
 
@@ -58,13 +58,13 @@ module.exports = function(grunt) {
 
                         // 'exports-sha256' (depends on 'sha256')
                         'src/sha256/exports.js',
-
+/*
                         // 'sha512' (depends on 'common', 'utils', off by default)
                         'src/sha512/sha512.asm.js', 'src/sha512/sha512.js',
 
                         // 'exports-sha256' (depends on 'sha512', off by default)
                         'src/sha512/exports.js',
-
+*/
                         // 'hmac' (depends on 'common', 'utils')
                         'src/hmac/hmac.js',
 
@@ -73,10 +73,10 @@ module.exports = function(grunt) {
 
                         // 'hmac-sha256' (depends on 'hmac', 'sha256')
                         'src/hmac/hmac-sha256.js',
-
+/*
                         // 'hmac-sha512' (depends on 'hmac', 'sha512', off by default)
                         'src/hmac/hmac-sha512.js',
-
+*/
                         // 'exports-hmac' (depends on 'hmac')
                         'src/hmac/exports.js',
 
@@ -88,10 +88,10 @@ module.exports = function(grunt) {
 
                         // 'pbkdf2-hmac-sha256' (depends on 'pbkdf2', 'hmac-sha256')
                         'src/pbkdf2/pbkdf2-hmac-sha256.js',
-
+/*
                         // 'pbkdf2-hmac-sha512' (depends on 'pbkdf2', 'hmac-sha512', off by default)
                         'src/pbkdf2/pbkdf2-hmac-sha512.js',
-
+*/
                         // 'exports-pbkdf2' (depends on 'pbkdf2')
                         'src/pbkdf2/exports.js',
 

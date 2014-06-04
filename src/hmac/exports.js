@@ -1,7 +1,7 @@
 /**
  * HMAC-SHA1 exports
  */
-if ( hmac_sha1_constructor !== undefined )
+if ( typeof hmac_sha1_constructor !== 'undefined' )
 {
     var hmac_sha1_instance = new hmac_sha1_constructor( { hash: SHA1_instance } );
 
@@ -32,7 +32,7 @@ if ( hmac_sha1_constructor !== undefined )
 /**
  * HMAC-SHA256 exports
  */
-if ( hmac_sha256_constructor !== undefined )
+if ( typeof hmac_sha256_constructor !== 'undefined' )
 {
     var hmac_sha256_instance = new hmac_sha256_constructor( { hash: SHA256_instance } );
 
@@ -62,7 +62,7 @@ if ( hmac_sha256_constructor !== undefined )
 /**
  * HMAC-SHA512 exports
  */
-if ( hmac_sha512_constructor !== undefined )
+if ( typeof hmac_sha512_constructor !== 'undefined' )
 {
     var hmac_sha512_instance = new hmac_sha512_constructor( { hash: SHA512_instance } );
 

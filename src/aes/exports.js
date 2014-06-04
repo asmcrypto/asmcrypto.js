@@ -5,7 +5,7 @@ var _aes_heap = new Uint8Array(0x100000),
 /**
  * AES-CBC exports
  */
-if ( cbc_aes_constructor !== undefined )
+if ( typeof cbc_aes_constructor !== 'undefined' )
 {
     var cbc_aes_instance = new cbc_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
 
@@ -30,7 +30,7 @@ if ( cbc_aes_constructor !== undefined )
 /**
  * AES-CCM exports
  */
-if ( ccm_aes_constructor !== undefined )
+if ( typeof ccm_aes_constructor !== 'undefined' )
 {
     var ccm_aes_instance = new ccm_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
 
@@ -60,7 +60,7 @@ if ( ccm_aes_constructor !== undefined )
 /**
  * AES-CFB exports
  */
-if ( cfb_aes_constructor !== undefined )
+if ( typeof cfb_aes_constructor !== 'undefined' )
 {
     var cfb_aes_instance = new cfb_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
 
