@@ -21,8 +21,13 @@
         "uglify-js": "2.4.999",
 
         "grunt": "~0.4.2",
+        "grunt-cli": "~0.1",
         "grunt-contrib-uglify": "~0.2.2",
         "grunt-contrib-qunit": "~0.4.0",
         "grunt-contrib-clean": "~0.4.0"
+    },
+    "scripts": {
+        "prepublish": "grunt",
+        "test": "grunt test"
     }
 }
