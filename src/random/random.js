@@ -18,6 +18,15 @@ var _random_estimated_entropy = 0,
     _random_required_entropy = 256,
     _random_allow_weak = false;
 
+var _hires_now;
+if ( _global_performance !== undefined ) {
+    _hires_now = function () { return 1000 * _global_performance.now() | 0 };
+}
+else {
+    var _hires_epoch = 1000 * _global_date_now() | 0;
+    _hires_now = function () { return 1000 * _global_date_now() - _hires_epoch | 0 };
+}
+
 /**
  * weak_seed
  *
@@ -33,8 +42,6 @@ function Random_weak_seed () {
         _global_crypto_getRandomValues.call( _global_crypto, buffer );
 
         _isaac_seed(buffer);
-
-        _random_estimated_entropy += 256;
     }
     else {
         // Some clarification about brute-force attack cost:
@@ -42,23 +49,22 @@ function Random_weak_seed () {
         // - each PBKDF2 iteration requires the same number of hashing operations as bitcoin nonce guess;
         // - attacker having such a hashing power is able to break worst-case 50 bits of the randomness in ~3 hours;
         // Sounds sad though attacker having such a hashing power more likely would prefer to mine bitcoins.
-        var buffer = new FloatArray(3);
-        buffer[0] = _global_date_now();
-        buffer[1] = _global_math_random();
-        if ( _global_performance !== undefined ) buffer[2] = _global_performance.now();
+        var buffer = new FloatArray(3),
+            i, t;
 
-        buffer = new Uint32Array( pbkdf2_hmac_sha256_bytes( buffer.buffer, global.location.href, 100000, 32 ).buffer );
+        buffer[0] = _global_math_random();
+        buffer[1] = _global_date_now();
+        buffer[2] = _hires_now();
 
-        if ( _global_performance !== undefined ) buffer[0] ^= 1000 * _global_performance.now() | 0;
+        buffer = new Uint8Array(buffer.buffer);
+
+        for ( i = 0; i < 100; i++ ) {
+            buffer = pbkdf2_hmac_sha256_bytes( buffer, global.location.href, 1000, 32 );
+            t = _hires_now();
+            buffer[0] ^= t >>> 24, buffer[1] ^= t >>> 16, buffer[2] ^= t >>> 8, buffer[3] ^= t;
+        }
 
         _isaac_seed(buffer);
-
-        if ( !_isaac_weak_seeded ) {
-            _random_estimated_entropy += 50;
-        }
-        else if ( _global_performance !== undefined ) {
-            _random_estimated_entropy += 20;
-        }
     }
 
     _isaac_counter = 0;
@@ -92,18 +98,19 @@ function Random_seed ( seed ) {
 
     _isaac_seed(buff);
 
+    _isaac_counter = 0;
+
     // don't let the user use these bytes again
-    var saw_nonzero = false;
+    var nonzero = 0;
     for ( var i = 0; i < buff.length; i++ ) {
-        if ( buff[i] ) saw_nonzero = true;
+        nonzero |= buff[i];
         buff[i] = 0;
     }
 
-    if ( saw_nonzero ) {
+    if ( nonzero !== 0 ) {
         // TODO we could make a better estimate, but half-length is a prudent
         // simple measure that seems unlikely to over-estimate
         _random_estimated_entropy += 4 * blen;
-        _isaac_counter = 0;
     }
 
     _isaac_seeded = ( _random_estimated_entropy  >= _random_required_entropy );
@@ -180,7 +187,8 @@ function Random_getValues ( buffer ) {
  * Intended for prevention of random material leakage out of the user's host.
  */
 function Random_getNumber () {
-    if ( _isaac_counter >= 0x10000000000 ) Random_weak_seed();
+    if ( !_isaac_weak_seeded || _isaac_counter >= 0x10000000000 )
+        Random_weak_seed();
 
     var n = ( 0x100000 * _isaac_rand() + ( _isaac_rand() >>> 12 ) ) / 0x10000000000000;
     _isaac_counter += 2;
