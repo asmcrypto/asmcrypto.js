@@ -46,6 +46,11 @@ QUnit.testStart(function(testDetails){
 </script>
 
 <script src="asmcrypto.js"></script>
+<script>
+    // only for testing purpose
+    asmCrypto.random.allowWeak = true;
+</script>
+
 <script src="dummy.js"></script>
 <script src="sha1.js"></script>
 <script src="sha256.js"></script>
