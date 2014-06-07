@@ -104,9 +104,10 @@ function cbc_aes_encrypt_finish () {
         len += plen;
     }
 
-    asm.cbc_encrypt( pos, len );
-
-    result.set( heap.subarray( pos, pos + len ) );
+    if ( len > 0 ) {
+        asm.cbc_encrypt( pos, len );
+        result.set( heap.subarray( pos, pos + len ) );
+    }
 
     this.result = result;
     this.pos = _aes_heap_start;
@@ -122,7 +123,7 @@ function cbc_aes_encrypt ( data ) {
 
     result = new Uint8Array( result1.length + result2.length );
     result.set(result1);
-    result.set( result2, result1.length );
+    if ( result2.length > 0 ) result.set( result2, result1.length );
     this.result = result;
 
     return this;
@@ -199,8 +200,10 @@ function cbc_aes_decrypt_finish () {
 
     var result = new Uint8Array(len);
 
-    asm.cbc_decrypt( pos, len );
-    result.set( heap.subarray( pos, pos + len ) );
+    if ( len > 0 ) {
+        asm.cbc_decrypt( pos, len );
+        result.set( heap.subarray( pos, pos + len ) );
+    }
 
     if ( padding ) {
         var pad = result[ len - 1 ];
@@ -221,7 +224,7 @@ function cbc_aes_decrypt ( data ) {
 
     result = new Uint8Array( result1.length + result2.length );
     result.set(result1);
-    result.set( result2, result1.length );
+    if ( result2.length > 0 ) result.set( result2, result1.length );
     this.result = result;
 
     return this;

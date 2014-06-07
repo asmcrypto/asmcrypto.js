@@ -82,9 +82,10 @@ function cfb_aes_encrypt_finish () {
 
     var result = new Uint8Array(len);
 
-    asm.cfb_encrypt( pos, len );
-
-    result.set( heap.subarray( pos, pos + len ) );
+    if ( len > 0 ) {
+        asm.cfb_encrypt( pos, len );
+        result.set( heap.subarray( pos, pos + len ) );
+    }
 
     this.result = result;
     this.pos = _aes_heap_start;
@@ -158,17 +159,12 @@ function cfb_aes_decrypt_finish () {
         pos = this.pos,
         len = this.len;
 
-    if ( len === 0 ) {
-        this.result = new Uint8Array(0);
-        this.pos = _aes_heap_start;
-        this.len = 0;
-        return this;
-    }
-
     var result = new Uint8Array(len);
 
-    asm.cfb_decrypt( pos, len );
-    result.set( heap.subarray( pos, pos + len ) );
+    if ( len > 0 ) {
+        asm.cfb_decrypt( pos, len );
+        result.set( heap.subarray( pos, pos + len ) );
+    }
 
     this.result = result;
     this.pos = _aes_heap_start;
