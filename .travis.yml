@@ -1,11 +1,12 @@
 language: node_js
 node_js:
 - '0.11'
-- '0.10'
-addon:
+addons:
   sauce_connect:
     username: vibornoff
     access_key:
-      secure: "N5jZowSuf5vPTUSgnYIX4sdFV3u0z/b8DMBSbMzst34VahI428jJlTPfMcswVomflwIA5dO0KgvCvRpKnos4gVIG02PUNYsCSuwg5nBOq025r8PX1nI3tYBK0n1SHHFYQs9swqeiKVVE0bG1AwrIAMNqJS5DnxMBw7z/dM6cPf8="
+      secure: N5jZowSuf5vPTUSgnYIX4sdFV3u0z/b8DMBSbMzst34VahI428jJlTPfMcswVomflwIA5dO0KgvCvRpKnos4gVIG02PUNYsCSuwg5nBOq025r8PX1nI3tYBK0n1SHHFYQs9swqeiKVVE0bG1AwrIAMNqJS5DnxMBw7z/dM6cPf8=
 before_install:
 - git submodule update --init --recursive
+script:
+  grunt test && grunt sauce
