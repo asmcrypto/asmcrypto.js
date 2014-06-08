@@ -1,4 +1,4 @@
-asmCrypto [![Build Status](https://travis-ci.org/vibornoff/asmcrypto.js.svg?branch=master)](https://travis-ci.org/vibornoff/asmcrypto.js)
+asmCrypto [![Build Status](https://travis-ci.org/vibornoff/asmcrypto.js.svg?branch=master)](https://travis-ci.org/vibornoff/asmcrypto.js) [![Test Status](https://saucelabs.com/browser-matrix/vibornoff.svg)](https://saucelabs.com/u/vibornoff)
 =========
 
 JavaScript implementation of popular cryptographic utilities with performance in mind.
@@ -47,17 +47,16 @@ Index
 Download
 --------
 
-* [Minified JS file](http://vibornoff.com/asmcrypto.js) 240KB,
-* [Minified-and-gzipped JS file](http://vibornoff.com/asmcrypto.js.gz) 45KB,
-* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 430KB,
-* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 170KB.
+* [Minified JS file](http://vibornoff.com/asmcrypto.js) 170KB,
+* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 313KB,
+* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 178KB.
 
 Build & Test
 ------------
 
-Before you start check that [Grunt](http://gruntjs.com/) is installed:
+Before you start check that [npm](http://npmjs.org/) is installed:
 
-    grunt --version
+    npm --version
 
 Then download and build the stuff:
 
@@ -65,9 +64,10 @@ Then download and build the stuff:
     cd asmcrypto.js/
     git submodule update --init --recursive
     npm install
-    grunt
 
-After build is complete open `test.html` in your browser and check that all tests are passed.
+Running tests is always a good idea:
+
+    npm test
 
 Congratulations! Now you have your `asmcrypto.js` and `asmcrypto.js.map` ready to use ☺
 
