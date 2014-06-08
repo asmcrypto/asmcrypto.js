@@ -1,4 +1,4 @@
-asmCrypto [![Build Status](https://travis-ci.org/vibornoff/asmcrypto.js.svg?branch=master)](https://travis-ci.org/vibornoff/asmcrypto.js) [![Test Status](https://saucelabs.com/browser-matrix/vibornoff.svg)](https://saucelabs.com/u/vibornoff)
+asmCrypto [![Build Status](https://travis-ci.org/vibornoff/asmcrypto.js.svg?branch=master)](https://travis-ci.org/vibornoff/asmcrypto.js) [![Selenium Test Status](https://saucelabs.com/buildstatus/vibornoff)](https://saucelabs.com/u/vibornoff)
 =========
 
 JavaScript implementation of popular cryptographic utilities with performance in mind.
