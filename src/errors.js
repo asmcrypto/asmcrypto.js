@@ -1,8 +1,9 @@
-function IllegalStateError () { Error.apply( this, arguments ); }
-IllegalStateError.prototype = new Error;
+function IllegalStateError () { var err = Error.apply( this, arguments ); this.message = err.message, this.stack = err.stack; }
+IllegalStateError.prototype = Object.create( Error.prototype, { name: { value: 'IllegalStateError' } } );
 
-function IllegalArgumentError () { Error.apply( this, arguments ); }
-IllegalArgumentError.prototype = new Error;
+function IllegalArgumentError () { var err = Error.apply( this, arguments ); this.message = err.message, this.stack = err.stack; }
+IllegalArgumentError.prototype = Object.create( Error.prototype, { name: { value: 'IllegalArgumentError' } } );
 
-function SecurityError () { Error.apply( this, arguments ); }
-IllegalArgumentError.prototype = new Error;
+function SecurityError () { var err = Error.apply( this, arguments ); this.message = err.message, this.stack = err.stack; }
+SecurityError.prototype = Object.create( Error.prototype, { name: { value: 'SecurityError' } } );
+
