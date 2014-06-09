@@ -62,7 +62,6 @@ Then download and build the stuff:
 
     git clone https://github.com/vibornoff/asmcrypto.js.git
     cd asmcrypto.js/
-    git submodule update --init --recursive
     npm install
 
 Running tests is always a good idea:
