@@ -2,7 +2,7 @@ function hmac_sha1_constructor ( options ) {
     options = options || {};
 
     if ( !( options.hash instanceof sha1_constructor ) )
-        options.hash = new sha1_constructor(options);
+        options.hash = get_sha1_instance();
 
     hmac_constructor.call( this, options );
 
@@ -97,3 +97,10 @@ var hmac_sha1_prototype = hmac_sha1_constructor.prototype;
 hmac_sha1_prototype.reset = hmac_sha1_reset;
 hmac_sha1_prototype.process = hmac_process;
 hmac_sha1_prototype.finish = hmac_sha1_finish;
+
+var hmac_sha1_instance = null;
+
+function get_hmac_sha1_instance () {
+    if ( hmac_sha1_instance === null ) hmac_sha1_instance = new hmac_sha1_constructor();
+    return hmac_sha1_instance;
+}

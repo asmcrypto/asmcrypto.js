@@ -2,11 +2,9 @@
  * SHA1 exports
  */
 
-var SHA1_instance = new sha1_constructor( { heapSize: 0x100000 } );
-
 function sha1_bytes ( data ) {
     if ( data === undefined ) throw new SyntaxError("data required");
-    return SHA1_instance.reset().process(data).finish().result;
+    return get_sha1_instance().reset().process(data).finish().result;
 }
 
 function sha1_hex ( data ) {

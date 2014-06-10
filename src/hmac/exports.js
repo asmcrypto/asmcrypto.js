@@ -3,12 +3,10 @@
  */
 if ( typeof hmac_sha1_constructor !== 'undefined' )
 {
-    var hmac_sha1_instance = new hmac_sha1_constructor( { hash: SHA1_instance } );
-
     function hmac_sha1_bytes ( data, password ) {
         if ( data === undefined ) throw new SyntaxError("data required");
         if ( password === undefined ) throw new SyntaxError("password required");
-        return hmac_sha1_instance.reset( { password: password } ).process(data).finish().result;
+        return get_hmac_sha1_instance().reset( { password: password } ).process(data).finish().result;
     }
 
     function hmac_sha1_hex ( data, password ) {
@@ -34,12 +32,10 @@ if ( typeof hmac_sha1_constructor !== 'undefined' )
  */
 if ( typeof hmac_sha256_constructor !== 'undefined' )
 {
-    var hmac_sha256_instance = new hmac_sha256_constructor( { hash: SHA256_instance } );
-
     function hmac_sha256_bytes ( data, password ) {
         if ( data === undefined ) throw new SyntaxError("data required");
         if ( password === undefined ) throw new SyntaxError("password required");
-        return hmac_sha256_instance.reset( { password: password } ).process(data).finish().result;
+        return get_hmac_sha256_instance().reset( { password: password } ).process(data).finish().result;
     }
 
     function hmac_sha256_hex ( data, password ) {
@@ -64,12 +60,10 @@ if ( typeof hmac_sha256_constructor !== 'undefined' )
  */
 if ( typeof hmac_sha512_constructor !== 'undefined' )
 {
-    var hmac_sha512_instance = new hmac_sha512_constructor( { hash: SHA512_instance } );
-
     function hmac_sha512_bytes ( data, password ) {
         if ( data === undefined ) throw new SyntaxError("data required");
         if ( password === undefined ) throw new SyntaxError("password required");
-        return hmac_sha512_instance.reset( { password: password } ).process(data).finish().result;
+        return get_hmac_sha512_instance().reset( { password: password } ).process(data).finish().result;
     }
 
     function hmac_sha512_hex ( data, password ) {
