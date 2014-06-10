@@ -91,3 +91,10 @@ var sha1_prototype = sha1_constructor.prototype;
 sha1_prototype.reset =   sha1_reset;
 sha1_prototype.process = sha1_process;
 sha1_prototype.finish =  sha1_finish;
+
+var sha1_instance = null;
+
+function get_sha1_instance () {
+    if ( sha1_instance === null ) sha1_instance = new sha1_constructor( { heapSize: 0x100000 } );
+    return sha1_instance;
+}

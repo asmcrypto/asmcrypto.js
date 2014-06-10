@@ -91,3 +91,10 @@ var sha256_prototype = sha256_constructor.prototype;
 sha256_prototype.reset =   sha256_reset;
 sha256_prototype.process = sha256_process;
 sha256_prototype.finish =  sha256_finish;
+
+var sha256_instance = null;
+
+function get_sha256_instance () {
+    if ( sha256_instance === null ) sha256_instance = new sha256_constructor( { heapSize: 0x100000 } );
+    return sha256_instance;
+}

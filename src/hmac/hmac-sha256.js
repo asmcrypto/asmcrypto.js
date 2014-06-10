@@ -2,7 +2,7 @@ function hmac_sha256_constructor ( options ) {
     options = options || {};
 
     if ( !( options.hash instanceof sha256_constructor ) )
-        options.hash = new sha256_constructor(options);
+        options.hash = get_sha256_instance();
 
     hmac_constructor.call( this, options );
 
@@ -97,3 +97,10 @@ var hmac_sha256_prototype = hmac_sha256_constructor.prototype;
 hmac_sha256_prototype.reset = hmac_sha256_reset;
 hmac_sha256_prototype.process = hmac_process;
 hmac_sha256_prototype.finish = hmac_sha256_finish;
+
+var hmac_sha256_instance = null;
+
+function get_hmac_sha256_instance () {
+    if ( hmac_sha256_instance === null ) hmac_sha256_instance = new hmac_sha256_constructor();
+    return hmac_sha256_instance;
+}

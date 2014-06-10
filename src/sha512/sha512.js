@@ -91,3 +91,10 @@ var sha512_prototype = sha512_constructor.prototype;
 sha512_prototype.reset =   sha512_reset;
 sha512_prototype.process = sha512_process;
 sha512_prototype.finish =  sha512_finish;
+
+var sha512_instance = null;
+
+function get_sha512_instance () {
+    if ( sha512_instance === null ) sha512_instance = new sha512_constructor( { heapSize: 0x100000 } );
+    return sha512_instance;
+}

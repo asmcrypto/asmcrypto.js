@@ -2,7 +2,7 @@ function hmac_sha512_constructor ( options ) {
     options = options || {};
 
     if ( !( options.hash instanceof sha512_constructor ) )
-        options.hash = new sha512_constructor(options);
+        options.hash = get_sha512_instance();
 
     hmac_constructor.call( this, options );
 
@@ -113,3 +113,10 @@ var hmac_sha512_prototype = hmac_sha512_constructor.prototype;
 hmac_sha512_prototype.reset = hmac_sha512_reset;
 hmac_sha512_prototype.process = hmac_process;
 hmac_sha512_prototype.finish = hmac_sha512_finish;
+
+var hmac_sha512_instance = null;
+
+function get_hmac_sha512_instance () {
+    if ( hmac_sha512_instance === null ) hmac_sha512_instance = new hmac_sha512_constructor();
+    return hmac_sha512_instance;
+}

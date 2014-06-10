@@ -2,11 +2,9 @@
  * SHA256 exports
  */
 
-var SHA256_instance = new sha256_constructor( { heapSize: 0x100000 } );
-
 function sha256_bytes ( data ) {
     if ( data === undefined ) throw new SyntaxError("data required");
-    return SHA256_instance.reset().process(data).finish().result;
+    return get_sha256_instance().reset().process(data).finish().result;
 }
 
 function sha256_hex ( data ) {

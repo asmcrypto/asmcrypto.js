@@ -2,7 +2,7 @@ function pbkdf2_hmac_sha512_constructor ( options ) {
     options = options || {};
 
     if ( !( options.hmac instanceof hmac_sha512_constructor ) )
-        options.hmac = new hmac_sha512_constructor(options);
+        options.hmac = get_hmac_sha512_instance();
 
     pbkdf2_constructor.call( this, options );
 
@@ -39,3 +39,10 @@ function pbkdf2_hmac_sha512_generate ( salt, count, length ) {
 var pbkdf2_hmac_sha512_prototype = pbkdf2_hmac_sha512_constructor.prototype;
 pbkdf2_hmac_sha512_prototype.reset =   pbkdf2_reset;
 pbkdf2_hmac_sha512_prototype.generate = pbkdf2_hmac_sha512_generate;
+
+var pbkdf2_hmac_sha512_instance = null;
+
+function get_pbkdf2_hmac_sha512_instance () {
+    if ( pbkdf2_hmac_sha512_instance === null ) pbkdf2_hmac_sha512_instance = new pbkdf2_hmac_sha512_constructor();
+    return pbkdf2_hmac_sha512_instance;
+}

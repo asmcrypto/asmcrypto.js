@@ -1,3 +1,171 @@
+// Default modules to build
+var defaults = [
+    'utils',
+    'aes-cbc',
+    'aes-ccm',
+    'sha1',
+    'sha256',
+    'hmac-sha1',
+    'hmac-sha256',
+    'pbkdf2-hmac-sha1',
+    'pbkdf2-hmac-sha256',
+    'rng',
+    'bn',
+    'rsa-pkcs1',
+    'globals-rng',
+    'globals'
+];
+
+// Map each of the modules and their deps
+var modules = {
+    'common': {
+        files: [ 'src/errors.js' ]
+    },
+    'utils': {
+        files: [ 'src/utils.js' ],
+        implies: [ 'exports' ]
+    },
+    'aes': {
+        files: [ 'src/aes/aes.asm.js', 'src/aes/aes.js' ],
+        depends: [ 'common', 'utils' ]
+    },
+    'aes-cbc': {
+        files: [ 'src/aes/aes-cbc.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'exports-aes' ]
+    },
+    'aes-ccm': {
+        files: [ 'src/aes/aes-ccm.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'exports-aes' ]
+    },
+    'aes-cfb': {
+        files: [ 'src/aes/aes-cfb.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'exports-aes' ]
+    },
+    'exports-aes': {
+        files: [ 'src/aes/exports.js' ],
+        depends: [ 'aes' ]
+    },
+    'sha1': {
+        files: [ 'src/sha1/sha1.asm.js', 'src/sha1/sha1.js' ],
+        depends: [ 'common', 'utils' ],
+        implies: [ 'exports-sha1' ]
+    },
+    'exports-sha1': {
+        files: [ 'src/sha1/exports.js' ],
+        depends: [ 'sha1' ]
+    },
+    'sha256': {
+        files: [ 'src/sha256/sha256.asm.js', 'src/sha256/sha256.js' ],
+        depends: [ 'common', 'utils' ],
+        implies: [ 'exports-sha256' ]
+    },
+    'exports-sha256': {
+        files: [ 'src/sha256/exports.js' ],
+        depends: [ 'sha256' ],
+    },
+    'sha512': {
+        files: [ 'src/sha512/sha512.asm.js', 'src/sha512/sha512.js' ],
+        depends: [ 'common', 'utils' ],
+        implies: [ 'exports-sha512' ]
+    },
+    'exports-sha512': {
+        files: [ 'src/sha512/exports.js' ],
+        depends: [ 'sha512' ]
+    },
+    'hmac': {
+        files: [ 'src/hmac/hmac.js' ],
+        depends: [ 'common', 'utils' ]
+    },
+    'hmac-sha1': {
+        files: [ 'src/hmac/hmac-sha1.js' ],
+        depends: [ 'hmac', 'sha1' ],
+        implies: [ 'exports-hmac' ]
+    },
+    'hmac-sha256': {
+        files: [ 'src/hmac/hmac-sha256.js' ],
+        depends: [ 'hmac', 'sha256' ],
+        implies: [ 'exports-hmac' ]
+    },
+    'hmac-sha512': {
+        files: [ 'src/hmac/hmac-sha512.js' ],
+        depends: [ 'hmac', 'sha512' ],
+        implies: [ 'exports-hmac' ]
+    },
+    'exports-hmac': {
+        files: [ 'src/hmac/exports.js' ],
+        depends: [ 'hmac' ]
+    },
+    'pbkdf2': {
+        files: [ 'src/pbkdf2/pbkdf2.js' ],
+        depends: [ 'common', 'utils' ]
+    },
+    'pbkdf2-hmac-sha1': {
+        files: [ 'src/pbkdf2/pbkdf2-hmac-sha1.js' ],
+        depends: [ 'pbkdf2', 'hmac-sha1' ],
+        implies: [ 'exports-pbkdf2' ]
+    },
+    'pbkdf2-hmac-sha256': {
+        files: [ 'src/pbkdf2/pbkdf2-hmac-sha256.js' ],
+        depends: [ 'pbkdf2', 'hmac-sha256' ],
+        implies: [ 'exports-pbkdf2' ]
+    },
+    'pbkdf2-hmac-sha512': {
+        files: [ 'src/pbkdf2/pbkdf2-hmac-sha512.js' ],
+        implies: [ 'exports-pbkdf2' ],
+        depends: [ 'pbkdf2', 'hmac-sha512' ]
+    },
+    'exports-pbkdf2': {
+        files: [ 'src/pbkdf2/exports.js' ],
+        depends: [ 'pbkdf2' ]
+    },
+    'rng': {
+        files: [ 'src/random/isaac.js', 'src/random/random.js' ],
+        depends: [ 'common', 'utils' ],
+        implies: [ 'exports-rng' ]
+    },
+    'exports-rng': {
+        files: [ 'src/random/exports.js' ],
+        depends: [ 'rng' ]
+    },
+    'globals-rng': {
+        files: [ 'src/random/globals.js' ],
+        depends: [ 'rng' ]
+    },
+    'bn': {
+        files: [ 'src/bignum/bigint.asm.js', 'src/bignum/bignum.js', 'src/bignum/extgcd.js', 'src/bignum/modulus.js', 'src/bignum/prime.js' ],
+        depends: [ 'common', 'rng' ],
+        implies: [ 'exports-bn' ]
+    },
+    'exports-bn': {
+        files: [ 'src/bignum/exports.js' ],
+        depends: [ 'bn' ]
+    },
+    'rsa': {
+        files: [ 'src/rsa/rsa.js', 'src/rsa/genkey.js' ],
+        depends: [ 'bn', 'rng' ]
+    },
+    'rsa-pkcs1': {
+        files: [ 'src/rsa/pkcs1.js' ],
+        depends: [ 'rsa' ],
+        implies: [ 'exports-rsa' ]
+    },
+    'exports-rsa': {
+        files: [ 'src/rsa/exports.js' ],
+        depends: [ 'rsa' ]
+    },
+    'exports': {
+        files: [ 'src/exports.js' ],
+        depends: [ 'utils' ]
+    },
+    'globals': {
+        files: [ 'src/globals.js' ],
+        depends: [ 'common' ]
+    }
+};
+
 // Supported browsers
 var browsers = [
     // Latest browsers
@@ -37,7 +205,7 @@ var browsers = [
 ];
 
 // Grunt setup
-module.exports = function(grunt) {
+module.exports = function ( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -45,187 +213,64 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-saucelabs');
 
-    // Map each of the modules and their deps
-    var modules = {
-        "common": {
-            files: ['errors.js']
-        },
-        "utils": {
-            files: ['utils.js']
-        },
-        "aes": {
-            files: ['aes/aes.asm.js', 'aes/aes.js'],
-            depends: ['common', 'utils']
-        },
-        "aes-cbc": {
-            files: ['aes/aes-cbc.js'],
-            depends: ['aes']
-        },
-        "aes-ccm": {
-            files: ['aes/aes-ccm.js'],
-            depends: ['aes']
-        },
-        "aes-cfb": {
-            files: ['aes/aes-cfb.js'],
-            depends: ['aes']
-        },
-        "exports-aes": {
-            files: ['aes/exports.js'],
-            depends: ['aes']
-        },
-        "sha1": {
-            files: ['sha1/sha1.asm.js', 'sha1/sha1.js'],
-            depends: ['common', 'utils']
-        },
-        "exports-sha1": {
-            files: ['sha1/exports.js'],
-            depends: ['sha1']
-        },
-        "sha256": {
-            files: ['sha256/sha256.asm.js', 'sha256/sha256.js'],
-            depends: ['common', 'utils']
-        },
-        "exports-sha256": {
-            files: ['sha256/exports.js'],
-            depends: 'sha256'
-        },
-        "sha512": {
-            files: ['sha512/sha512.asm.js', 'sha512/sha512.js'],
-            depends: ['common', 'utils']
-        },
-        "exports-sha512": {
-            files: ['sha512/exports.js'],
-            depends: ['sha512']
-        },
-        "hmac": {
-            files: ['hmac/hmac.js'],
-            depends: ['common', 'utils']
-        },
-        "hmac-sha1": {
-            files: ['hmac/hmac-sha1.js'],
-            depends: ['hmac', 'sha1']
-        },
-        "hmac-sha256": {
-            files: ['hmac/hmac-sha256.js'],
-            depends: ['hmac', 'sha256']
-        },
-        "hmac-sha512": {
-            files: ['hmac/hmac-sha512.js'],
-            depends: ['hmac', 'sha512']
-        },
-        "exports-hmac": {
-            files: ['hmac/exports.js'],
-            depends: ['hmac']
-        },
-        "pbkdf2": {
-            files: ['pbkdf2/pbkdf2.js'],
-            depends: ['common', 'utils']
-        },
-        "pbkdf2-hmac-sha1": {
-            files: ['pbkdf2/pbkdf2-hmac-sha1.js'],
-            depends: ['pbkdf2', 'hmac-sha1']
-        },
-        "pbkdf2-hmac-sha1": {
-            files: ['pbkdf2/pbkdf2-hmac-sha256.js'],
-            depends: ['pbkdf2', 'hmac-sha256']
-        },
-        "pbkdf2-hmac-sha1": {
-            files: ['pbkdf2/pbkdf2-hmac-sha512.js'],
-            depends: ['pbkdf2', 'hmac-sha512']
-        },
-        "exports-pbkdf2": {
-            files: ['pbkdf2/exports.js'],
-            depends: ['pbkdf2']
-        },
-        "rng": {
-            files: ['random/isaac.js', 'random/random.js'],
-            depends: ['common', 'utils']
-        },
-        "exports-rng": {
-            files: ['random/exports.js'],
-            depends: ['rng']
-        },
-        "globals-rng": {
-            files: ['random/globals.js'],
-            depends: ['rng']
-        },
-        "bn": {
-            files: ['bignum/bigint.asm.js', 'bignum/bignum.js', 'bignum/extgcd.js', 'bignum/modulus.js', 'bignum/prime.js'],
-            depends: ['common', 'rng']
-        },
-        "exports-bn": {
-            files: ['bignum/exports.js'],
-            depends: ['bn']
-        },
-        "rsa": {
-            files: ['rsa/rsa.js', 'rsa/genkey.js'],
-            depends: ['bn', 'rng']
-        },
-        "rsa-pkcs1": {
-            files: ['rsa/pkcs1.js'],
-            depends: ['rsa']
-        },
-        "exports-rsa": {
-            files: ['rsa/exports.js'],
-            depends: ['rsa']
-        },
-        "exports": {
-            files: ['exports.js'],
-            depends: ['utils']
-        },
-        "globals": {
-            files: ['globals.js'],
-            depends: ['common']
-        }
-    }
-
     // Get the list of modules split by commas
-    var includedModules = (grunt.option('with') || '').split(',');
+    var includeModules = ( grunt.option('with') || process.env.WITH || '' ).split(',')
+                        .map( function ( moduleName ) { return moduleName.trim() } )
+                        .filter( function ( moduleName ) { return moduleName.length > 0 } );
 
     // No modules specified, put defaults here
-    if (includedModules.length === 0) {
-        includedModules = [];
+    if ( includeModules.length === 0 )
+        includeModules = includeModules.concat(defaults);
+
+    // Insert implied modules for each one specified
+    for ( var i = includeModules.length-1; i >= 0; i-- ) {
+        if ( !modules[ includeModules[i] ] || !modules[ includeModules[i] ].implies ) continue;
+        var includeImplied = modules[ includeModules[i] ].implies.filter( function ( m ) { return includeModules.indexOf(m) == -1 } );
+        includeModules.splice.apply( includeModules, [ i+1, 0 ].concat(includeImplied) );
+    }
+
+    // Trace build configuration
+    grunt.log.writeln( "Building modules: " + includeModules.join(", ") );
+
+    // Gets the paths (including any deps) for a module
+    function getPathsForModule ( moduleName ) {
+        // Get the module
+        // If the module doesn't exist, fail
+        var module = modules[moduleName];
+        if ( !module )
+            grunt.fail.fatal( "An unknown module '" + moduleName + "' was specified" );
+
+        // Get the deps and call recursively
+        var depsFiles =
+            ( module.depends || [] ).reduce(
+                function ( files, moduleName ) {
+                    files.push.apply( files, getPathsForModule(moduleName) );
+                    return files;
+                },
+                []
+            );
+
+        // Return the paths for the deps plus the files from the module
+        return depsFiles.concat(module.files);
     }
 
     // Hold the array of files as specified by the modules
-    var src = [];
-
-    // Gets the paths (including any deps) for a module
-    function getPathsForModule(moduleName) {
-        // Get the module (trim any spaces too)
-        var module = modules[moduleName.trim()];
-        // If the module doesn't exist, fail
-        if (!module) {
-            grunt.fail.fatal('An unknown module was specified');
-        }
-        // The final paths that are found for the module and all deps
-        var paths = [];
-        // Get the deps and call recursively
-        (module.depends || []).forEach(function(moduleName) {
-            paths = paths.concat(
-                getPathsForModule(moduleName)
-            );
-        });
-        // Return the paths for the deps plus the files from the module
-        return paths.concat(module.files);
-    }
-
     // Loop each of the specified module names
-    includedModules.forEach(function(moduleName) {
-        // Add the paths to src 
-        src = src.concat(
-            getPathsForModule(
-                moduleName.trim()
-            )
+    var src =
+        includeModules.reduce(
+            function ( files, moduleName ) {
+                files.push.apply( files, getPathsForModule(moduleName) );
+                return files;
+            },
+            []
         );
-    });
 
-    // Prepend each value of src with 'src/' and filter the duplicate files (included multiple times)
-    src = src.map(function(path) {
-        return 'src/' + path;
-    }).filter(function(elem, pos, self) {
-        return self.indexOf(elem) == pos;
-    });
+    // Filter the duplicate files (included multiple times)
+    src = src.filter(
+        function ( elem, pos, self ) {
+            return self.indexOf(elem) == pos;
+        }
+    );
 
     // Finally, configure
     grunt.initConfig({
@@ -265,7 +310,7 @@ module.exports = function(grunt) {
         'saucelabs-qunit': {
             all: {
                 options: {
-                    testname: "asmcrypto.js",
+                    testname: 'asmcrypto.js',
                     urls: [ 'http://localhost:9999/' ],
                     browsers: browsers,
                     build: process.env.TRAVIS_JOB_ID

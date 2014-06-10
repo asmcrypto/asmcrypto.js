@@ -22,8 +22,6 @@ if ( typeof asmCrypto.RSA !== 'undefined' )
 
     test( "asmCrypto.RSA", function () {
         equal( typeof asmCrypto.RSA, 'object', "RSA exported" );
-        equal( typeof asmCrypto.RSA_OAEP_SHA256, 'object', "RSA_OAEP exported" );
-        equal( typeof asmCrypto.RSA_PSS_SHA256, 'object', "RSA_PSS exported" );
     });
 
     test( "asmCrypto.RSA.generateKey", function () {

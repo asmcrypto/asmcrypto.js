@@ -2,7 +2,7 @@ function pbkdf2_hmac_sha1_constructor ( options ) {
     options = options || {};
 
     if ( !( options.hmac instanceof hmac_sha1_constructor ) )
-        options.hmac = new hmac_sha1_constructor(options);
+        options.hmac = get_hmac_sha1_instance();
 
     pbkdf2_constructor.call( this, options );
 
@@ -39,3 +39,10 @@ function pbkdf2_hmac_sha1_generate ( salt, count, length ) {
 var pbkdf2_hmac_sha1_prototype = pbkdf2_hmac_sha1_constructor.prototype;
 pbkdf2_hmac_sha1_prototype.reset =   pbkdf2_reset;
 pbkdf2_hmac_sha1_prototype.generate = pbkdf2_hmac_sha1_generate;
+
+var pbkdf2_hmac_sha1_instance = null;
+
+function get_pbkdf2_hmac_sha1_instance () {
+    if ( pbkdf2_hmac_sha1_instance === null ) pbkdf2_hmac_sha1_instance = new pbkdf2_hmac_sha1_constructor();
+    return pbkdf2_hmac_sha1_instance;
+}

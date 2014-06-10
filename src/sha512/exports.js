@@ -2,11 +2,9 @@
  * SHA512 exports
  */
 
-var SHA512_instance = new sha512_constructor( { heapSize: 0x100000 } );
-
 function sha512_bytes ( data ) {
     if ( data === undefined ) throw new SyntaxError("data required");
-    return SHA512_instance.reset().process(data).finish().result;
+    return get_sha512_instance().reset().process(data).finish().result;
 }
 
 function sha512_hex ( data ) {
