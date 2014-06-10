@@ -1,10 +1,18 @@
-// imul polyfill for IE
+var bigint_asm;
+
 if ( global.Math.imul === undefined ) {
-    global.Math.imul = function imul_polyfill ( a, b ) {
-        var ah = a >>> 16, al = a & 0xffff, bh = b >>> 16, bl = b & 0xffff;
-        a = al * bl | 0, b = ( al * bh & 0xffff ) + ( ah * bl & 0xffff ) + ( a >>> 16 ) | 0;
-        return ( a & 0xffff ) | ( b << 16 );
+    function _half_imul ( a, b ) {
+        return a * b | 0;
     }
+    bigint_asm = function ( stdlib, foreign, buffer ) {
+        global.Math.imul = _half_imul;
+        var m = _bigint_asm( stdlib, foreign, buffer );
+        delete global.Math.imul;
+        return m;
+    };
+}
+else {
+    bigint_asm = _bigint_asm;
 }
 
 /**
@@ -12,7 +20,7 @@ if ( global.Math.imul === undefined ) {
  * Limbs number is a power of 2 and a multiple of 8 (256 bits).
  * Negative values use two's complement representation.
  */
-function bigint_asm ( stdlib, foreign, buffer ) {
+function _bigint_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
     var SP = 0;
@@ -1969,7 +1977,7 @@ function bigint_asm ( stdlib, foreign, buffer ) {
         R  =  R|0;
 
         var T = 0,
-            t = 0, c = 0, uh = 0, ul = 0, vl = 0, vh = 0, w0 = 0, w1 = 0, w2 = 0, r0 = 0, r1 = 0,
+            c = 0, uh = 0, ul = 0, vl = 0, vh = 0, w0 = 0, w1 = 0, w2 = 0, r0 = 0, r1 = 0,
             i = 0, j = 0, k = 0;
 
         T = salloc(lN<<1)|0;
@@ -1979,8 +1987,10 @@ function bigint_asm ( stdlib, foreign, buffer ) {
 
         // HAC 14.32
         for ( i = 0; (i|0) < (lN|0); i = (i+4)|0 ) {
-            t = HEAP32[(T+i)>>2]|0;
-            uh = imul(t,y)|0, ul = uh & 0xffff, uh = uh >>> 16;
+            uh = HEAP32[(T+i)>>2]|0, ul = uh & 0xffff, uh = uh >>> 16;
+            vh = y >>> 16, vl = y & 0xffff;
+            w0 = imul(ul,vl)|0, w1 = ( (imul(ul,vh)|0) + (imul(uh,vl)|0) | 0 ) + (w0 >>> 16) | 0;
+            ul = w0 & 0xffff, uh = w1 & 0xffff;
             r1 = 0;
             for ( j = 0; (j|0) < (lN|0); j = (j+4)|0 ) {
                 k = (i+j)|0;
