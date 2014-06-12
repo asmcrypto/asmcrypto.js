@@ -389,7 +389,7 @@ s
 
 Encrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
+Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
 
 Returns encrypted data as `Uint8Array`.
 
@@ -397,7 +397,7 @@ Returns encrypted data as `Uint8Array`.
 
 Decrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
+Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
 
 Returns encrypted data as `Uint8Array`.
 
@@ -409,7 +409,7 @@ Cipher Feedback Mode.
 
 Encrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
+Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
 
 Returns encrypted data as `Uint8Array`.
 
@@ -417,7 +417,7 @@ Returns encrypted data as `Uint8Array`.
 
 Decrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#5 padding is on and iv is zero-vector).
+Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
 
 Returns encrypted data as `Uint8Array`.
 
