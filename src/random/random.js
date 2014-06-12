@@ -16,7 +16,9 @@ var _isaac_rand = ISAAC.rand,
 
 var _random_estimated_entropy = 0,
     _random_required_entropy = 256,
-    _random_allow_weak = false;
+    _random_allow_weak = false,
+    _random_skip_system_rng_warning = false,
+    _random_warn_callstacks = {};
 
 var _hires_now;
 if ( _global_performance !== undefined ) {
@@ -147,12 +149,21 @@ function Random_getValues ( buffer ) {
         Random_weak_seed();
 
     // if we have no strong sources then the RNG is weak, handle it
-    if ( !_isaac_seeded ) {
-        if ( !_random_allow_weak && _global_crypto === undefined )
-            throw new SecurityError("No strong RNGs available. Try calling asmCrypto.random.seed() with good entropy.");
+    if ( !_isaac_seeded && _global_crypto === undefined ) {
+        if ( !_random_allow_weak )
+            throw new SecurityError("No strong PRNGs available. Use asmCrypto.random.seed().");
 
         if ( _global_console !== undefined )
-            _global_console.warn("asmCrypto PRNG hasn't been seeded; your security is greatly lowered. Try calling asmCrypto.random.seed() with good entropy.");
+            _global_console.error("No strong PRNGs available; your security is greatly lowered. Use asmCrypto.random.seed().");
+    }
+
+    // separate warning about assuming system RNG strong
+    if ( !_random_skip_system_rng_warning && !_isaac_seeded && _global_crypto !== undefined && _global_console !== undefined ) {
+        // Hacky way to get call stack
+        var s = new Error().stack;
+        _random_warn_callstacks[s] |= 0;
+        if ( !_random_warn_callstacks[s]++ )
+            _global_console.warn("asmCrypto PRNG not seeded; your security relies on your system PRNG. If this is not acceptable, use asmCrypto.random.seed().");
     }
 
     // proceed to get random values
