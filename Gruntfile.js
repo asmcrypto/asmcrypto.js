@@ -17,6 +17,7 @@ var defaults = [
 ];
 
 // Map each of the modules and their deps
+// Topo-sorted
 var modules = {
     'common': {
         files: [ 'src/errors.js' ]
@@ -232,45 +233,43 @@ module.exports = function ( grunt ) {
     // Trace build configuration
     grunt.log.writeln( "Building modules: " + includeModules.join(", ") );
 
-    // Gets the paths (including any deps) for a module
-    function getPathsForModule ( moduleName ) {
-        // Get the module
-        // If the module doesn't exist, fail
+    // Recurse into dependancy tree
+    function getDeepDependancies ( moduleName ) {
         var module = modules[moduleName];
         if ( !module )
-            grunt.fail.fatal( "An unknown module '" + moduleName + "' was specified" );
+            grunt.fail.fatal( "An unknown module '" + moduleName + "' specified" );
 
         // Get the deps and call recursively
-        var depsFiles =
-            ( module.depends || [] ).reduce(
-                function ( files, moduleName ) {
-                    files.push.apply( files, getPathsForModule(moduleName) );
-                    return files;
-                },
-                []
-            );
+        var deps = module.depends || [];
 
-        // Return the paths for the deps plus the files from the module
-        return depsFiles.concat(module.files);
-    }
-
-    // Hold the array of files as specified by the modules
-    // Loop each of the specified module names
-    var src =
-        includeModules.reduce(
-            function ( files, moduleName ) {
-                files.push.apply( files, getPathsForModule(moduleName) );
-                return files;
+        deps = deps.reduce(
+            function ( list, m ) {
+                list.push.apply( list, getDeepDependancies(m) );
+                return list;
             },
             []
-        );
+        ).concat(deps);
 
-    // Filter the duplicate files (included multiple times)
-    src = src.filter(
-        function ( elem, pos, self ) {
-            return self.indexOf(elem) == pos;
-        }
-    );
+        // Return flattened dependencies
+        return deps;
+    }
+
+    // Loop each of the specified module names
+    includeModules = includeModules.reduce(
+        function ( list, m ) {
+            list.push.apply( list, getDeepDependancies(m) );
+            return list;
+        },
+        []
+    ).concat(includeModules);
+
+    // Hold the array of files as specified by the modules
+    var src = [];
+    for ( var moduleName in modules ) {
+        var module = modules[moduleName];
+        if ( includeModules.indexOf(moduleName) === -1 ) continue;
+        src.push.apply( src, module.files );
+    }
 
     // Finally, configure
     grunt.initConfig({
