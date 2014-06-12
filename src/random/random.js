@@ -17,7 +17,8 @@ var _isaac_rand = ISAAC.rand,
 var _random_estimated_entropy = 0,
     _random_required_entropy = 256,
     _random_allow_weak = false,
-    _warn_system_rng_count = 0;
+    _random_skip_system_rng_warning = false,
+    _random_warn_callstacks = {};
 
 var _hires_now;
 if ( _global_performance !== undefined ) {
@@ -157,9 +158,12 @@ function Random_getValues ( buffer ) {
     }
 
     // separate warning about assuming system RNG strong
-    if ( !_isaac_seeded && _global_crypto !== undefined && _global_console !== undefined && _warn_system_rng_count < 20 ) {
-        _global_console.warn("asmCrypto PRNG not seeded; your security relies on your system PRNG. If this is not acceptable, use asmCrypto.random.seed().");
-        _warn_system_rng_count++;
+    if ( !_random_skip_system_rng_warning && !_isaac_seeded && _global_crypto !== undefined && _global_console !== undefined ) {
+        // Hacky way to get call stack
+        var s = new Error().stack;
+        _random_warn_callstacks[s] |= 0;
+        if ( !_random_warn_callstacks[s]++ )
+            _global_console.warn("asmCrypto PRNG not seeded; your security relies on your system PRNG. If this is not acceptable, use asmCrypto.random.seed().");
     }
 
     // proceed to get random values
