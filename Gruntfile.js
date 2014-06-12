@@ -303,7 +303,12 @@ module.exports = function ( grunt ) {
         },
 
         qunit: {
-            all: ['test/index.html']
+            all: {
+                options: {
+                    timeout: 60000,
+                    urls: [ 'test/index.html' ]
+                }
+            }
         },
 
         'saucelabs-qunit': {
