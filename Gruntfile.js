@@ -148,6 +148,11 @@ var modules = {
         files: [ 'src/rsa/rsa.js', 'src/rsa/genkey.js' ],
         depends: [ 'bn', 'rng' ]
     },
+    'rsa-raw': {
+        files: [ 'src/rsa/raw.js' ],
+        depends: [ 'rsa' ],
+        implies: [ 'exports-rsa' ]
+    },
     'rsa-pkcs1': {
         files: [ 'src/rsa/pkcs1.js' ],
         depends: [ 'rsa' ],
