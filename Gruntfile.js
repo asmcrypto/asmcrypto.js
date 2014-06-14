@@ -330,7 +330,8 @@ module.exports = function ( grunt ) {
                     testname: 'asmcrypto.js',
                     urls: [ 'http://localhost:9999/' ],
                     browsers: browsers,
-                    build: process.env.TRAVIS_JOB_ID
+                    build: process.env.TRAVIS_JOB_ID,
+                    'max-duration': 600
                 }
             }
         },
