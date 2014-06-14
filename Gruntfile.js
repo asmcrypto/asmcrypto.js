@@ -224,6 +224,14 @@ module.exports = function ( grunt ) {
                         .map( function ( moduleName ) { return moduleName.trim() } )
                         .filter( function ( moduleName ) { return moduleName.length > 0 } );
 
+    // Check for keyword "ALL"
+    if ( includeModules.indexOf('ALL') !== -1 ) {
+        includeModules = [];
+        for ( var moduleName in modules ) {
+            includeModules.push(moduleName);
+        }
+    }
+
     // No modules specified, put defaults here
     if ( includeModules.length === 0 )
         includeModules = includeModules.concat(defaults);

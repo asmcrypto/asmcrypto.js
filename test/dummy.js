@@ -98,3 +98,9 @@ else {
     skip( "divide with remainder" );
     skip( "imul" );
 }
+
+test( "Math.random()", function () {
+    var r = Math.random();
+    ok( typeof r === 'number', "r is number" );
+    ok( r >= 0 && r < 1, "0 <= r < 1" );
+});
