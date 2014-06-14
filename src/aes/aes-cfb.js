@@ -101,7 +101,7 @@ function cfb_aes_encrypt ( data ) {
 
     result = new Uint8Array( result1.length + result2.length );
     result.set(result1);
-    result.set( result2, result1.length );
+    if ( result2.length > 0 ) result.set( result2, result1.length );
     this.result = result;
 
     return this;
@@ -180,7 +180,7 @@ function cfb_aes_decrypt ( data ) {
 
     result = new Uint8Array( result1.length + result2.length );
     result.set(result1);
-    result.set( result2, result1.length );
+    if ( result2.length > 0 ) result.set( result2, result1.length );
     this.result = result;
 
     return this;
