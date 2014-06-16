@@ -319,7 +319,7 @@ module.exports = function ( grunt ) {
             all: {
                 options: {
                     timeout: 60000,
-                    urls: [ 'test/index.html' ]
+                    urls: [ 'http://localhost:9999/index.html' ]
                 }
             }
         },
@@ -341,7 +341,8 @@ module.exports = function ( grunt ) {
                 options: {
                     hostname: 'localhost',
                     port: 9999,
-                    base: 'test'
+                    base: [ 'test', '.' ],
+                    directory: 'test'
                 }
             }
         },
@@ -361,6 +362,6 @@ module.exports = function ( grunt ) {
 
     grunt.registerTask('default', ['uglify:release']);
     grunt.registerTask('devel', ['uglify:devel','connect','watch']);
-    grunt.registerTask('test', ['qunit']);
+    grunt.registerTask('test', ['connect','qunit']);
     grunt.registerTask('sauce', ['connect','saucelabs-qunit']);
 };
