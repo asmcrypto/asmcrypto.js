@@ -2,6 +2,88 @@ module("AES");
 
 ///////////////////////////////////////////////////////////////////////////////
 
+if ( typeof asmCrypto.AES_ECB !== 'undefined' )
+{
+    var ecb_aes_vectors = [
+        // AES-ECB-128
+        [
+            '2b7e151628aed2a6abf7158809cf4f3c',  // key
+            '6bc1bee22e409f96e93d7e117393172a',  // clear text
+            '3ad77bb40d7a3660a89ecaf32466ef97'   // cipher text
+        ],
+        [
+            '2b7e151628aed2a6abf7158809cf4f3c',  // key
+            'ae2d8a571e03ac9c9eb76fac45af8e51',  // clear text
+            'f5d3d58503b9699de785895a96fdbaaf'   // cipher text
+        ],
+        [
+            '2b7e151628aed2a6abf7158809cf4f3c',  // key
+            '30c81c46a35ce411e5fbc1191a0a52ef',  // clear text
+            '43b1cd7f598ece23881b00e3ed030688'   // cipher text
+        ],
+        [
+            '2b7e151628aed2a6abf7158809cf4f3c',  // key
+            'f69f2445df4f9b17ad2b417be66c3710',  // clear text
+            '7b0c785e27e8ad3f8223207104725dd4'   // cipher text
+        ],
+        [   // Two blocks
+            '2b7e151628aed2a6abf7158809cf4f3c',  // key
+            'f69f2445df4f9b17ad2b417be66c3710f69f2445df4f9b17ad2b417be66c3710',  // clear text
+            '7b0c785e27e8ad3f8223207104725dd47b0c785e27e8ad3f8223207104725dd4'   // cipher text
+        ],
+        // AES-ECB-256
+        [
+            '603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4',  // key
+            '6bc1bee22e409f96e93d7e117393172a',  // clear text
+            'f3eed1bdb5d2a03c064b5a7e3db181f8'   // cipher text
+        ],
+        [
+            '603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4',  // key
+            'ae2d8a571e03ac9c9eb76fac45af8e51',  // clear text
+            '591ccb10d410ed26dc5ba74a31362870'   // cipher text
+        ],
+        [
+            '603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4',  // key
+            '30c81c46a35ce411e5fbc1191a0a52ef',  // clear text
+            'b6ed21b99ca6f4f9f153e7b1beafed1d'   // cipher text
+        ],
+        [   // Two blocks
+            '603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4',  // key
+            '30c81c46a35ce411e5fbc1191a0a52ef30c81c46a35ce411e5fbc1191a0a52ef',  // clear text
+            'b6ed21b99ca6f4f9f153e7b1beafed1db6ed21b99ca6f4f9f153e7b1beafed1d'   // cipher text
+        ],
+        [
+            '603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4',  // key
+            'f69f2445df4f9b17ad2b417be66c3710',  // clear text
+            '23304b7a39f9f3ff067d8d8f9e24ecc7'   // cipher text
+        ]
+    ];
+
+    test( "asmCrypto.AES_ECB.encrypt / asmCrypto.AES_ECB.decrypt", function () {
+        for ( var i = 0; i < ecb_aes_vectors.length; ++i ) {
+            var key = new Uint8Array( asmCrypto.hex_to_bytes(ecb_aes_vectors[i][0]) ),
+                clear = new Uint8Array( asmCrypto.hex_to_bytes(ecb_aes_vectors[i][1]) ),
+                cipher = new Uint8Array( asmCrypto.hex_to_bytes(ecb_aes_vectors[i][2]) );
+
+            equal(
+                asmCrypto.bytes_to_hex( asmCrypto.AES_ECB.encrypt( clear, key, false ) ),
+                asmCrypto.bytes_to_hex(cipher),
+                    "encrypt vector " + i
+            );
+
+            equal(
+                asmCrypto.bytes_to_hex( asmCrypto.AES_ECB.decrypt( cipher, key, false ) ),
+                asmCrypto.bytes_to_hex(clear),
+                    "decrypt vector " + i
+            );
+        }
+    });
+}
+else
+{
+    skip( "asmCrypto.AES_ECB" );
+}
+
 if ( typeof asmCrypto.AES_CBC !== 'undefined' )
 {
     var cbc_aes_vectors = [
@@ -35,7 +117,7 @@ if ( typeof asmCrypto.AES_CBC !== 'undefined' )
               0x9c, 0xfc, 0x4e, 0x96, 0x7e, 0xdb, 0x80, 0x8d, 0x67, 0x9f, 0x77, 0x7b, 0xc6, 0x70, 0x2c, 0x7d,
               0x39, 0xf2, 0x33, 0x69, 0xa9, 0xd9, 0xba, 0xcf, 0xa5, 0x30, 0xe2, 0x63, 0x04, 0x23, 0x14, 0x61,
               0xb2, 0xeb, 0x05, 0xe2, 0xc3, 0x9b, 0xe9, 0xfc, 0xda, 0x6c, 0x19, 0x07, 0x8c, 0x6a, 0x9d, 0x1b ]
-        ],
+        ]
     ];
 
     test( "asmCrypto.AES_CBC.encrypt / asmCrypto.AES_CBC.decrypt", function () {
@@ -195,7 +277,7 @@ if ( typeof asmCrypto.AES_CFB !== 'undefined' )
                 0x39, 0xff, 0xed, 0x14, 0x3b, 0x28, 0xb1, 0xc8, 0x32, 0x11, 0x3c, 0x63, 0x31, 0xe5, 0x40, 0x7b,
                 0xdf, 0x10, 0x13, 0x24, 0x15, 0xe5, 0x4b, 0x92, 0xa1, 0x3e, 0xd0, 0xa8, 0x26, 0x7a, 0xe2, 0xf9,
                 0x75, 0xa3, 0x85 ]
-        ],
+        ]
     ];
 
     test( "asmCrypto.AES_CFB.encrypt / asmCrypto.AES_CFB.decrypt", function () {
