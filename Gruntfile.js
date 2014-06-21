@@ -1,6 +1,7 @@
 // Default modules to build
 var defaults = [
     'utils',
+    'aes-ecb',
     'aes-cbc',
     'aes-ccm',
     'sha1',
@@ -29,6 +30,11 @@ var modules = {
     'aes': {
         files: [ 'src/aes/aes.asm.js', 'src/aes/aes.js' ],
         depends: [ 'common', 'utils' ]
+    },
+    'aes-ecb': {
+        files: [ 'src/aes/aes-ecb.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'exports-aes' ]
     },
     'aes-cbc': {
         files: [ 'src/aes/aes-cbc.js' ],
