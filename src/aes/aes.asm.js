@@ -1587,6 +1587,118 @@ function _aes_asm ( stdlib, foreign, buffer ) {
     }
 
     // offset, length — multiple of 16
+    function ecb_encrypt ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        var encrypted = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        while ( (length|0) >= 16 ) {
+            _encrypt(
+                    HEAP[offset],
+                    HEAP[offset|1],
+                    HEAP[offset|2],
+                    HEAP[offset|3],
+                    HEAP[offset|4],
+                    HEAP[offset|5],
+                    HEAP[offset|6],
+                    HEAP[offset|7],
+                    HEAP[offset|8],
+                    HEAP[offset|9],
+                    HEAP[offset|10],
+                    HEAP[offset|11],
+                    HEAP[offset|12],
+                    HEAP[offset|13],
+                    HEAP[offset|14],
+                    HEAP[offset|15]
+            );
+
+            HEAP[offset] = S0;
+            HEAP[offset|1] = S1;
+            HEAP[offset|2] = S2;
+            HEAP[offset|3] = S3;
+            HEAP[offset|4] = S4;
+            HEAP[offset|5] = S5;
+            HEAP[offset|6] = S6;
+            HEAP[offset|7] = S7;
+            HEAP[offset|8] = S8;
+            HEAP[offset|9] = S9;
+            HEAP[offset|10] = SA;
+            HEAP[offset|11] = SB;
+            HEAP[offset|12] = SC;
+            HEAP[offset|13] = SD;
+            HEAP[offset|14] = SE;
+            HEAP[offset|15] = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+
+            encrypted = (encrypted + 16)|0;
+        }
+
+        return encrypted|0;
+    }
+
+    // offset, length — multiple of 16
+    function ecb_decrypt ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        var decrypted = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        while ( (length|0) >= 16 ) {
+            _decrypt(
+                    HEAP[offset]|0,
+                    HEAP[offset|1]|0,
+                    HEAP[offset|2]|0,
+                    HEAP[offset|3]|0,
+                    HEAP[offset|4]|0,
+                    HEAP[offset|5]|0,
+                    HEAP[offset|6]|0,
+                    HEAP[offset|7]|0,
+                    HEAP[offset|8]|0,
+                    HEAP[offset|9]|0,
+                    HEAP[offset|10]|0,
+                    HEAP[offset|11]|0,
+                    HEAP[offset|12]|0,
+                    HEAP[offset|13]|0,
+                    HEAP[offset|14]|0,
+                    HEAP[offset|15]|0
+            );
+
+            HEAP[offset] = S0;
+            HEAP[offset|1] = S1;
+            HEAP[offset|2] = S2;
+            HEAP[offset|3] = S3;
+            HEAP[offset|4] = S4;
+            HEAP[offset|5] = S5;
+            HEAP[offset|6] = S6;
+            HEAP[offset|7] = S7;
+            HEAP[offset|8] = S8;
+            HEAP[offset|9] = S9;
+            HEAP[offset|10] = SA;
+            HEAP[offset|11] = SB;
+            HEAP[offset|12] = SC;
+            HEAP[offset|13] = SD;
+            HEAP[offset|14] = SE;
+            HEAP[offset|15] = SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+
+            decrypted = (decrypted + 16)|0;
+        }
+
+        return decrypted|0;
+    }
+
+    // offset, length — multiple of 16
     function cbc_encrypt ( offset, length ) {
         offset = offset|0;
         length = length|0;
@@ -2473,6 +2585,9 @@ function _aes_asm ( stdlib, foreign, buffer ) {
 
         init_key_128: init_key_128,
         init_key_256: init_key_256,
+
+        ecb_encrypt: ecb_encrypt,
+        ecb_decrypt: ecb_decrypt,
 
         cbc_encrypt: cbc_encrypt,
         cbc_decrypt: cbc_decrypt,
