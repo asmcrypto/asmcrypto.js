@@ -1598,22 +1598,22 @@ function _aes_asm ( stdlib, foreign, buffer ) {
 
         while ( (length|0) >= 16 ) {
             _encrypt(
-                    HEAP[offset],
-                    HEAP[offset|1],
-                    HEAP[offset|2],
-                    HEAP[offset|3],
-                    HEAP[offset|4],
-                    HEAP[offset|5],
-                    HEAP[offset|6],
-                    HEAP[offset|7],
-                    HEAP[offset|8],
-                    HEAP[offset|9],
-                    HEAP[offset|10],
-                    HEAP[offset|11],
-                    HEAP[offset|12],
-                    HEAP[offset|13],
-                    HEAP[offset|14],
-                    HEAP[offset|15]
+                    HEAP[offset]|0,
+                    HEAP[offset|1]|0,
+                    HEAP[offset|2]|0,
+                    HEAP[offset|3]|0,
+                    HEAP[offset|4]|0,
+                    HEAP[offset|5]|0,
+                    HEAP[offset|6]|0,
+                    HEAP[offset|7]|0,
+                    HEAP[offset|8]|0,
+                    HEAP[offset|9]|0,
+                    HEAP[offset|10]|0,
+                    HEAP[offset|11]|0,
+                    HEAP[offset|12]|0,
+                    HEAP[offset|13]|0,
+                    HEAP[offset|14]|0,
+                    HEAP[offset|15]|0
             );
 
             HEAP[offset] = S0;
