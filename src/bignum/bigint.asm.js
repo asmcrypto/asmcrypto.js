@@ -1879,7 +1879,7 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
 
             // add `D` back if got carry-out
             if ( c ) {
-                qh = (qh+1)|0, rh = (rh-vh)|0;
+                qh = (qh-1)|0, rh = (rh-vh)|0;
                 c = 0;
                 for ( k = 0; (k|0) <= (lD|0); k = (k+4)|0 ) {
                     d = HEAP32[(D+k)>>2]|0;
@@ -1923,7 +1923,7 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
 
             // add `D` back if got carry-out
             if ( c ) {
-                ql = (ql+1)|0, rl = (rl+vh)|0;
+                ql = (ql-1)|0, rl = (rl+vh)|0;
                 c = 0;
                 for ( k = 0; (k|0) <= (lD|0); k = (k+4)|0 ) {
                     d = HEAP32[(D+k)>>2]|0;
