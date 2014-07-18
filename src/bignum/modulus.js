@@ -120,7 +120,8 @@ function Modulus_power ( g, e ) {
     }
 
     // perform exponentiation
-    var r = BigNumber_ONE;
+    var u = this.comodulusRemainder,
+        r = u;
     for ( var i = e.limbs.length-1; i >= 0; i-- ) {
         var t = e.limbs[i];
         for ( var j = 32; j > 0; ) {
@@ -128,15 +129,13 @@ function Modulus_power ( g, e ) {
                 var n = t >>> (32-k), l = k;
                 while ( (n & 1) === 0 ) { n >>>= 1; l--; }
                 var m = gn[n>>>1];
-                while ( n ) { n >>>= 1; r = ( r !== BigNumber_ONE ) ? _Montgomery_reduce( r.square(), this ) : r; }
-                r = ( r !== BigNumber_ONE ) ? _Montgomery_reduce( r.multiply(m), this ) : m;
-                t <<= l;
-                j -= l;
+                while ( n ) { n >>>= 1; if ( r !== u ) r = _Montgomery_reduce( r.square(), this ); }
+                r = ( r !== u ) ? _Montgomery_reduce( r.multiply(m), this ) : m;
+                t <<= l, j -= l;
             }
             else {
-                r = ( r !== BigNumber_ONE ) ? _Montgomery_reduce( r.square(), this ) : r;
-                t <<= 1;
-                j--;
+                if ( r !== u ) r = _Montgomery_reduce( r.square(), this );
+                t <<= 1, j--;
             }
         }
     }

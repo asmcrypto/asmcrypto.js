@@ -63,11 +63,11 @@ if ( typeof asmCrypto.BigNumber !== 'undefined' )
         equal( verylarge.toString(16), '3f70f29d3f3ae354a6d2536ceafba83cfc787cd91e7acd2b6bde05e62beb8295ae18e3f786726f8d034bbc15bf8331df959f59d431736d5f306aaba63dacec279484e39d76db9b527738072af15730e8b9956a64e8e4dbe868f77d1414a8a8b8bf65380a1f008d39c5fabe1a9f8343929342ab7b4f635bdc52532d764701ff3d8072c475c012ff0c59373e8bc423928d99f58c3a6d9f6ab21ee20bc8e8818fc147db09f60c81906f2c6f73dc69725f075853a89f0cd02a30a8dd86b660ccdeffc292f398efb54088c822774445a6afde471f7dd327ef9996296898a5747726ccaeeceeb2e459df98b4128cb5ab8c7cd20c563f960a1aa770f3c81f13f967b6cc', "verylarge.toString()" );
     });
 
-    test( "asmCrypto.BigNumber.splice", function () {
+    test( "asmCrypto.BigNumber.slice", function () {
         var deadbeefcafe = new asmCrypto.BigNumber(0xdeadbeefcafe);
-        equal( deadbeefcafe.splice(0).valueOf(), 0xdeadbeefcafe, "splice(0)" );
-        equal( deadbeefcafe.splice(52).valueOf(), 0, "splice(bitLength)" );
-        equal( deadbeefcafe.splice(24,16).valueOf(), 0xadbe, "splice(middle)" );
+        equal( deadbeefcafe.slice(0).valueOf(), 0xdeadbeefcafe, "slice(0)" );
+        equal( deadbeefcafe.slice(52).valueOf(), 0, "slice(bitLength)" );
+        equal( deadbeefcafe.slice(24,16).valueOf(), 0xadbe, "slice(middle)" );
     });
 
     test( "asmCrypto.BigNumber.compare", function () {

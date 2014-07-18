@@ -179,7 +179,7 @@ function BigNumber_clamp ( b ) {
     return clamped;
 }
 
-function BigNumber_splice ( f, b ) {
+function BigNumber_slice ( f, b ) {
     if ( !is_number(f) )
         throw new TypeError("TODO");
 
@@ -198,7 +198,7 @@ function BigNumber_splice ( f, b ) {
     if ( b === undefined || b > bitlen - f )
         b = bitlen - f;
 
-    var spliced = new BigNumber, slimbs,
+    var sliced = new BigNumber, slimbs,
         n = f >> 5, m = (f + b + 31) >> 5, l = (b + 31) >> 5,
         t = f % 32, k = b % 32;
 
@@ -217,11 +217,11 @@ function BigNumber_splice ( f, b ) {
         slimbs[l-1] &= (-1 >>> (32-k));
     }
 
-    spliced.limbs = slimbs
-    spliced.bitLength = b;
-    spliced.sign = this.sign;
+    sliced.limbs = slimbs
+    sliced.bitLength = b;
+    sliced.sign = this.sign;
 
-    return spliced;
+    return sliced;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -431,7 +431,7 @@ BigNumberPrototype.toString = BigNumber_toString;
 BigNumberPrototype.toBytes = BigNumber_toBytes;
 BigNumberPrototype.valueOf = BigNumber_valueOf;
 BigNumberPrototype.clamp = BigNumber_clamp;
-BigNumberPrototype.splice = BigNumber_splice;
+BigNumberPrototype.slice = BigNumber_slice;
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -42,7 +42,7 @@ if ( typeof asmCrypto.RSA !== 'undefined' )
         equal( d.divide(p.subtract(1)).remainder.toString(16), dp.toString(16), "dp == d mod (p-1)" );
         equal( d.divide(q.subtract(1)).remainder.toString(16), dq.toString(16), "dq == d mod (q-1)" );
         equal( qi.multiply(q).divide(p).remainder.toString(16), '1', "qi*q == 1 mod p" );
-        equal( m.splice(m.bitLength-1).valueOf(), 1, "m highest bit is 1" );
+        equal( m.slice(m.bitLength-1).valueOf(), 1, "m highest bit is 1" );
     });
 }
 else
