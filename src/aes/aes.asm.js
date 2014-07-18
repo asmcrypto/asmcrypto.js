@@ -154,6 +154,8 @@ function _aes_asm ( stdlib, foreign, buffer ) {
     // AES state
     var S0 = 0, S1 = 0, S2 = 0, S3 = 0, S4 = 0, S5 = 0, S6 = 0, S7 = 0, S8 = 0, S9 = 0, SA = 0, SB = 0, SC = 0, SD = 0, SE = 0, SF = 0;
     var keySize = 0;
+    var z0 = 0, z1 = 0, z2 = 0, z3 = 0, h0 = 0, h1 = 0, h2 = 0, h3 = 0, genccnt0 = 0, genccnt1 = 0, genccnt2 = 0, genccnt3 = 0;
+    var gcnt0 = 0, gcnt1 = 0, gcnt2 = 0, gcnt3 = 0, gcnt4 = 0, gcnt5 = 0, gcnt6 = 0, gcnt7 = 0, gcnt8 = 0, gcnt9 = 0, gcntA = 0, gcntB = 0, gcntCDEF = 0;
 
     // AES key schedule
     var R00 = 0, R01 = 0, R02 = 0, R03 = 0, R04 = 0, R05 = 0, R06 = 0, R07 = 0, R08 = 0, R09 = 0, R0A = 0, R0B = 0, R0C = 0, R0D = 0, R0E = 0, R0F = 0, // cipher key
@@ -2579,6 +2581,420 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         return decrypted|0;
     }
 
+    function _gcm_mult () {
+        var v0 = 0, v1 = 0, v2 = 0, v3 = 0, y0 = 0, y1 = 0, y2 = 0, y3 = 0, i = 0;
+
+        v0 = z0|0;
+        v1 = z1|0;
+        v2 = z2|0;
+        v3 = z3|0;
+
+        y0 = h0|0;
+        y1 = h1|0;
+        y2 = h2|0;
+        y3 = h3|0;
+
+        z0 = 0;
+        z1 = 0;
+        z2 = 0;
+        z3 = 0;
+
+        for (i = 0; (i|0) < 128; i = (i + 1)|0) {
+            if (y0 & 0x80000000) {
+                z0 = z0 ^ v0;
+                z1 = z1 ^ v1;
+                z2 = z2 ^ v2;
+                z3 = z3 ^ v3;
+            }
+
+            y0 = (y0 << 1) | (y1 >>> 31);
+            y1 = (y1 << 1) | (y2 >>> 31);
+            y2 = (y2 << 1) | (y3 >>> 31);
+            y3 = (y3 << 1);
+
+            if (v3 & 1) {
+                v3 = (v3 >>> 1) | (v2 << 31);
+                v2 = (v2 >>> 1) | (v1 << 31);
+                v1 = (v1 >>> 1) | (v0 << 31);
+                v0 = (v0 >>> 1) ^ 0xe1000000;
+            } else {
+                v3 = (v3 >>> 1) | (v2 << 31);
+                v2 = (v2 >>> 1) | (v1 << 31);
+                v1 = (v1 >>> 1) | (v0 << 31);
+                v0 = (v0 >>> 1);
+            }
+        }
+    }
+
+    // offset — multiple of 16, length
+    function gcm_set_iv (offset, length) {
+        offset = offset|0;
+        length = length|0;
+
+        var processed = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        _encrypt(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        h0 = S0<<24 | S1<<16 | S2<<8 | S3;
+        h1 = S4<<24 | S5<<16 | S6<<8 | S7;
+        h2 = S8<<24 | S9<<16 | SA<<8 | SB;
+        h3 = SC<<24 | SD<<16 | SE<<8 | SF;
+
+        if ((length|0) == 12) {
+            gcnt0 = HEAP[offset|0]|0;
+            gcnt1 = HEAP[offset|1]|0;
+            gcnt2 = HEAP[offset|2]|0;
+            gcnt3 = HEAP[offset|3]|0;
+            gcnt4 = HEAP[offset|4]|0;
+            gcnt5 = HEAP[offset|5]|0;
+            gcnt6 = HEAP[offset|6]|0;
+            gcnt7 = HEAP[offset|7]|0;
+            gcnt8 = HEAP[offset|8]|0;
+            gcnt9 = HEAP[offset|9]|0;
+            gcntA = HEAP[offset|10]|0;
+            gcntB = HEAP[offset|11]|0;
+            gcntCDEF = 1;
+        } else {
+            z0 = 0;
+            z1 = 0;
+            z2 = 0;
+            z3 = 0;
+
+            while ( (length|0) >= 16 ) {
+                z0 = ( z0 ^ (HEAP[offset|0]<<24 | HEAP[offset|1]<<16 | HEAP[offset|2]<<8 | HEAP[offset|3]) ) | 0;
+                z1 = ( z1 ^ (HEAP[offset|4]<<24 | HEAP[offset|5]<<16 | HEAP[offset|6]<<8 | HEAP[offset|7]) ) | 0;
+                z2 = ( z2 ^ (HEAP[offset|8]<<24 | HEAP[offset|9]<<16 | HEAP[offset|10]<<8 | HEAP[offset|11]) ) | 0;
+                z3 = ( z3 ^ (HEAP[offset|12]<<24 | HEAP[offset|13]<<16 | HEAP[offset|14]<<8 | HEAP[offset|15]) ) | 0;
+
+                _gcm_mult();
+
+                offset = (offset+16)|0;
+                processed = (processed+16)|0;
+                length = (length-16)|0;
+            }
+
+            if ( (length|0) > 0 ) {
+                z0 = ( z0 ^ (HEAP[offset|0]<<24) ) | 0;
+                if ( (length|0) > 1 ) z0 = ( z0 ^ (HEAP[offset|1]<<16) ) | 0;
+                if ( (length|0) > 2 ) z0 = ( z0 ^ (HEAP[offset|2]<<8) ) | 0;
+                if ( (length|0) > 3 ) z0 = ( z0 ^ (HEAP[offset|3]) ) | 0;
+                if ( (length|0) > 4 ) z1 = ( z1 ^ (HEAP[offset|4]<<24) ) | 0;
+                if ( (length|0) > 5 ) z1 = ( z1 ^ (HEAP[offset|5]<<16) ) | 0;
+                if ( (length|0) > 6 ) z1 = ( z1 ^ (HEAP[offset|6]<<8) ) | 0;
+                if ( (length|0) > 7 ) z1 = ( z1 ^ (HEAP[offset|7]) ) | 0;
+                if ( (length|0) > 8 ) z2 = ( z2 ^ (HEAP[offset|8]<<24) ) | 0;
+                if ( (length|0) > 9 ) z2 = ( z2 ^ (HEAP[offset|9]<<16) ) | 0;
+                if ( (length|0) > 10 ) z2 = ( z2 ^ (HEAP[offset|10]<<8) ) | 0;
+                if ( (length|0) > 11 ) z2 = ( z2 ^ (HEAP[offset|11]) ) | 0;
+                if ( (length|0) > 12 ) z3 = ( z3 ^ (HEAP[offset|12]<<24) ) | 0;
+                if ( (length|0) > 13 ) z3 = ( z3 ^ (HEAP[offset|13]<<16) ) | 0;
+                if ( (length|0) > 14 ) z3 = ( z3 ^ (HEAP[offset|14]<<8) ) | 0;
+
+                _gcm_mult();
+
+                processed = (processed+length)|0;
+            }
+
+            z2 = ( z2 ^ (processed >>> 29) ) | 0;
+            z3 = ( z3 ^ (processed << 3) ) | 0;
+
+            _gcm_mult();
+
+            gcnt0 = z0>>>24;
+            gcnt1 = z0>>>16&255;
+            gcnt2 = z0>>>8&255;
+            gcnt3 = z0&255;
+            gcnt4 = z1>>>24;
+            gcnt5 = z1>>>16&255;
+            gcnt6 = z1>>>8&255;
+            gcnt7 = z1&255;
+            gcnt8 = z2>>>24;
+            gcnt9 = z2>>>16&255;
+            gcntA = z2>>>8&255;
+            gcntB = z2&255;
+            gcntCDEF = z3;
+        }
+
+        z0 = 0;
+        z1 = 0;
+        z2 = 0;
+        z3 = 0;
+
+        _encrypt(
+            gcnt0, gcnt1, gcnt2, gcnt3,
+            gcnt4, gcnt5, gcnt6, gcnt7,
+            gcnt8, gcnt9, gcntA, gcntB,
+            gcntCDEF>>>24, gcntCDEF>>>16&255, gcntCDEF>>>8&255, gcntCDEF&255
+        );
+        genccnt0 = S0<<24 | S1<<16 | S2<<8 | S3;
+        genccnt1 = S4<<24 | S5<<16 | S6<<8 | S7;
+        genccnt2 = S8<<24 | S9<<16 | SA<<8 | SB;
+        genccnt3 = SC<<24 | SD<<16 | SE<<8 | SF;
+
+        gcntCDEF = (gcntCDEF + 1) | 0;
+
+        return processed|0;
+    }
+
+    // offset — multiple of 16, length
+    function gcm_aad (offset, length) {
+        offset = offset|0;
+        length = length|0;
+
+        var processed = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        while ( (length|0) >= 16 ) {
+            z0 = ( z0 ^ (HEAP[offset|0]<<24 | HEAP[offset|1]<<16 | HEAP[offset|2]<<8 | HEAP[offset|3]) ) | 0;
+            z1 = ( z1 ^ (HEAP[offset|4]<<24 | HEAP[offset|5]<<16 | HEAP[offset|6]<<8 | HEAP[offset|7]) ) | 0;
+            z2 = ( z2 ^ (HEAP[offset|8]<<24 | HEAP[offset|9]<<16 | HEAP[offset|10]<<8 | HEAP[offset|11]) ) | 0;
+            z3 = ( z3 ^ (HEAP[offset|12]<<24 | HEAP[offset|13]<<16 | HEAP[offset|14]<<8 | HEAP[offset|15]) ) | 0;
+
+            _gcm_mult();
+
+            offset = (offset+16)|0;
+            length = (length-16)|0;
+            processed = (processed+16)|0;
+        }
+
+        if ( (length|0) > 0 ) {
+            z0 = ( z0 ^ (HEAP[offset|0]<<24) ) | 0;
+            if ( (length|0) > 1 ) z0 = ( z0 ^ (HEAP[offset|1]<<16) ) | 0;
+            if ( (length|0) > 2 ) z0 = ( z0 ^ (HEAP[offset|2]<<8) ) | 0;
+            if ( (length|0) > 3 ) z0 = ( z0 ^ (HEAP[offset|3]) ) | 0;
+            if ( (length|0) > 4 ) z1 = ( z1 ^ (HEAP[offset|4]<<24) ) | 0;
+            if ( (length|0) > 5 ) z1 = ( z1 ^ (HEAP[offset|5]<<16) ) | 0;
+            if ( (length|0) > 6 ) z1 = ( z1 ^ (HEAP[offset|6]<<8) ) | 0;
+            if ( (length|0) > 7 ) z1 = ( z1 ^ (HEAP[offset|7]) ) | 0;
+            if ( (length|0) > 8 ) z2 = ( z2 ^ (HEAP[offset|8]<<24) ) | 0;
+            if ( (length|0) > 9 ) z2 = ( z2 ^ (HEAP[offset|9]<<16) ) | 0;
+            if ( (length|0) > 10 ) z2 = ( z2 ^ (HEAP[offset|10]<<8) ) | 0;
+            if ( (length|0) > 11 ) z2 = ( z2 ^ (HEAP[offset|11]) ) | 0;
+            if ( (length|0) > 12 ) z3 = ( z3 ^ (HEAP[offset|12]<<24) ) | 0;
+            if ( (length|0) > 13 ) z3 = ( z3 ^ (HEAP[offset|13]<<16) ) | 0;
+            if ( (length|0) > 14 ) z3 = ( z3 ^ (HEAP[offset|14]<<8) ) | 0;
+
+            _gcm_mult();
+
+            processed = (processed+length)|0;
+        }
+
+        return processed|0;
+    }
+
+    // offset — multiple of 16, length
+    function gcm_encrypt (offset, length) {
+        offset = offset|0;
+        length = length|0;
+
+        var processed = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        while ( (length|0) >= 16 ) {
+            _encrypt(
+                gcnt0, gcnt1, gcnt2, gcnt3,
+                gcnt4, gcnt5, gcnt6, gcnt7,
+                gcnt8, gcnt9, gcntA, gcntB,
+                gcntCDEF>>>24, gcntCDEF>>>16&255, gcntCDEF>>>8&255, gcntCDEF&255
+            );
+
+            HEAP[offset] = HEAP[offset] ^ S0;
+            HEAP[offset|1] = HEAP[offset|1] ^ S1;
+            HEAP[offset|2] = HEAP[offset|2] ^ S2;
+            HEAP[offset|3] = HEAP[offset|3] ^ S3;
+            HEAP[offset|4] = HEAP[offset|4] ^ S4;
+            HEAP[offset|5] = HEAP[offset|5] ^ S5;
+            HEAP[offset|6] = HEAP[offset|6] ^ S6;
+            HEAP[offset|7] = HEAP[offset|7] ^ S7;
+            HEAP[offset|8] = HEAP[offset|8] ^ S8;
+            HEAP[offset|9] = HEAP[offset|9] ^ S9;
+            HEAP[offset|10] = HEAP[offset|10] ^ SA;
+            HEAP[offset|11] = HEAP[offset|11] ^ SB;
+            HEAP[offset|12] = HEAP[offset|12] ^ SC;
+            HEAP[offset|13] = HEAP[offset|13] ^ SD;
+            HEAP[offset|14] = HEAP[offset|14] ^ SE;
+            HEAP[offset|15] = HEAP[offset|15] ^ SF;
+
+            z0 = ( z0 ^ (HEAP[offset|0]<<24 | HEAP[offset|1]<<16 | HEAP[offset|2]<<8 | HEAP[offset|3]) ) | 0;
+            z1 = ( z1 ^ (HEAP[offset|4]<<24 | HEAP[offset|5]<<16 | HEAP[offset|6]<<8 | HEAP[offset|7]) ) | 0;
+            z2 = ( z2 ^ (HEAP[offset|8]<<24 | HEAP[offset|9]<<16 | HEAP[offset|10]<<8 | HEAP[offset|11]) ) | 0;
+            z3 = ( z3 ^ (HEAP[offset|12]<<24 | HEAP[offset|13]<<16 | HEAP[offset|14]<<8 | HEAP[offset|15]) ) | 0;
+
+            _gcm_mult();
+
+            gcntCDEF = (gcntCDEF + 1) | 0;
+
+            offset = (offset+16)|0;
+            length = (length-16)|0;
+            processed = (processed+16)|0;
+        }
+
+        if ( (length|0) > 0 ) {
+            _encrypt(
+                gcnt0, gcnt1, gcnt2, gcnt3,
+                gcnt4, gcnt5, gcnt6, gcnt7,
+                gcnt8, gcnt9, gcntA, gcntB,
+                    gcntCDEF>>>24, gcntCDEF>>>16&255, gcntCDEF>>>8&255, gcntCDEF&255
+            );
+
+            HEAP[offset] = HEAP[offset] ^ S0;
+            z0 = ( z0 ^ (HEAP[offset|0]<<24) ) | 0;
+            if ( (length|0) > 1 ) { HEAP[offset|1] = HEAP[offset|1] ^ S1; z0 = ( z0 ^ (HEAP[offset|1]<<16) ) | 0; }
+            if ( (length|0) > 2 ) { HEAP[offset|2] = HEAP[offset|2] ^ S2; z0 = ( z0 ^ (HEAP[offset|2]<<8) ) | 0; }
+            if ( (length|0) > 3 ) { HEAP[offset|3] = HEAP[offset|3] ^ S3; z0 = ( z0 ^ (HEAP[offset|3]) ) | 0; }
+            if ( (length|0) > 4 ) { HEAP[offset|4] = HEAP[offset|4] ^ S4; z1 = ( z1 ^ (HEAP[offset|4]<<24) ) | 0; }
+            if ( (length|0) > 5 ) { HEAP[offset|5] = HEAP[offset|5] ^ S5; z1 = ( z1 ^ (HEAP[offset|5]<<16) ) | 0; }
+            if ( (length|0) > 6 ) { HEAP[offset|6] = HEAP[offset|6] ^ S6; z1 = ( z1 ^ (HEAP[offset|6]<<8) ) | 0; }
+            if ( (length|0) > 7 ) { HEAP[offset|7] = HEAP[offset|7] ^ S7; z1 = ( z1 ^ (HEAP[offset|7]) ) | 0; }
+            if ( (length|0) > 8 ) { HEAP[offset|8] = HEAP[offset|8] ^ S8; z2 = ( z2 ^ (HEAP[offset|8]<<24) ) | 0; }
+            if ( (length|0) > 9 ) { HEAP[offset|9] = HEAP[offset|9] ^ S9; z2 = ( z2 ^ (HEAP[offset|9]<<16) ) | 0; }
+            if ( (length|0) > 10 ) { HEAP[offset|10] = HEAP[offset|10] ^ SA;  z2 = ( z2 ^ (HEAP[offset|10]<<8) ) | 0; }
+            if ( (length|0) > 11 ) { HEAP[offset|11] = HEAP[offset|11] ^ SB;  z2 = ( z2 ^ (HEAP[offset|11]) ) | 0; }
+            if ( (length|0) > 12 ) { HEAP[offset|12] = HEAP[offset|12] ^ SC;  z3 = ( z3 ^ (HEAP[offset|12]<<24) ) | 0; }
+            if ( (length|0) > 13 ) { HEAP[offset|13] = HEAP[offset|13] ^ SD;  z3 = ( z3 ^ (HEAP[offset|13]<<16) ) | 0; }
+            if ( (length|0) > 14 ) { HEAP[offset|14] = HEAP[offset|14] ^ SE;  z3 = ( z3 ^ (HEAP[offset|14]<<8) ) | 0; }
+
+            _gcm_mult();
+
+            gcntCDEF = (gcntCDEF + 1) | 0;
+
+            processed = (processed+length)|0;
+        }
+
+        return processed|0;
+    }
+
+    function gcm_decrypt (offset, length) {
+        offset = offset|0;
+        length = length|0;
+
+        var processed = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        while ( (length|0) >= 16 ) {
+            _encrypt(
+                gcnt0, gcnt1, gcnt2, gcnt3,
+                gcnt4, gcnt5, gcnt6, gcnt7,
+                gcnt8, gcnt9, gcntA, gcntB,
+                    gcntCDEF>>>24, gcntCDEF>>>16&255, gcntCDEF>>>8&255, gcntCDEF&255
+            );
+
+            z0 = ( z0 ^ (HEAP[offset|0]<<24 | HEAP[offset|1]<<16 | HEAP[offset|2]<<8 | HEAP[offset|3]) ) | 0;
+            z1 = ( z1 ^ (HEAP[offset|4]<<24 | HEAP[offset|5]<<16 | HEAP[offset|6]<<8 | HEAP[offset|7]) ) | 0;
+            z2 = ( z2 ^ (HEAP[offset|8]<<24 | HEAP[offset|9]<<16 | HEAP[offset|10]<<8 | HEAP[offset|11]) ) | 0;
+            z3 = ( z3 ^ (HEAP[offset|12]<<24 | HEAP[offset|13]<<16 | HEAP[offset|14]<<8 | HEAP[offset|15]) ) | 0;
+
+            HEAP[offset] = HEAP[offset] ^ S0;
+            HEAP[offset|1] = HEAP[offset|1] ^ S1;
+            HEAP[offset|2] = HEAP[offset|2] ^ S2;
+            HEAP[offset|3] = HEAP[offset|3] ^ S3;
+            HEAP[offset|4] = HEAP[offset|4] ^ S4;
+            HEAP[offset|5] = HEAP[offset|5] ^ S5;
+            HEAP[offset|6] = HEAP[offset|6] ^ S6;
+            HEAP[offset|7] = HEAP[offset|7] ^ S7;
+            HEAP[offset|8] = HEAP[offset|8] ^ S8;
+            HEAP[offset|9] = HEAP[offset|9] ^ S9;
+            HEAP[offset|10] = HEAP[offset|10] ^ SA;
+            HEAP[offset|11] = HEAP[offset|11] ^ SB;
+            HEAP[offset|12] = HEAP[offset|12] ^ SC;
+            HEAP[offset|13] = HEAP[offset|13] ^ SD;
+            HEAP[offset|14] = HEAP[offset|14] ^ SE;
+            HEAP[offset|15] = HEAP[offset|15] ^ SF;
+
+            _gcm_mult();
+
+            gcntCDEF = (gcntCDEF + 1) | 0;
+
+            offset = (offset+16)|0;
+            length = (length-16)|0;
+            processed = (processed+16)|0;
+        }
+
+        if ( (length|0) > 0 ) {
+            _encrypt(
+                gcnt0, gcnt1, gcnt2, gcnt3,
+                gcnt4, gcnt5, gcnt6, gcnt7,
+                gcnt8, gcnt9, gcntA, gcntB,
+                    gcntCDEF>>>24, gcntCDEF>>>16&255, gcntCDEF>>>8&255, gcntCDEF&255
+            );
+
+            z0 = ( z0 ^ (HEAP[offset|0]<<24) ) | 0;
+            HEAP[offset] = HEAP[offset] ^ S0;
+
+            if ( (length|0) > 1 ) { z0 = ( z0 ^ (HEAP[offset|1]<<16) ) | 0; HEAP[offset|1] = HEAP[offset|1] ^ S1; }
+            if ( (length|0) > 2 ) { z0 = ( z0 ^ (HEAP[offset|2]<<8) ) | 0; HEAP[offset|2] = HEAP[offset|2] ^ S2; }
+            if ( (length|0) > 3 ) { z0 = ( z0 ^ (HEAP[offset|3]) ) | 0; HEAP[offset|3] = HEAP[offset|3] ^ S3; }
+            if ( (length|0) > 4 ) { z1 = ( z1 ^ (HEAP[offset|4]<<24) ) | 0; HEAP[offset|4] = HEAP[offset|4] ^ S4; }
+            if ( (length|0) > 5 ) { z1 = ( z1 ^ (HEAP[offset|5]<<16) ) | 0; HEAP[offset|5] = HEAP[offset|5] ^ S5; }
+            if ( (length|0) > 6 ) { z1 = ( z1 ^ (HEAP[offset|6]<<8) ) | 0; HEAP[offset|6] = HEAP[offset|6] ^ S6; }
+            if ( (length|0) > 7 ) { z1 = ( z1 ^ (HEAP[offset|7]) ) | 0; HEAP[offset|7] = HEAP[offset|7] ^ S7; }
+            if ( (length|0) > 8 ) { z2 = ( z2 ^ (HEAP[offset|8]<<24) ) | 0; HEAP[offset|8] = HEAP[offset|8] ^ S8; }
+            if ( (length|0) > 9 ) { z2 = ( z2 ^ (HEAP[offset|9]<<16) ) | 0; HEAP[offset|9] = HEAP[offset|9] ^ S9; }
+            if ( (length|0) > 10 ) { z2 = ( z2 ^ (HEAP[offset|10]<<8) ) | 0; HEAP[offset|10] = HEAP[offset|10] ^ SA; }
+            if ( (length|0) > 11 ) { z2 = ( z2 ^ (HEAP[offset|11]) ) | 0; HEAP[offset|11] = HEAP[offset|11] ^ SB; }
+            if ( (length|0) > 12 ) { z3 = ( z3 ^ (HEAP[offset|12]<<24) ) | 0; HEAP[offset|12] = HEAP[offset|12] ^ SC; }
+            if ( (length|0) > 13 ) { z3 = ( z3 ^ (HEAP[offset|13]<<16) ) | 0; HEAP[offset|13] = HEAP[offset|13] ^ SD; }
+            if ( (length|0) > 14 ) { z3 = ( z3 ^ (HEAP[offset|14]<<8) ) | 0; HEAP[offset|14] = HEAP[offset|14] ^ SE; }
+
+            _gcm_mult();
+
+            gcntCDEF = (gcntCDEF + 1) | 0;
+
+            processed = (processed+length)|0;
+        }
+
+        return processed|0;
+    }
+
+    // offset — multiple of 16, length
+    function gcm_tag (offset, aadLength, encryptedLength) {
+        offset = offset|0;
+        aadLength = aadLength|0;
+        encryptedLength = encryptedLength|0;
+
+        if ( offset & 15 )
+            return -1;
+
+        z0 = ( z0 ^ (aadLength >>> 29) ) | 0;
+        z1 = ( z1 ^ (aadLength << 3) ) | 0;
+        z2 = ( z2 ^ (encryptedLength >>> 29) ) | 0;
+        z3 = ( z3 ^ (encryptedLength << 3) ) | 0;
+
+        _gcm_mult();
+
+        z0 = ( z0 ^ genccnt0 ) | 0;
+        z1 = ( z1 ^ genccnt1 ) | 0;
+        z2 = ( z2 ^ genccnt2 ) | 0;
+        z3 = ( z3 ^ genccnt3 ) | 0;
+
+        HEAP[offset|0] = z0>>>24;
+        HEAP[offset|1] = z0>>>16&255;
+        HEAP[offset|2] = z0>>>8&255;
+        HEAP[offset|3] = z0&255;
+        HEAP[offset|4] = z1>>>24;
+        HEAP[offset|5] = z1>>>16&255;
+        HEAP[offset|6] = z1>>>8&255;
+        HEAP[offset|7] = z1&255;
+        HEAP[offset|8] = z2>>>24;
+        HEAP[offset|9] = z2>>>16&255;
+        HEAP[offset|10] = z2>>>8&255;
+        HEAP[offset|11] = z2&255;
+        HEAP[offset|12] = z3>>>24;
+        HEAP[offset|13] = z3>>>16&255;
+        HEAP[offset|14] = z3>>>8&255;
+        HEAP[offset|15] = z3&255;
+
+        return 16;
+     }
+
     return {
         init_state: init_state,
         save_state: save_state,
@@ -2597,7 +3013,13 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         ccm_decrypt: ccm_decrypt,
 
         cfb_encrypt: cfb_encrypt,
-        cfb_decrypt: cfb_decrypt
+        cfb_decrypt: cfb_decrypt,
+
+        gcm_set_iv: gcm_set_iv,
+        gcm_aad: gcm_aad,
+        gcm_encrypt: gcm_encrypt,
+        gcm_decrypt: gcm_decrypt,
+        gcm_tag: gcm_tag
     };
 }
 
