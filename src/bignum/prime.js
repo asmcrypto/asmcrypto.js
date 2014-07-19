@@ -104,23 +104,11 @@ function BigNumber_randomProbablePrime ( bitlen, filter ) {
         prime = new BigNumber({ sign: 1, bitLength: bitlen, limbs: limbcnt }),
         limbs = prime.limbs;
 
-    // According to HAC 14.96(i) Montgomery exponentiation requries 3*L*(L+1)*(T+1) single-precision multiplications,
-    // where L — number of limbs of the modulus, T — number of bits of the exponent, T = 32*L.
-    // So the first round of Miller-Rabin test costs ~ 96*L^3.
-    //
-    // With Chinese Remainder Theorem trial division can be accompished in K + 2*L/S single-precision multiplications/divisions,
-    // where K — is a number of small divisors to try, S = ln( 2^(32*L) ) = 32*L*ln(2) — number of subsequent prime candidates.
-    // So trial division to K small primes costs ~ K
-    //
-    // Total cost of the trial division along with the first round of Miller-Rabin test is: K + P(K) * 96 * L^3,
-    // where P(K) is a probability that the prime candidate has no diviors among first K primes.
-    // P(K) = (2-1)/2 * (3-1)/3 * (5-1)/5 * (7-1)/7 ... and so on up to the K multiplicands.
-    //
-    // Here are the values of K minimizing the total cost for a certain bit length
-    // (when the total cost starts to change in beyound the 2nd digit of precision).
-    var k = 5000;
-    if ( bitlen <= 512 ) k = 1200;
-    if ( bitlen <= 256 ) k = 800;
+    // Number of small divisors to try that minimizes the total cost of the trial division
+    // along with the first round of Miller-Rabin test for a certain bit length.
+    var k = 10000;
+    if ( bitlen <= 512 ) k = 2200;
+    if ( bitlen <= 256 ) k = 600;
 
     var divisors = _small_primes(k),
         remainders = new Uint32Array(k);
@@ -148,16 +136,12 @@ function BigNumber_randomProbablePrime ( bitlen, filter ) {
         }
 
         // try no more than `s` subsequent candidates
-        for ( var j = 0; j < s; j += 2 ) {
-            limbs[0] += 2;
-
+        seek:
+        for ( var j = 0; j < s; j += 2, limbs[0] += 2 ) {
             // check for small factors
-            var factors = 0;
             for ( var i = 1; i < k; i++ ) {
-                remainders[i] = ( remainders[i] + 2 ) % divisors[i];
-                if ( !remainders[i] ) factors++;
+                if ( ( remainders[i] + j ) % divisors[i] === 0 ) continue seek;
             }
-            if ( factors ) continue;
 
             // additional check just before the heavy lifting
             if ( typeof filter === 'function' && !filter(prime) ) continue;
