@@ -99,6 +99,7 @@ function RSA_decrypt ( data ) {
     if ( this.key[0].compare(msg) <= 0 )
         throw new RangeError("data too large");
 
+    var result;
     if ( this.key.length > 3 ) {
         var m = this.key[0],
             d = this.key[2],
@@ -116,14 +117,23 @@ function RSA_decrypt ( data ) {
 
         var h = p.reduce( u.multiply(t) );
 
-        this.result = h.multiply(q).add(y).clamp(m.bitLength).toBytes();
+        result = h.multiply(q).add(y).clamp(m.bitLength).toBytes();
     }
     else {
         var m = this.key[0],
             d = this.key[2];
 
-        this.result = m.power( msg, d ).toBytes();
+        result = m.power( msg, d ).toBytes();
     }
+
+    var bytelen = m.bitLength + 7 >> 3;
+    if ( result.length < bytelen ) {
+        var r = new Uint8Array(bytelen);
+        r.set( result, bytelen - result.length );
+        result = r;
+    }
+
+    this.result = result;
 
     return this;
 }
