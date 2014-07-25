@@ -271,7 +271,7 @@ function BigNumber_add ( that ) {
         bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length, bsign = that.sign,
         rbitlen, rlimbcnt, rsign, rof, result = new BigNumber;
 
-    rbitlen = ( abitlen > bbitlen ? abitlen : bbitlen ) + 1;
+    rbitlen = ( abitlen > bbitlen ? abitlen : bbitlen ) + ( asign * bsign > 0 ? 1 : 0 );
     rlimbcnt = ( rbitlen + 31 ) >> 5;
 
     _bigint_asm.sreset();

@@ -129,7 +129,7 @@ var modules = {
     },
     'rng': {
         files: [ 'src/random/isaac.js', 'src/random/random.js' ],
-        depends: [ 'common', 'utils' ],
+        depends: [ 'common', 'utils', 'pbkdf2-hmac-sha256' ],
         implies: [ 'exports-rng' ]
     },
     'exports-rng': {
@@ -151,7 +151,8 @@ var modules = {
     },
     'rsa': {
         files: [ 'src/rsa/rsa.js', 'src/rsa/genkey.js' ],
-        depends: [ 'bn', 'rng' ]
+        depends: [ 'bn', 'rng' ],
+        implies: [ 'exports-rsa' ]
     },
     'rsa-raw': {
         files: [ 'src/rsa/raw.js' ],

@@ -60,8 +60,9 @@ function Random_weak_seed () {
 
         buffer = new Uint8Array(buffer.buffer);
 
+        var pbkdf2 = get_pbkdf2_hmac_sha256_instance();
         for ( i = 0; i < 100; i++ ) {
-            buffer = pbkdf2_hmac_sha256_bytes( buffer, global.location.href, 1000, 32 );
+            buffer = pbkdf2.reset( { password: buffer } ).generate( global.location.href, 1000, 32 ).result;
             t = _hires_now();
             buffer[0] ^= t >>> 24, buffer[1] ^= t >>> 16, buffer[2] ^= t >>> 8, buffer[3] ^= t;
         }
