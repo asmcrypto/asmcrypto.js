@@ -16,7 +16,7 @@ function RSA_generateKey ( bitlen, e ) {
     p = BigNumber_randomProbablePrime(
         bitlen >> 1,
         function ( p ) {
-            p1 = p.subtract(BigNumber_ONE);
+            p1 = new BigNumber(p); p1.limbs[0] -= 1;
             return BigNumber_extGCD( p1, e ).gcd.valueOf() == 1;
         }
     );
@@ -26,7 +26,7 @@ function RSA_generateKey ( bitlen, e ) {
         function ( q ) {
             m = new Modulus( p.multiply(q) );
             if ( !( m.limbs[ ( (bitlen + 31) >> 5 ) - 1 ] >>> ( (bitlen - 1) & 31) ) ) return false;
-            q1 = q.subtract(BigNumber_ONE);
+            q1 = new BigNumber(q); q1.limbs[0] -= 1;
             return BigNumber_extGCD( q1, e ).gcd.valueOf() == 1;
         }
     );
