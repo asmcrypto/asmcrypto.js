@@ -49,15 +49,8 @@ function Modulus_reduce ( a ) {
     if ( a.bitLength <= 32 && this.bitLength <= 32 )
         return new BigNumber( a.valueOf() % this.valueOf() );
 
-    if ( a.bitLength < this.bitLength ) {
+    if ( a.compare(this) < 0 )
         return a;
-    }
-    else if ( a.bitLength === this.bitLength ) {
-        if ( a.compare(this) < 0 )
-            return a;
-
-        return a.subtract(this).clamp(this.bitLength);
-    }
 
     return a.divide(this).remainder;
 }

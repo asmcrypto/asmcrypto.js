@@ -11,6 +11,22 @@ function RSA_generateKey ( bitlen, e ) {
     if ( bitlen < 512 )
         throw new IllegalArgumentError("bit length is too small");
 
+    if ( is_string(e) )
+        e = string_to_bytes(e);
+
+    if ( is_buffer(e) )
+        e = new Uint8Array(e);
+
+    if ( is_bytes(e) || is_number(e) || is_big_number(e) ) {
+        e = new BigNumber(e);
+    }
+    else {
+        throw new TypeError("unexpected exponent type");
+    }
+
+    if ( ( e.limbs[0] & 1 ) === 0 )
+        throw new IllegalArgumentError("exponent must be an odd number");
+
     var m, e, d, p, q, p1, q1, dp, dq, u;
 
     p = BigNumber_randomProbablePrime(
