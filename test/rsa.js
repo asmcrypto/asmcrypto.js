@@ -101,6 +101,30 @@ if ( typeof asmCrypto.RSA_PSS_SHA256 !== 'undefined' )
         var result = asmCrypto.RSA_PSS_SHA256.verify( signature, text, pubkey );
         ok( result, "verify" );
     });
+
+    test( "asmCrypto.RSA_PSS_SHA256 verify OpenSSL-signed-data", function () {
+        var key = [
+            asmCrypto.hex_to_bytes('f30be5ce8941c8e6e764c78d12f3ce6e02a0dea03577bc0c16029de258321b74ceb43ea94f768aec900011c78eb247ab0e94b4477ea8f086ba7b5ce4b03c0ad7e0bf2f54ed509a536a0f179e27db539f729b38a279873f7b3a360690c8390e289dedca6da1ba232d8edc3c1eb229e1072716ddf3ef88caf4a824c152d6ad38f1'),
+            65537
+/*
+            asmCrypto.hex_to_bytes('a2f4032c2ad2b4843bf851e2c0263eed7b4da875f9e3416d4904901ec5cb32a56a416711d5794143c278897326b5595fd2f2d8bc66ab96387ea75f6ce4cc1ce7ba0269a49ce03eb4aea16ca914938e88e5398b10b314276ba9f3f2e448a5f643515ee591cb4c4c5270edccacf7e5b88f86a0c08dc05311513a4ed01802de2511'),
+            asmCrypto.hex_to_bytes('fc592285e370d57900bfd2f8c66b15274b3381ca7ec485091d5aa0092ca8f2b97f8796e608a2fc6aa1df3647b10198c49801e3201fefa72ef9d7ccafcdae5d37'),
+            asmCrypto.hex_to_bytes('f6904d99d7cf9f1237c6798e5343fe730149be31e0363bf33039af84a09b5e9d0dd71239384b6cf6421e4ad41097b2cd09fd0114eb29a4339c433f37d7286f17'),
+            asmCrypto.hex_to_bytes('252e1ce00d3abab9315b12028579918c50902e375fa624d3caf7674cf2bf91c3b2fe8f4525509e5037b9638dfc8e77abbf99c7951c1f7b4a78954b1b3bfaccd1'),
+            asmCrypto.hex_to_bytes('9f036da89c10208cc53fd14142de0509f278b69abff8fa2cda9b3961159b5e2777b78edf2c3928aaa0f59c58abe2c9c3867f8ee508ccb04340b1f5e17377763d'),
+            asmCrypto.hex_to_bytes('c07e9ca15c2cc38cc4faab0729403e02b33982b7d1219e15cd74614f3485437d2c800d66a0c368b3cf36513e4b1e05d31d7e0186f00cf036433e35f13b5cfda8')
+*/
+        ];
+
+        var text = 'Hello There!';
+
+        var signature = asmCrypto.hex_to_bytes('A68BE713861409B4E536C12066B3D30650C7578F9B7AB61C1A302B42ECA14D58AE11899BC55FCB838F0AE06B99381DE26CE8D6318BD59BBFC4FFF56A995E9EFB0306FF105766F508297D1E74F22648B6BD66C18E06F4748BD258358ECB5BB722AC4AFFA146C04EE7BE84AD77ED2A84B5458D6CA4A7DA4D86DAB3F2B39FD647F4');
+
+        var saltlen = 32;
+
+        var result = asmCrypto.RSA_PSS_SHA256.verify( signature, text, key, saltlen );
+        ok( result, "verify" );
+    });
 }
 else
 {
