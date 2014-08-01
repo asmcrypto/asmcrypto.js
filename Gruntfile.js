@@ -3,6 +3,7 @@ var defaults = [
     'utils',
     'aes-cbc',
     'aes-ccm',
+    'aes-gcm',
     'sha1',
     'sha256',
     'hmac-sha1',
@@ -42,6 +43,11 @@ var modules = {
     },
     'aes-ccm': {
         files: [ 'src/aes/aes-ccm.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'exports-aes' ]
+    },
+    'aes-gcm': {
+        files: [ 'src/aes/aes-gcm.js' ],
         depends: [ 'aes' ],
         implies: [ 'exports-aes' ]
     },

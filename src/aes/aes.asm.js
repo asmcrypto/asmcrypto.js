@@ -155,6 +155,9 @@ function _aes_asm ( stdlib, foreign, buffer ) {
     var S0 = 0, S1 = 0, S2 = 0, S3 = 0, S4 = 0, S5 = 0, S6 = 0, S7 = 0, S8 = 0, S9 = 0, SA = 0, SB = 0, SC = 0, SD = 0, SE = 0, SF = 0;
     var keySize = 0;
 
+    // GCM mode additional state
+    var H0 = 0, H1 = 0, H2 = 0, H3 = 0, Z0 = 0, Z1 = 0, Z2 = 0, Z3 = 0;
+
     // AES key schedule
     var R00 = 0, R01 = 0, R02 = 0, R03 = 0, R04 = 0, R05 = 0, R06 = 0, R07 = 0, R08 = 0, R09 = 0, R0A = 0, R0B = 0, R0C = 0, R0D = 0, R0E = 0, R0F = 0, // cipher key
         R10 = 0, R11 = 0, R12 = 0, R13 = 0, R14 = 0, R15 = 0, R16 = 0, R17 = 0, R18 = 0, R19 = 0, R1A = 0, R1B = 0, R1C = 0, R1D = 0, R1E = 0, R1F = 0, // round 1 key
@@ -2579,6 +2582,217 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         return decrypted|0;
     }
 
+    function _gcm_mult ( x0, x1, x2, x3 ) {
+        x0 = x0|0;
+        x1 = x1|0;
+        x2 = x2|0;
+        x3 = x3|0;
+
+        var y0 = 0, y1 = 0, y2 = 0, y3 = 0,
+            z0 = 0, z1 = 0, z2 = 0, z3 = 0,
+            i = 0, c = 0;
+
+        y0 = H0|0,
+        y1 = H1|0,
+        y2 = H2|0,
+        y3 = H3|0;
+
+        for ( ; (i|0) < 128; i = (i + 1)|0 ) {
+            if ( y0 >>> 31 ) {
+                z0 = z0 ^ x0,
+                z1 = z1 ^ x1,
+                z2 = z2 ^ x2,
+                z3 = z3 ^ x3;
+            }
+
+            y0 = (y0 << 1) | (y1 >>> 31),
+            y1 = (y1 << 1) | (y2 >>> 31),
+            y2 = (y2 << 1) | (y3 >>> 31),
+            y3 = (y3 << 1);
+
+            c = x3 & 1;
+
+            x3 = (x3 >>> 1) | (x2 << 31),
+            x2 = (x2 >>> 1) | (x1 << 31),
+            x1 = (x1 >>> 1) | (x0 << 31),
+            x0 = (x0 >>> 1);
+
+            if ( c ) x0 = x0 ^ 0xe1000000;
+        }
+
+        Z0 = z0,
+        Z1 = z1,
+        Z2 = z2,
+        Z3 = z3;
+    }
+
+    function gcm_init () {
+        _encrypt( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
+        H0 = (S0 << 24) | (S1 << 16) | (S2 << 8) | S3,
+        H1 = (S4 << 24) | (S5 << 16) | (S6 << 8) | S7,
+        H2 = (S8 << 24) | (S9 << 16) | (SA << 8) | SB,
+        H3 = (SC << 24) | (SD << 16) | (SE << 8) | SF;
+
+        Z0 = Z1 = Z2 = Z3 = 0;
+    }
+
+    // offset — multiple of 16
+    function gcm_ghash ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        var processed = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        Z0 = (S0 << 24) | (S1 << 16) | (S2 << 8) | S3,
+        Z1 = (S4 << 24) | (S5 << 16) | (S6 << 8) | S7,
+        Z2 = (S8 << 24) | (S9 << 16) | (SA << 8) | SB,
+        Z3 = (SC << 24) | (SD << 16) | (SE << 8) | SF;
+
+        while ( (length|0) >= 16 ) {
+            _gcm_mult(
+                Z0 ^ ( (HEAP[offset|0] << 24) | (HEAP[offset|1] << 16) | (HEAP[offset|2] << 8) | HEAP[offset|3] ),
+                Z1 ^ ( (HEAP[offset|4] << 24) | (HEAP[offset|5] << 16) | (HEAP[offset|6] << 8) | HEAP[offset|7] ),
+                Z2 ^ ( (HEAP[offset|8] << 24) | (HEAP[offset|9] << 16) | (HEAP[offset|10] << 8) | HEAP[offset|11] ),
+                Z3 ^ ( (HEAP[offset|12] << 24) | (HEAP[offset|13] << 16) | (HEAP[offset|14] << 8) | HEAP[offset|15] )
+            );
+
+            offset = (offset+16)|0,
+            length = (length-16)|0,
+            processed = (processed+16)|0;
+        }
+
+        S0 = Z0 >>> 24, S1 = (Z0 >>> 16) & 255, S2 = (Z0 >>> 8) & 255, S3 = Z0 & 255,
+        S4 = Z1 >>> 24, S5 = (Z1 >>> 16) & 255, S6 = (Z1 >>> 8) & 255, S7 = Z1 & 255,
+        S8 = Z2 >>> 24, S9 = (Z2 >>> 16) & 255, SA = (Z2 >>> 8) & 255, SB = Z2 & 255,
+        SC = Z3 >>> 24, SD = (Z3 >>> 16) & 255, SE = (Z3 >>> 8) & 255, SF = Z3 & 255;
+
+        return processed|0;
+    }
+
+    // offset — multiple of 16
+    function gcm_encrypt ( offset, length, g0, g1, g2, g3, g4, g5, g6, g7, g8, g9, gA, gB, gCDEF ) {
+        offset = offset|0;
+        length = length|0;
+        g0 = g0|0;
+        g1 = g1|0;
+        g2 = g2|0;
+        g3 = g3|0;
+        g4 = g4|0;
+        g5 = g5|0;
+        g6 = g6|0;
+        g7 = g7|0;
+        g8 = g8|0;
+        g9 = g9|0;
+        gA = gA|0;
+        gB = gB|0;
+        gCDEF = gCDEF|0;
+
+        var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, s8 = 0, s9 = 0, sA = 0, sB = 0, sC = 0, sD = 0, sE = 0, sF = 0,
+            processed = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        while ( (length|0) >= 16 ) {
+            _encrypt(
+                g0, g1, g2, g3, g4, g5, g6, g7, g8, g9, gA, gB,
+                gCDEF >>> 24, (gCDEF >>> 16) & 255, (gCDEF >>> 8) & 255, gCDEF & 255
+            );
+
+            HEAP[offset|0] = s0 = HEAP[offset|0] ^ S0,
+            HEAP[offset|1] = s1 = HEAP[offset|1] ^ S1,
+            HEAP[offset|2] = s2 = HEAP[offset|2] ^ S2,
+            HEAP[offset|3] = s3 = HEAP[offset|3] ^ S3,
+            HEAP[offset|4] = s4 = HEAP[offset|4] ^ S4,
+            HEAP[offset|5] = s5 = HEAP[offset|5] ^ S5,
+            HEAP[offset|6] = s6 = HEAP[offset|6] ^ S6,
+            HEAP[offset|7] = s7 = HEAP[offset|7] ^ S7,
+            HEAP[offset|8] = s8 = HEAP[offset|8] ^ S8,
+            HEAP[offset|9] = s9 = HEAP[offset|9] ^ S9,
+            HEAP[offset|10] = sA = HEAP[offset|10] ^ SA,
+            HEAP[offset|11] = sB = HEAP[offset|11] ^ SB,
+            HEAP[offset|12] = sC = HEAP[offset|12] ^ SC,
+            HEAP[offset|13] = sD = HEAP[offset|13] ^ SD,
+            HEAP[offset|14] = sE = HEAP[offset|14] ^ SE,
+            HEAP[offset|15] = sF = HEAP[offset|15] ^ SF;
+
+            _gcm_mult(
+                Z0 ^ ( (s0 << 24) | (s1 << 16) | (s2 << 8) | s3 ),
+                Z1 ^ ( (s4 << 24) | (s5 << 16) | (s6 << 8) | s7 ),
+                Z2 ^ ( (s8 << 24) | (s9 << 16) | (sA << 8) | sB ),
+                Z3 ^ ( (sC << 24) | (sD << 16) | (sE << 8) | sF )
+            );
+
+            gCDEF = (gCDEF + 1)|0;
+
+            offset = (offset+16)|0,
+            length = (length-16)|0,
+            processed = (processed+16)|0;
+        }
+
+        if ( (length|0) > 0 ) {
+            _encrypt(
+                g0, g1, g2, g3, g4, g5, g6, g7, g8, g9, gA, gB,
+                gCDEF >>> 24, (gCDEF >>> 16) & 255, (gCDEF >>> 8) & 255, gCDEF & 255
+            );
+
+            s0 = HEAP[offset|0] ^ S0,
+            s1 = (length|0) > 1 ? HEAP[offset|1] ^ S1 : 0,
+            s2 = (length|0) > 2 ? HEAP[offset|2] ^ S2 : 0,
+            s3 = (length|0) > 3 ? HEAP[offset|3] ^ S3 : 0,
+            s4 = (length|0) > 4 ? HEAP[offset|4] ^ S4 : 0,
+            s5 = (length|0) > 5 ? HEAP[offset|5] ^ S5 : 0,
+            s6 = (length|0) > 6 ? HEAP[offset|6] ^ S6 : 0,
+            s7 = (length|0) > 7 ? HEAP[offset|7] ^ S7 : 0,
+            s8 = (length|0) > 8 ? HEAP[offset|8] ^ S8 : 0,
+            s9 = (length|0) > 9 ? HEAP[offset|9] ^ S9 : 0,
+            sA = (length|0) > 10 ? HEAP[offset|10] ^ SA : 0,
+            sB = (length|0) > 11 ? HEAP[offset|11] ^ SB : 0,
+            sC = (length|0) > 12 ? HEAP[offset|12] ^ SC : 0,
+            sD = (length|0) > 13 ? HEAP[offset|13] ^ SD : 0,
+            sE = (length|0) > 14 ? HEAP[offset|14] ^ SE : 0;
+            sF = /*(length|0) > 15 ? HEAP[offset|15] ^ SF :*/ 0;
+
+            HEAP[offset] = s0;
+            if ( (length|0) > 1 ) HEAP[offset|1] = s1;
+            if ( (length|0) > 2 ) HEAP[offset|2] = s2;
+            if ( (length|0) > 3 ) HEAP[offset|3] = s3;
+            if ( (length|0) > 4 ) HEAP[offset|4] = s4;
+            if ( (length|0) > 5 ) HEAP[offset|5] = s5;
+            if ( (length|0) > 6 ) HEAP[offset|6] = s6;
+            if ( (length|0) > 7 ) HEAP[offset|7] = s7;
+            if ( (length|0) > 8 ) HEAP[offset|8] = s8;
+            if ( (length|0) > 9 ) HEAP[offset|9] = s9;
+            if ( (length|0) > 10 ) HEAP[offset|10] = sA;
+            if ( (length|0) > 11 ) HEAP[offset|11] = sB;
+            if ( (length|0) > 12 ) HEAP[offset|12] = sC;
+            if ( (length|0) > 13 ) HEAP[offset|13] = sD;
+            if ( (length|0) > 14 ) HEAP[offset|14] = sE;
+            //if ( 0 ) HEAP[offset|15] = sF;
+
+            _gcm_mult(
+                Z0 ^ ( (s0 << 24) | (s1 << 16) | (s2 << 8) | s3 ),
+                Z1 ^ ( (s4 << 24) | (s5 << 16) | (s6 << 8) | s7 ),
+                Z2 ^ ( (s8 << 24) | (s9 << 16) | (sA << 8) | sB ),
+                Z3 ^ ( (sC << 24) | (sD << 16) | (sE << 8) | sF )
+            );
+
+            gCDEF = (gCDEF+1)|0;
+
+            processed = (processed+length)|0;
+        }
+
+        S0 = Z0 >>> 24, S1 = (Z0 >>> 16) & 255, S2 = (Z0 >>> 8) & 255, S3 = Z0 & 255,
+        S4 = Z1 >>> 24, S5 = (Z1 >>> 16) & 255, S6 = (Z1 >>> 8) & 255, S7 = Z1 & 255,
+        S8 = Z2 >>> 24, S9 = (Z2 >>> 16) & 255, SA = (Z2 >>> 8) & 255, SB = Z2 & 255,
+        SC = Z3 >>> 24, SD = (Z3 >>> 16) & 255, SE = (Z3 >>> 8) & 255, SF = Z3 & 255;
+
+        return processed|0;
+    }
+
     return {
         init_state: init_state,
         save_state: save_state,
@@ -2597,7 +2811,11 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         ccm_decrypt: ccm_decrypt,
 
         cfb_encrypt: cfb_encrypt,
-        cfb_decrypt: cfb_decrypt
+        cfb_decrypt: cfb_decrypt,
+
+        gcm_init: gcm_init,
+        gcm_ghash: gcm_ghash,
+        gcm_encrypt: gcm_encrypt
     };
 }
 
