@@ -213,6 +213,210 @@ else
 
 ///////////////////////////////////////////////////////////////////////////////
 
+if ( typeof asmCrypto.AES_GCM !== 'undefined' )
+{
+    var gcm_aes_vectors = [
+        [
+            // key
+            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
+            // iv
+            null,
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            '',
+            // encrypted message
+            asmCrypto.hex_to_bytes('58e2fccefa7e3061367f1d57a4e7455a')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
+            // iv
+            asmCrypto.hex_to_bytes('000000000000000000000000'),
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            '',
+            // encrypted message
+            asmCrypto.hex_to_bytes('58e2fccefa7e3061367f1d57a4e7455a')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
+            // iv
+            null,
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('0388dace60b6a392f328c2b971b2fe78ab6e47d42cec13bdf53a67b21257bddf')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
+            // iv
+            asmCrypto.hex_to_bytes('cafebabefacedbaddecaf888'),
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b391aafd255'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091473f59854d5c2af327cd64a62cf35abd2ba6fab4')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
+            // iv
+            asmCrypto.hex_to_bytes('cafebabefacedbaddecaf888'),
+            // adata
+            asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e0915bc94fbc3221a5db94fae95ae7121a47')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
+            // iv
+            asmCrypto.hex_to_bytes('cafebabefacedbad'),
+            // adata
+            asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('61353b4c2806934a777ff51fa22a4755699b2a714fcdc6f83766e5f97b6c742373806900e49f24b22b097544d4896b424989b5e1ebac0f07c23f45983612d2e79e3b0785561be14aaca2fccb')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
+            // iv
+            asmCrypto.hex_to_bytes('9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b'),
+            // adata
+            asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('8ce24998625615b603a033aca13fb894be9112a5c3a211a8ba262a3cca7e2ca701e4a9a4fba43c90ccdcb281d48c7c6fd62875d2aca417034c34aee5619cc5aefffe0bfa462af43c1699d050')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
+            // iv
+            null,
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('cea7403d4d606b6e074ec5d3baf39d18d0d1c8a799996bf0265b98b5d48ab919')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
+            // iv
+            null,
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes(''),
+            // encrypted message
+            asmCrypto.hex_to_bytes('530f8afbc74536b9a963b4f1c4cb738b')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
+            // iv
+            asmCrypto.hex_to_bytes('000000000000000000000000'),
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes(''),
+            // encrypted message
+            asmCrypto.hex_to_bytes('530f8afbc74536b9a963b4f1c4cb738b')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
+            // iv
+            null,
+            // adata
+            null,
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('cea7403d4d606b6e074ec5d3baf39d18d0d1c8a799996bf0265b98b5d48ab919')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308'),
+            // iv
+            asmCrypto.hex_to_bytes('9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b'),
+            // adata
+            asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('5a8def2f0c9e53f1f75d7853659e2a20eeb2b22aafde6419a058ab4f6f746bf40fc0c3b780f244452da3ebf1c5d82cdea2418997200ef82e44ae7e3fa44a8266ee1c8eb0c8b5d4cf5ae9f19a')
+        ],
+    ];
+
+    test( "asmCrypto.AES_GCM.encrypt", function () {
+        for ( var i = 0; i < gcm_aes_vectors.length; ++i ) {
+            var key = gcm_aes_vectors[i][0],
+                iv = gcm_aes_vectors[i][1],
+                adata = gcm_aes_vectors[i][2],
+                tagsize = gcm_aes_vectors[i][3],
+                cleartext = gcm_aes_vectors[i][4],
+                ciphertext = gcm_aes_vectors[i][5];
+
+            equal(
+                asmCrypto.bytes_to_hex( asmCrypto.AES_GCM.encrypt( cleartext, key, iv, adata, tagsize ) ),
+                asmCrypto.bytes_to_hex( ciphertext ),
+                "encrypt vector " + i
+            );
+/*
+            equal(
+                asmCrypto.bytes_to_hex( asmCrypto.AES_GCM.decrypt( ciphertext, key, iv, adata, tagsize ) ),
+                asmCrypto.bytes_to_hex( cleartext ),
+                "decrypt vector " + i
+            );
+*/
+        }
+    });
+}
+else
+{
+    skip( "asmCrypto.AES_GCM" );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 if ( typeof asmCrypto.AES_CFB !== 'undefined' )
 {
     var cfb_aes_vectors = [

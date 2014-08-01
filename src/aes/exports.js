@@ -53,6 +53,31 @@ if ( typeof cbc_aes_constructor !== 'undefined' )
 }
 
 /**
+ * AES-CFB exports
+ */
+if ( typeof cfb_aes_constructor !== 'undefined' )
+{
+    var cfb_aes_instance = new cfb_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
+
+    function cfb_aes_encrypt_bytes ( data, key, padding, iv ) {
+        if ( data === undefined ) throw new SyntaxError("data required");
+        if ( key === undefined ) throw new SyntaxError("key required");
+        return cfb_aes_instance.reset( { key: key, padding: padding, iv: iv } ).encrypt(data).result;
+    }
+
+    function cfb_aes_decrypt_bytes ( data, key, padding, iv ) {
+        if ( data === undefined ) throw new SyntaxError("data required");
+        if ( key === undefined ) throw new SyntaxError("key required");
+        return cfb_aes_instance.reset( { key: key, padding: padding, iv: iv } ).decrypt(data).result;
+    }
+
+    exports.AES_CFB = {
+        encrypt: cfb_aes_encrypt_bytes,
+        decrypt: cfb_aes_decrypt_bytes
+    };
+}
+
+/**
  * AES-CCM exports
  */
 if ( typeof ccm_aes_constructor !== 'undefined' )
@@ -83,26 +108,28 @@ if ( typeof ccm_aes_constructor !== 'undefined' )
 }
 
 /**
- * AES-CFB exports
+ * AES-GCM exports
  */
-if ( typeof cfb_aes_constructor !== 'undefined' )
+if ( typeof gcm_aes_constructor !== 'undefined' )
 {
-    var cfb_aes_instance = new cfb_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
+    var gcm_aes_instance = new gcm_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
 
-    function cfb_aes_encrypt_bytes ( data, key, padding, iv ) {
+    function gcm_aes_encrypt_bytes ( data, key, iv, adata, tagSize ) {
         if ( data === undefined ) throw new SyntaxError("data required");
         if ( key === undefined ) throw new SyntaxError("key required");
-        return cfb_aes_instance.reset( { key: key, padding: padding, iv: iv } ).encrypt(data).result;
+        if ( iv === undefined ) throw new SyntaxError("iv required");
+        return gcm_aes_instance.reset( { key: key, iv: iv, adata: adata, tagSize: tagSize } ).encrypt(data).result;
     }
 
-    function cfb_aes_decrypt_bytes ( data, key, padding, iv ) {
+    function gcm_aes_decrypt_bytes ( data, key, iv, adata, tagSize ) {
         if ( data === undefined ) throw new SyntaxError("data required");
         if ( key === undefined ) throw new SyntaxError("key required");
-        return cfb_aes_instance.reset( { key: key, padding: padding, iv: iv } ).decrypt(data).result;
+        if ( iv === undefined ) throw new SyntaxError("iv required");
+        return gcm_aes_instance.reset( { key: key, iv: iv, adata: adata, tagSize: tagSize } ).decrypt(data).result;
     }
 
-    exports.AES_CFB = {
-        encrypt: cfb_aes_encrypt_bytes,
-        decrypt: cfb_aes_decrypt_bytes
+    exports.AES_GCM = {
+        encrypt: gcm_aes_encrypt_bytes,
+        decrypt: gcm_aes_decrypt_bytes
     };
 }
