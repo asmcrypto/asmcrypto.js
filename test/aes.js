@@ -400,13 +400,12 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
                 asmCrypto.bytes_to_hex( ciphertext ),
                 "encrypt vector " + i
             );
-/*
+
             equal(
                 asmCrypto.bytes_to_hex( asmCrypto.AES_GCM.decrypt( ciphertext, key, iv, adata, tagsize ) ),
                 asmCrypto.bytes_to_hex( cleartext ),
                 "decrypt vector " + i
             );
-*/
         }
     });
 }

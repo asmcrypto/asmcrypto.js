@@ -2793,6 +2793,143 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         return processed|0;
     }
 
+    function gcm_decrypt ( offset, length, g0, g1, g2, g3, g4, g5, g6, g7, g8, g9, gA, gB, gCDEF ) {
+        offset = offset|0;
+        length = length|0;
+        g0 = g0|0;
+        g1 = g1|0;
+        g2 = g2|0;
+        g3 = g3|0;
+        g4 = g4|0;
+        g5 = g5|0;
+        g6 = g6|0;
+        g7 = g7|0;
+        g8 = g8|0;
+        g9 = g9|0;
+        gA = gA|0;
+        gB = gB|0;
+        gCDEF = gCDEF|0;
+
+        var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, s8 = 0, s9 = 0, sA = 0, sB = 0, sC = 0, sD = 0, sE = 0, sF = 0,
+            processed = 0;
+
+        if ( offset & 15 )
+            return -1;
+
+        while ( (length|0) >= 16 ) {
+            s0 = HEAP[offset|0]|0,
+            s1 = HEAP[offset|1]|0,
+            s2 = HEAP[offset|2]|0,
+            s3 = HEAP[offset|3]|0,
+            s4 = HEAP[offset|4]|0,
+            s5 = HEAP[offset|5]|0,
+            s6 = HEAP[offset|6]|0,
+            s7 = HEAP[offset|7]|0,
+            s8 = HEAP[offset|8]|0,
+            s9 = HEAP[offset|9]|0,
+            sA = HEAP[offset|10]|0,
+            sB = HEAP[offset|11]|0,
+            sC = HEAP[offset|12]|0,
+            sD = HEAP[offset|13]|0,
+            sE = HEAP[offset|14]|0,
+            sF = HEAP[offset|15]|0;
+
+            _gcm_mult(
+                Z0 ^ ( (s0 << 24) | (s1 << 16) | (s2 << 8) | s3 ),
+                Z1 ^ ( (s4 << 24) | (s5 << 16) | (s6 << 8) | s7 ),
+                Z2 ^ ( (s8 << 24) | (s9 << 16) | (sA << 8) | sB ),
+                Z3 ^ ( (sC << 24) | (sD << 16) | (sE << 8) | sF )
+            );
+
+            _encrypt(
+                g0, g1, g2, g3, g4, g5, g6, g7, g8, g9, gA, gB,
+                gCDEF >>> 24, (gCDEF >>> 16) & 255, (gCDEF >>> 8) & 255, gCDEF & 255
+            );
+
+            HEAP[offset|0] = s0 ^ S0,
+            HEAP[offset|1] = s1 ^ S1,
+            HEAP[offset|2] = s2 ^ S2,
+            HEAP[offset|3] = s3 ^ S3,
+            HEAP[offset|4] = s4 ^ S4,
+            HEAP[offset|5] = s5 ^ S5,
+            HEAP[offset|6] = s6 ^ S6,
+            HEAP[offset|7] = s7 ^ S7,
+            HEAP[offset|8] = s8 ^ S8,
+            HEAP[offset|9] = s9 ^ S9,
+            HEAP[offset|10] = sA ^ SA,
+            HEAP[offset|11] = sB ^ SB,
+            HEAP[offset|12] = sC ^ SC,
+            HEAP[offset|13] = sD ^ SD,
+            HEAP[offset|14] = sE ^ SE,
+            HEAP[offset|15] = sF ^ SF;
+
+            gCDEF = (gCDEF + 1)|0;
+
+            offset = (offset+16)|0,
+            length = (length-16)|0,
+            processed = (processed+16)|0;
+        }
+
+        if ( (length|0) > 0 ) {
+            s0 = HEAP[offset|0],
+            s1 = (length|0) > 1 ? HEAP[offset|1] : 0,
+            s2 = (length|0) > 2 ? HEAP[offset|2] : 0,
+            s3 = (length|0) > 3 ? HEAP[offset|3] : 0,
+            s4 = (length|0) > 4 ? HEAP[offset|4] : 0,
+            s5 = (length|0) > 5 ? HEAP[offset|5] : 0,
+            s6 = (length|0) > 6 ? HEAP[offset|6] : 0,
+            s7 = (length|0) > 7 ? HEAP[offset|7] : 0,
+            s8 = (length|0) > 8 ? HEAP[offset|8] : 0,
+            s9 = (length|0) > 9 ? HEAP[offset|9] : 0,
+            sA = (length|0) > 10 ? HEAP[offset|10] : 0,
+            sB = (length|0) > 11 ? HEAP[offset|11] : 0,
+            sC = (length|0) > 12 ? HEAP[offset|12] : 0,
+            sD = (length|0) > 13 ? HEAP[offset|13] : 0,
+            sE = (length|0) > 14 ? HEAP[offset|14] : 0;
+            sF = /*(length|0) > 15 ? HEAP[offset|15] :*/ 0;
+
+            _gcm_mult(
+                Z0 ^ ( (s0 << 24) | (s1 << 16) | (s2 << 8) | s3 ),
+                Z1 ^ ( (s4 << 24) | (s5 << 16) | (s6 << 8) | s7 ),
+                Z2 ^ ( (s8 << 24) | (s9 << 16) | (sA << 8) | sB ),
+                Z3 ^ ( (sC << 24) | (sD << 16) | (sE << 8) | sF )
+            );
+
+            _encrypt(
+                g0, g1, g2, g3, g4, g5, g6, g7, g8, g9, gA, gB,
+                gCDEF >>> 24, (gCDEF >>> 16) & 255, (gCDEF >>> 8) & 255, gCDEF & 255
+            );
+
+            HEAP[offset] = s0 ^ S0;
+            if ( (length|0) > 1 ) HEAP[offset|1] = s1 ^ S1;
+            if ( (length|0) > 2 ) HEAP[offset|2] = s2 ^ S2;
+            if ( (length|0) > 3 ) HEAP[offset|3] = s3 ^ S3;
+            if ( (length|0) > 4 ) HEAP[offset|4] = s4 ^ S4;
+            if ( (length|0) > 5 ) HEAP[offset|5] = s5 ^ S5;
+            if ( (length|0) > 6 ) HEAP[offset|6] = s6 ^ S6;
+            if ( (length|0) > 7 ) HEAP[offset|7] = s7 ^ S7;
+            if ( (length|0) > 8 ) HEAP[offset|8] = s8 ^ S8;
+            if ( (length|0) > 9 ) HEAP[offset|9] = s9 ^ S9;
+            if ( (length|0) > 10 ) HEAP[offset|10] = sA ^ SA;
+            if ( (length|0) > 11 ) HEAP[offset|11] = sB ^ SB;
+            if ( (length|0) > 12 ) HEAP[offset|12] = sC ^ SC;
+            if ( (length|0) > 13 ) HEAP[offset|13] = sD ^ SD;
+            if ( (length|0) > 14 ) HEAP[offset|14] = sE ^ SE;
+            //if ( 0 ) HEAP[offset|15] = sF ^ SF;
+
+            gCDEF = (gCDEF+1)|0;
+
+            processed = (processed+length)|0;
+        }
+
+        S0 = Z0 >>> 24, S1 = (Z0 >>> 16) & 255, S2 = (Z0 >>> 8) & 255, S3 = Z0 & 255,
+        S4 = Z1 >>> 24, S5 = (Z1 >>> 16) & 255, S6 = (Z1 >>> 8) & 255, S7 = Z1 & 255,
+        S8 = Z2 >>> 24, S9 = (Z2 >>> 16) & 255, SA = (Z2 >>> 8) & 255, SB = Z2 & 255,
+        SC = Z3 >>> 24, SD = (Z3 >>> 16) & 255, SE = (Z3 >>> 8) & 255, SF = Z3 & 255;
+
+        return processed|0;
+    }
+
     return {
         init_state: init_state,
         save_state: save_state,
@@ -2815,7 +2952,8 @@ function _aes_asm ( stdlib, foreign, buffer ) {
 
         gcm_init: gcm_init,
         gcm_ghash: gcm_ghash,
-        gcm_encrypt: gcm_encrypt
+        gcm_encrypt: gcm_encrypt,
+        gcm_decrypt: gcm_decrypt,
     };
 }
 
