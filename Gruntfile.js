@@ -41,6 +41,16 @@ var modules = {
         depends: [ 'aes' ],
         implies: [ 'exports-aes' ]
     },
+    'aes-cfb': {
+        files: [ 'src/aes/aes-cfb.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'exports-aes' ]
+    },
+    'aes-ctr': {
+        files: [ 'src/aes/aes-ctr.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'exports-aes' ]
+    },
     'aes-ccm': {
         files: [ 'src/aes/aes-ccm.js' ],
         depends: [ 'aes' ],
@@ -48,11 +58,6 @@ var modules = {
     },
     'aes-gcm': {
         files: [ 'src/aes/aes-gcm.js' ],
-        depends: [ 'aes' ],
-        implies: [ 'exports-aes' ]
-    },
-    'aes-cfb': {
-        files: [ 'src/aes/aes-cfb.js' ],
         depends: [ 'aes' ],
         implies: [ 'exports-aes' ]
     },

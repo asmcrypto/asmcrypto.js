@@ -1916,6 +1916,62 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         return 0;
     }
 
+    // offset, length — multiple of 16
+    function ctr_encrypt ( offset, length, n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, nA, nB, nCDEF ) {
+        offset = offset|0;
+        length = length|0;
+        n0 = n0|0;
+        n1 = n1|0;
+        n2 = n2|0;
+        n3 = n3|0;
+        n4 = n4|0;
+        n5 = n5|0;
+        n6 = n6|0;
+        n7 = n7|0;
+        n8 = n8|0;
+        n9 = n9|0;
+        nA = nA|0;
+        nB = nB|0;
+        nCDEF = nCDEF|0;
+
+        var encrypted = 0;
+
+        while ( (length|0) >= 16 ) {
+            _encrypt(
+                n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, nA, nB,
+                nCDEF >>> 24,
+                nCDEF >>> 16 & 255,
+                nCDEF >>> 8 & 255,
+                nCDEF & 255
+            );
+
+            HEAP[offset|0] = HEAP[offset|0] ^ S0;
+            HEAP[offset|1] = HEAP[offset|1] ^ S1;
+            HEAP[offset|2] = HEAP[offset|2] ^ S2;
+            HEAP[offset|3] = HEAP[offset|3] ^ S3;
+            HEAP[offset|4] = HEAP[offset|4] ^ S4;
+            HEAP[offset|5] = HEAP[offset|5] ^ S5;
+            HEAP[offset|6] = HEAP[offset|6] ^ S6;
+            HEAP[offset|7] = HEAP[offset|7] ^ S7;
+            HEAP[offset|8] = HEAP[offset|8] ^ S8;
+            HEAP[offset|9] = HEAP[offset|9] ^ S9;
+            HEAP[offset|10] = HEAP[offset|10] ^ SA;
+            HEAP[offset|11] = HEAP[offset|11] ^ SB;
+            HEAP[offset|12] = HEAP[offset|12] ^ SC;
+            HEAP[offset|13] = HEAP[offset|13] ^ SD;
+            HEAP[offset|14] = HEAP[offset|14] ^ SE;
+            HEAP[offset|15] = HEAP[offset|15] ^ SF;
+
+            offset = (offset + 16)|0;
+            length = (length - 16)|0;
+
+            encrypted = (encrypted + 16)|0;
+            nCDEF = (nCDEF + 1)|0;
+        }
+
+        return encrypted|0;
+    }
+
     // offset, length, output — multiple of 16
     function ccm_encrypt ( offset, length, nonce0, nonce1, nonce2, nonce3, nonce4, nonce5, nonce6, nonce7, nonce8, nonce9, nonceA, nonceB, nonceC, nonceD, counter0, counter1 ) {
         offset = offset|0;
@@ -2943,6 +2999,9 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         cbc_encrypt: cbc_encrypt,
         cbc_decrypt: cbc_decrypt,
         cbc_mac: cbc_mac,
+
+        ctr_encrypt: ctr_encrypt,
+        ctr_decrypt: ctr_encrypt,
 
         ccm_encrypt: ccm_encrypt,
         ccm_decrypt: ccm_decrypt,
