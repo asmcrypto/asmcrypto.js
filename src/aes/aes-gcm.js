@@ -191,7 +191,7 @@ function gcm_aes_encrypt_process ( data ) {
 
         var ivc = (iv[12] << 24) | (iv[13] << 16) | (iv[14] << 8) | iv[15];
         wlen = asm.gcm_encrypt( hpos, hlen & -15, iv[0], iv[1], iv[2], iv[3], iv[4], iv[5], iv[6], iv[7], iv[8], iv[9], iv[10], iv[11], (ivc+counter)|0 );
-        result.set( heap.subarray( hpos, hpos+wlen ), rpos );
+        if ( wlen ) result.set( heap.subarray( hpos, hpos+wlen ), rpos );
         counter += (wlen>>>4);
         rpos += wlen,
         hpos += wlen,
@@ -228,7 +228,7 @@ function gcm_aes_encrypt_finish () {
 
     if ( hlen > 0 ) {
         wlen = asm.gcm_encrypt( pos, hlen, iv[0], iv[1], iv[2], iv[3], iv[4], iv[5], iv[6], iv[7], iv[8], iv[9], iv[10], iv[11], (ivc+counter)|0 );
-        result.set( heap.subarray( pos, pos+wlen ) );
+        if ( wlen ) result.set( heap.subarray( pos, pos+wlen ) );
     }
 
     var alen = ( adata !== null ) ? adata.byteLength || adata.length || 0 : 0,
@@ -301,7 +301,7 @@ function gcm_aes_decrypt_process ( data ) {
 
         var ivc = (iv[12] << 24) | (iv[13] << 16) | (iv[14] << 8) | iv[15];
         wlen = asm.gcm_decrypt( hpos, Math.min( hlen, hlen + dlen - tagSize ) & -15, iv[0], iv[1], iv[2], iv[3], iv[4], iv[5], iv[6], iv[7], iv[8], iv[9], iv[10], iv[11], (ivc+counter)|0 );
-        result.set( heap.subarray( hpos, hpos+wlen ), rpos );
+        if ( wlen ) result.set( heap.subarray( hpos, hpos+wlen ), rpos );
         counter += (wlen>>>4);
         rpos += wlen,
         hpos += wlen,
@@ -340,7 +340,7 @@ function gcm_aes_decrypt_finish () {
 
     if ( hlen > 0 ) {
         wlen = asm.gcm_decrypt( hpos, rlen, iv[0], iv[1], iv[2], iv[3], iv[4], iv[5], iv[6], iv[7], iv[8], iv[9], iv[10], iv[11], (ivc+counter)|0 );
-        result.set( heap.subarray( hpos, hpos+wlen ) );
+        if ( wlen ) result.set( heap.subarray( hpos, hpos+wlen ) );
     }
 
     var alen = ( adata !== null ) ? adata.byteLength || adata.length || 0 : 0,
