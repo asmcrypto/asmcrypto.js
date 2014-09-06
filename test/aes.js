@@ -163,6 +163,26 @@ if ( typeof asmCrypto.AES_CTR !== 'undefined' )
         ],
         [
             // key
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            // nonce
+            asmCrypto.hex_to_bytes('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'),
+            // input message
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('874d6191b620e3261bef6864990db6ce9806f66b7970fdff8617187bb9fffdff5ae4df3edbd5d35e5b4f09020db03eab1e031dda2fbe03d1792170a0f300')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            // nonce
+            asmCrypto.hex_to_bytes('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'),
+            // input message
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e11739317'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('874d6191b620e3261bef6864990db6')
+        ],
+        [
+            // key
             asmCrypto.hex_to_bytes('603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4'),
             // nonce
             asmCrypto.hex_to_bytes('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'),

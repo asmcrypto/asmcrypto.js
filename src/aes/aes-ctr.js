@@ -91,7 +91,7 @@ function ctr_aes_encrypt_process ( data ) {
         dlen -= wlen;
 
         wlen = asm.ctr_encrypt( pos, len, nonce[0], nonce[1], nonce[2], nonce[3], nonce[4], nonce[5], nonce[6], nonce[7], nonce[8], nonce[9], nonce[10], nonce[11], (nc+counter)|0 );
-        result.set( heap.subarray( pos, pos + wlen ), rpos );
+        if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
         counter += (wlen >>> 4);
         rpos += wlen;
 
@@ -129,7 +129,7 @@ function ctr_aes_encrypt_finish () {
     var nc = (nonce[12] << 24) | (nonce[13] << 16) | (nonce[14] << 8) | nonce[15];
 
     if ( len > 0 ) {
-        wlen = asm.ctr_encrypt( pos, (len + 15) & 15, nonce[0], nonce[1], nonce[2], nonce[3], nonce[4], nonce[5], nonce[6], nonce[7], nonce[8], nonce[9], nonce[10], nonce[11], (nc+counter)|0 );
+        wlen = asm.ctr_encrypt( pos, (len + 15) & -16, nonce[0], nonce[1], nonce[2], nonce[3], nonce[4], nonce[5], nonce[6], nonce[7], nonce[8], nonce[9], nonce[10], nonce[11], (nc+counter)|0 );
         result.set( heap.subarray( pos, pos+len ) );
     }
 
