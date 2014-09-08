@@ -6,4 +6,3 @@ IllegalArgumentError.prototype = Object.create( Error.prototype, { name: { value
 
 function SecurityError () { var err = Error.apply( this, arguments ); this.message = err.message, this.stack = err.stack; }
 SecurityError.prototype = Object.create( Error.prototype, { name: { value: 'SecurityError' } } );
-
