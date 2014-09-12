@@ -10,7 +10,7 @@ function ctr_aes_encrypt_bytes ( data, key, nonce ) {
     return ctr_aes_instance.reset( { key: key, nonce: nonce } ).encrypt(data).result;
 }
 
-exports.AES_CTR = {
-    encrypt: ctr_aes_encrypt_bytes,
-    decrypt: ctr_aes_encrypt_bytes
-};
+ctr_aes_constructor.encrypt = ctr_aes_encrypt_bytes;
+ctr_aes_constructor.decrypt = ctr_aes_encrypt_bytes;
+
+exports.AES_CTR = ctr_aes_constructor;

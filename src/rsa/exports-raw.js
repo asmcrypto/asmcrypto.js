@@ -14,9 +14,9 @@ function rsa_raw_decrypt_bytes ( data, key ) {
     return (new RSA_RAW({ key: key })).decrypt(data).result;
 }
 
-exports.RSA_RAW = {
-    encrypt: rsa_raw_encrypt_bytes,
-    decrypt: rsa_raw_decrypt_bytes,
-    sign: rsa_raw_decrypt_bytes,
-    verify: rsa_raw_encrypt_bytes
-};
+RSA_RAW.encrypt = rsa_raw_encrypt_bytes;
+RSA_RAW.decrypt = rsa_raw_decrypt_bytes;
+RSA_RAW.sign = rsa_raw_decrypt_bytes;
+RSA_RAW.verify = rsa_raw_encrypt_bytes;
+
+exports.RSA_RAW = RSA_RAW;

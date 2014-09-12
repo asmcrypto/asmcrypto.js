@@ -16,7 +16,7 @@ function cfb_aes_decrypt_bytes ( data, key, padding, iv ) {
     return cfb_aes_instance.reset( { key: key, padding: padding, iv: iv } ).decrypt(data).result;
 }
 
-exports.AES_CFB = {
-    encrypt: cfb_aes_encrypt_bytes,
-    decrypt: cfb_aes_decrypt_bytes
-};
+cfb_aes_constructor.encrypt = cfb_aes_encrypt_bytes;
+cfb_aes_constructor.decrypt = cfb_aes_decrypt_bytes;
+
+exports.AES_CFB = cfb_aes_constructor;

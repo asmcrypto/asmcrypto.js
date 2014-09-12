@@ -16,7 +16,7 @@ function ecb_aes_decrypt_bytes ( data, key, padding ) {
     return ecb_aes_instance.reset( { key: key, padding: padding } ).decrypt(data).result;
 }
 
-exports.AES_ECB = {
-    encrypt: ecb_aes_encrypt_bytes,
-    decrypt: ecb_aes_decrypt_bytes
-};
+ecb_aes_constructor.encrypt = ecb_aes_encrypt_bytes;
+ecb_aes_constructor.decrypt = ecb_aes_decrypt_bytes;
+
+exports.AES_ECB = ecb_aes_constructor;

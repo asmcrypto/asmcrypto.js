@@ -21,7 +21,7 @@ function ccm_aes_decrypt_bytes ( data, key, nonce, adata, tagSize ) {
     return ccm_aes_instance.reset( { key: key, nonce: nonce, adata: adata, tagSize: tagSize, dataLength: dataLength-tagSize } ).decrypt(data).result;
 }
 
-exports.AES_CCM = {
-    encrypt: ccm_aes_encrypt_bytes,
-    decrypt: ccm_aes_decrypt_bytes
-};
+ccm_aes_constructor.encrypt = ccm_aes_encrypt_bytes;
+ccm_aes_constructor.decrypt = ccm_aes_decrypt_bytes;
+
+exports.AES_CCM = ccm_aes_constructor;

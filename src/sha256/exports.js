@@ -17,8 +17,8 @@ function sha256_base64 ( data ) {
     return bytes_to_base64(result);
 }
 
-exports.SHA256 = {
-    bytes: sha256_bytes,
-    hex: sha256_hex,
-    base64: sha256_base64
-};
+sha256_constructor.bytes = sha256_bytes;
+sha256_constructor.hex = sha256_hex;
+sha256_constructor.base64 = sha256_base64;
+
+exports.SHA256 = sha256_constructor;

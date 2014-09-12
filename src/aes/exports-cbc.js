@@ -16,7 +16,7 @@ function cbc_aes_decrypt_bytes ( data, key, padding, iv ) {
     return cbc_aes_instance.reset( { key: key, padding: padding, iv: iv } ).decrypt(data).result;
 }
 
-exports.AES_CBC = {
-    encrypt: cbc_aes_encrypt_bytes,
-    decrypt: cbc_aes_decrypt_bytes
-};
+cbc_aes_constructor.encrypt = cbc_aes_encrypt_bytes;
+cbc_aes_constructor.decrypt = cbc_aes_decrypt_bytes;
+
+exports.AES_CBC = cbc_aes_constructor;

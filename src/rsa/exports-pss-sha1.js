@@ -23,6 +23,8 @@ function rsa_pss_sha1_verify_bytes ( signature, data, key, slen ) {
     return false;
 }
 
+exports.RSA_PSS = RSA_PSS;
+
 exports.RSA_PSS_SHA1 = {
     sign: rsa_pss_sha1_sign_bytes,
     verify: rsa_pss_sha1_verify_bytes

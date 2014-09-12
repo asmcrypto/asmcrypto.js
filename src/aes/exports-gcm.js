@@ -18,7 +18,7 @@ function gcm_aes_decrypt_bytes ( data, key, iv, adata, tagSize ) {
     return gcm_aes_instance.reset( { key: key, iv: iv, adata: adata, tagSize: tagSize } ).decrypt(data).result;
 }
 
-exports.AES_GCM = {
-    encrypt: gcm_aes_encrypt_bytes,
-    decrypt: gcm_aes_decrypt_bytes
-};
+gcm_aes_constructor.encrypt = gcm_aes_encrypt_bytes;
+gcm_aes_constructor.decrypt = gcm_aes_decrypt_bytes;
+
+exports.AES_GCM = gcm_aes_constructor;
