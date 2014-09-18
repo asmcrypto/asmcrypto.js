@@ -404,24 +404,26 @@ module.exports = function ( grunt ) {
 
         // Insert implied modules only when theirs dependancies are there
         var impliedModules = {};
-        for ( var i = modules.length-1; i >= 0; i-- ) {
+        for ( var i = 0; i < modules.length; i++ ) {
             if ( !includeModules[ modules[i].name ] || !modules[i].implies ) continue;
             modules[i].implies.forEach( function ( moduleName ) { impliedModules[moduleName] = true } );
         }
-        for ( var i = modules.length-1; i >= 0; i-- ) {
-            if ( !impliedModules[ modules[i].name ] ) continue;
+        for ( var i = 0; i < modules.length; i++ ) {
+            if ( !modules[i].depends ) continue;
             modules[i].depends.forEach( function ( moduleName ) { if ( !deepIncludeModules[moduleName] ) delete impliedModules[ modules[i].name ] } );
+            if ( !impliedModules[ modules[i].name ] ) continue;
+            deepIncludeModules[ modules[i].name ] = true;
         }
         Object.keys(impliedModules).forEach( function ( moduleName ) { deepIncludeModules[moduleName] = true } );
 
         // Hold the array of files as specified by the modules
         var sourceFiles = [];
-        for ( var i = modules.length-1; i >= 0; i-- ) {
+        for ( var i = 0; i < modules.length; i++ ) {
             if ( !deepIncludeModules[ modules[i].name ] ) continue;
-            sourceFiles = modules[i].files.concat(sourceFiles);
+            sourceFiles = sourceFiles.concat(modules[i].files);
         }
 
-        //grunt.log.writeln( "Building files:\n" + sourceFiles.join("\n") );
+//        grunt.log.writeln( "Building files:\n" + sourceFiles.join("\n") );
 
         grunt.config( 'sources.files', sourceFiles );
 
