@@ -2,7 +2,7 @@
  * AES-CFB exports
  */
 
-var cfb_aes_instance = new cfb_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
+var cfb_aes_instance = new cfb_aes_constructor( { heap: _aes_heap_instance, asm: _aes_asm_instance } );
 
 function cfb_aes_encrypt_bytes ( data, key, padding, iv ) {
     if ( data === undefined ) throw new SyntaxError("data required");

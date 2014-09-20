@@ -2,7 +2,7 @@
  * AES-CBC exports
  */
 
-var cbc_aes_instance = new cbc_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
+var cbc_aes_instance = new cbc_aes_constructor( { heap: _aes_heap_instance, asm: _aes_asm_instance } );
 
 function cbc_aes_encrypt_bytes ( data, key, padding, iv ) {
     if ( data === undefined ) throw new SyntaxError("data required");

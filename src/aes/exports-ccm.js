@@ -2,7 +2,7 @@
  * AES-CCM exports
  */
 
-var ccm_aes_instance = new ccm_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
+var ccm_aes_instance = new ccm_aes_constructor( { heap: _aes_heap_instance, asm: _aes_asm_instance } );
 
 function ccm_aes_encrypt_bytes ( data, key, nonce, adata, tagSize ) {
     if ( data === undefined ) throw new SyntaxError("data required");

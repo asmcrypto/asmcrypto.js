@@ -2,7 +2,7 @@
  * AES-ECB exports
  */
 
-var ecb_aes_instance = new ecb_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
+var ecb_aes_instance = new ecb_aes_constructor( { heap: _aes_heap_instance, asm: _aes_asm_instance } );
 
 function ecb_aes_encrypt_bytes ( data, key, padding ) {
     if ( data === undefined ) throw new SyntaxError("data required");

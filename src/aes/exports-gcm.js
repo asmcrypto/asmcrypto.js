@@ -2,7 +2,7 @@
  * AES-GCM exports
  */
 
-var gcm_aes_instance = new gcm_aes_constructor( { heap: _aes_heap, asm: _aes_asm } );
+var gcm_aes_instance = new gcm_aes_constructor( { heap: _aes_heap_instance, asm: _aes_asm_instance } );
 
 function gcm_aes_encrypt_bytes ( data, key, iv, adata, tagSize ) {
     if ( data === undefined ) throw new SyntaxError("data required");
