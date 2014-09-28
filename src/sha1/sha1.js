@@ -38,6 +38,7 @@ function sha1_process ( data ) {
         dlen = data.byteLength;
     }
     else if ( is_string(data) ) {
+        data = string_to_bytes(data);
         dlen = data.length;
     }
     else {

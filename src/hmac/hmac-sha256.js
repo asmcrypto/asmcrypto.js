@@ -16,6 +16,10 @@ function hmac_sha256_reset ( options ) {
     if ( this.key === null && !is_string(password) && !password )
         throw new IllegalStateError("no key is associated with the instance");
 
+    if ( is_string(password) ) {
+        password = string_to_bytes(password);
+    }
+
     this.result = null;
     this.hash.reset();
 

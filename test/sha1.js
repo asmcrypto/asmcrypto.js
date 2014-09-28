@@ -10,6 +10,7 @@ if ( typeof asmCrypto.SHA1 !== 'undefined' )
         [ 'a49b2446a02c645bf419f995b67091253a04a259', 'abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu'],
         [ '2fd4e1c67a2d28fced849ee1bb76e7391b93eb12', 'The quick brown fox jumps over the lazy dog' ],
         [ 'de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3', 'The quick brown fox jumps over the lazy cog' ],
+        [ '9ace614c96c229d38b2143f6b165f775cc552740', 'This string contains UTF8 characters - Ͼ' ],
     ];
 
     test( "asmCrypto.SHA1.hex", function () {
@@ -37,6 +38,7 @@ if ( typeof asmCrypto.HMAC_SHA1 !== 'undefined' )
         [ 'de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9', 'key', 'The quick brown fox jumps over the lazy dog' ],
         [ 'b617318655057264e28bc0b6fb378c8ef146be00', asmCrypto.hex_to_bytes('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b'), 'Hi There' ],
         [ 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79', 'Jefe', 'what do ya want for nothing?'],
+        [ '8b212826d2bf54e4ec797323ca7092edcf823765', 'This data contains UTF8 characters - Ͼ', 'This password contains UTF8 characters - Ͼ' ],
     ];
 
     test( "asmCrypto.HMAC_SHA1.hex", function () {
@@ -65,6 +67,7 @@ if ( typeof asmCrypto.PBKDF2_HMAC_SHA1 !== 'undefined' )
         //[ 'eefe3d61cd4da4e4e9945b3d6ba2158c2634e984', 'password', 'salt', 16777216, 20 ],
         [ '3d2eec4fe41c849b80c8d83662c0e44a8b291a964cf2f07038', 'passwordPASSWORDpassword', 'saltSALTsaltSALTsaltSALTsaltSALTsalt', 4096, 25 ],
         [ '56fa6aa75548099dcc37d7f03425e0c3', "pass\0word", "sa\0lt", 4096, 16 ],
+        [ 'cce786b3b45e56a778e70a28eaed5a4b8332bacf', 'This data contains UTF8 characters - Ͼ', 'This password contains UTF8 characters - Ͼ', 1, 20 ],
     ];
 
     test( "asmCrypto.PBKDF2_HMAC_SHA1.hex", function () {

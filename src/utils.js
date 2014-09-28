@@ -3,6 +3,7 @@
 var FloatArray = global.Float64Array || global.Float32Array; // make PhantomJS happy
 
 function string_to_bytes ( str ) {
+    str = unescape(encodeURIComponent(str));
     var i,
         len=str.length,
         arr = new Uint8Array( len );
