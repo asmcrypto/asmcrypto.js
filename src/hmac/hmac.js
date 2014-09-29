@@ -22,34 +22,22 @@ function hmac_constructor ( options ) {
 }
 
 function _hmac_key ( hash, password ) {
-    var key;
+    if ( is_buffer(password) )
+        password = new Uint8Array(password);
 
-    if ( is_buffer(password) || is_bytes(password) ) {
-        key = new Uint8Array(hash.BLOCK_SIZE);
+    if ( is_string(password) )
+        password = string_to_bytes(password);
 
-        if ( password.byteLength > hash.BLOCK_SIZE ) {
-            key.set( new Uint8Array( hash.reset().process(password).finish().result ) );
-        }
-        else if ( is_buffer(password) ) {
-            key.set( new Uint8Array(password) );
-        }
-        else {
-            key.set(password);
-        }
-    }
-    else if ( is_string(password) ) {
-        key = new Uint8Array(hash.BLOCK_SIZE);
+    if ( !is_bytes(password) )
+        throw new TypeError("password isn't of expected type");
 
-        if ( password.length > hash.BLOCK_SIZE ) {
-            key.set( new Uint8Array( hash.reset().process(password).finish().result ) );
-        }
-        else {
-            for ( var i = 0; i < password.length; ++i )
-                key[i] = password.charCodeAt(i);
-        }
+    var key = new Uint8Array( hash.BLOCK_SIZE );
+
+    if ( password.length > hash.BLOCK_SIZE ) {
+        key.set( hash.reset().process(password).finish().result );
     }
     else {
-        throw new TypeError("password isn't of expected type");
+        key.set(password);
     }
 
     return key;

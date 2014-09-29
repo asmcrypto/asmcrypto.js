@@ -23,10 +23,7 @@ function RSA_OAEP_reset ( options ) {
             label = new Uint8Array(label);
         }
         else if ( is_string(label) ) {
-            var str = label;
-            label = new Uint8Array(str.length);
-            for ( var i = 0; i < str.length; i++ )
-                label[i] = str.charCodeAt(i);
+            label = string_to_bytes(label);
         }
         else {
             throw new TypeError("unexpected label type");
@@ -64,8 +61,7 @@ function RSA_OAEP_encrypt ( data ) {
         data_block.set( new Uint8Array(data), hash_size + ps_length + 1 );
     }
     else if ( is_string(data) ) {
-        for ( var i = 0; i < data.length; i++ )
-            data_block[ key_size + ps_length + 1 + i ] = data.charCodeAt(i);
+        data_block.set( string_to_bytes(data), hash_size + ps_length + 1 );
     }
     else {
         throw new TypeError("unexpected data type");
