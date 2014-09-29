@@ -35,27 +35,27 @@ function _aes_reset ( options ) {
             key = new Uint8Array(key);
         }
         else if ( is_string(key) ) {
-            var str = key;
-            key = new Uint8Array(str.length);
-            for ( var i = 0; i < str.length; ++i )
-                key[i] = str.charCodeAt(i);
+            key = string_to_bytes(key);
         }
         else {
             throw new TypeError("unexpected key type");
         }
 
         if ( key.length === 16 ) {
-            this.key = key;
             asm.init_key_128.call(asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
-        } else if ( key.length === 24 ) {
+        }
+        else if ( key.length === 24 ) {
             // TODO support of 192-bit keys
             throw new IllegalArgumentError("illegal key size");
-        } else if ( key.length === 32 ) {
-            this.key = key;
+        }
+        else if ( key.length === 32 ) {
             asm.init_key_256.call(asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15], key[16], key[17], key[18], key[19], key[20], key[21], key[22], key[23], key[24], key[25], key[26], key[27], key[28], key[29], key[30], key[31]);
-        } else {
+        }
+        else {
             throw new IllegalArgumentError("illegal key size");
         }
+
+        this.key = key;
     }
 
     return this;
@@ -69,10 +69,7 @@ function _aes_init_iv ( iv ) {
             iv = new Uint8Array(iv);
         }
         else if ( is_string(iv) ) {
-            var str = iv;
-            iv = new Uint8Array(str.length);
-            for ( var i = 0; i < str.length; ++i )
-                iv[i] = str.charCodeAt(i);
+            iv = string_to_bytes(iv);
         }
         else {
             throw new TypeError("unexpected iv type");
@@ -96,9 +93,6 @@ function _aes_heap_write ( heap, hpos, data, dpos, dlen ) {
 
     if ( is_buffer(data) || is_bytes(data) ) {
         heap.set( new Uint8Array( (data.buffer||data), dpos, wlen ), hpos );
-    }
-    else if ( is_string(data) ) {
-        for ( var i = 0; i < wlen; ++i ) heap[ hpos + i ] = data.charCodeAt( dpos + i );
     }
     else {
         throw new TypeError("unexpected data type");

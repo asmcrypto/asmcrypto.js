@@ -104,3 +104,22 @@ test( "Math.random()", function () {
     ok( typeof r === 'number', "r is number" );
     ok( r >= 0 && r < 1, "0 <= r < 1" );
 });
+
+if ( asmCrypto.string_to_bytes ) {
+    test( "asmCrypto.string_to_bytes()", function () {
+        var bytes = asmCrypto.string_to_bytes("String not containing Unicode character");
+        ok( bytes, "No exception on non-Unicode string" );
+
+        try {
+            var bytes = asmCrypto.string_to_bytes("String containing Unicode character: Ͼ");
+            ok( false, "No exception on Unicode string")
+        }
+        catch ( e ) {
+            ok( e instanceof Error, "Exception thrown on Unicode string" );
+            ok( e.message.match(/wide character/i), "Exception message is about wide character" );
+        }
+    });
+}
+else {
+    skip("asmCrypto.string_to_bytes()");
+}

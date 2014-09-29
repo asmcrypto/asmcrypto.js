@@ -116,10 +116,7 @@ function ccm_aes_reset ( options ) {
             nonce = new Uint8Array(nonce);
         }
         else if ( is_string(nonce) ) {
-            var str = nonce;
-            nonce = new Uint8Array(str.length);
-            for ( var i = 0; i < str.length; ++i )
-                nonce[i] = str.charCodeAt(i);
+            nonce = string_to_bytes(nonce);
         }
         else {
             throw new TypeError("unexpected nonce type");
@@ -199,10 +196,7 @@ function ccm_aes_reset ( options ) {
             adata = new Uint8Array(adata);
         }
         else if ( is_string(adata) ) {
-            var str = adata;
-            adata = new Uint8Array(str.length);
-            for ( var i = 0; i < str.length; ++i )
-                adata[i] = str.charCodeAt(i);
+            adata = string_to_bytes(adata);
         }
         else {
             throw new TypeError("unexpected adata type");

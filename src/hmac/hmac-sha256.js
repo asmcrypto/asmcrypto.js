@@ -11,15 +11,15 @@ function hmac_sha256_constructor ( options ) {
 
 function hmac_sha256_reset ( options ) {
     options = options || {};
-    var password = options.password;
-
-    if ( this.key === null && !is_string(password) && !password )
-        throw new IllegalStateError("no key is associated with the instance");
 
     this.result = null;
     this.hash.reset();
 
-    if ( password || is_string(password) ) {
+    var password = options.password;
+    if ( password !== undefined ) {
+        if ( is_string(password) )
+            password = string_to_bytes(password);
+
         var key = this.key = _hmac_key( this.hash, password );
         this.hash.reset().asm.hmac_init(
             (key[0]<<24)|(key[1]<<16)|(key[2]<<8)|(key[3]),

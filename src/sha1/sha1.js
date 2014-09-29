@@ -31,41 +31,44 @@ function sha1_process ( data ) {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 
-    var dpos = 0, dlen = 0, clen = 0;
+    if ( is_string(data) )
+        data = string_to_bytes(data);
 
-    if ( is_buffer(data) || is_bytes(data) ) {
-        dpos = data.byteOffset||0;
-        dlen = data.byteLength;
-    }
-    else if ( is_string(data) ) {
-        dlen = data.length;
-    }
-    else {
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
         throw new TypeError("data isn't of expected type");
-    }
+
+    var asm = this.asm,
+        heap = this.heap,
+        hpos = this.pos,
+        hlen = this.len,
+        dpos = 0,
+        dlen = data.byteLength,
+        wlen = 0;
 
     while ( dlen > 0 ) {
-        clen = this.heap.byteLength - this.pos - this.len;
-        clen = ( clen < dlen ) ? clen : dlen;
+        wlen = heap.byteLength - hpos - hlen;
+        wlen = ( wlen < dlen ) ? wlen : dlen;
 
-        if ( is_buffer(data) || is_bytes(data) ) {
-            this.heap.set( new Uint8Array( (data.buffer||data), dpos, clen ), this.pos + this.len );
-        } else {
-            for ( var i = 0; i < clen; i++ ) this.heap[ this.pos + this.len + i ] = data.charCodeAt( dpos + i );
-        }
-        this.len += clen;
-        dpos += clen;
-        dlen -= clen;
+        heap.set( new Uint8Array( (data.buffer||data), dpos, wlen ), this.pos + this.len );
+        heap.set( data.subarray( dpos, dpos+wlen ), hpos+hlen );
 
-        clen = this.asm.process( this.pos, this.len );
-        if ( clen < this.len ) {
-            this.pos += clen;
-            this.len -= clen;
-        } else {
-            this.pos = 0;
-            this.len = 0;
-        }
+        hlen += wlen;
+        dpos += wlen;
+        dlen -= wlen;
+
+        wlen = asm.process( hpos, hlen );
+
+        hpos += wlen;
+        hlen -= wlen;
+
+        if ( !hlen ) hpos = 0;
     }
+
+    this.pos = hpos;
+    this.len = hlen;
 
     return this;
 }

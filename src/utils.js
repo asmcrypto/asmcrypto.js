@@ -3,11 +3,12 @@
 var FloatArray = global.Float64Array || global.Float32Array; // make PhantomJS happy
 
 function string_to_bytes ( str ) {
-    var i,
-        len=str.length,
+    var len = str.length,
         arr = new Uint8Array( len );
-    for ( i=0; i<len; i+=1 ) {
-        arr[i] = str.charCodeAt(i);
+    for ( var i = 0; i < len; i++ ) {
+        var c = str.charCodeAt(i);
+        if ( c >>> 8 ) throw new Error("Wide characters are not allowed");
+        arr[i] = c;
     }
     return arr;
 }

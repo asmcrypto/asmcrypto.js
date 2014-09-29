@@ -3052,7 +3052,7 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         while ( (count|0) > 0 ) {
             hmac_reset();
             _core( t0h, t0l, t1h, t1l, t2h, t2l, t3h, t3l, t4h, t4l, t5h, t5l, t6h, t6l, t7h, t7l, 0x80000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1536 );
-            
+
             t0h = H0h;
             t0l = H0l;
             t1h = H1h;
@@ -3069,7 +3069,7 @@ function sha512_asm ( stdlib, foreign, buffer ) {
             t6l = H6l;
             t7h = H7h;
             t7l = H7l;
-            
+
             _hmac_opad();
             _core( t0h, t0l, t1h, t1l, t2h, t2l, t3h, t3l, t4h, t4l, t5h, t5l, t6h, t6l, t7h, t7l, 0x80000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1536 );
 
