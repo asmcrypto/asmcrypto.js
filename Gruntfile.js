@@ -115,36 +115,41 @@ var modules = [
         depends: [ 'aes-gcm', 'aes-exports' ]
     },
     {
+        name: 'hash',
+        files: [ 'src/hash/hash.js' ],
+        depends: [ 'common', 'utils' ]
+    },
+    {
         name: 'sha1',
-        files: [ 'src/sha1/sha1.asm.js', 'src/sha1/sha1.js' ],
-        depends: [ 'common', 'utils' ],
+        files: [ 'src/hash/sha1/sha1.asm.js', 'src/hash/sha1/sha1.js' ],
+        depends: [ 'common', 'hash' ],
         implies: [ 'sha1-exports' ]
     },
     {
         name: 'sha1-exports',
-        files: [ 'src/sha1/exports.js' ],
+        files: [ 'src/hash/sha1/exports.js' ],
         depends: [ 'sha1' ]
     },
     {
         name: 'sha256',
-        files: [ 'src/sha256/sha256.asm.js', 'src/sha256/sha256.js' ],
-        depends: [ 'common', 'utils' ],
+        files: [ 'src/hash/sha256/sha256.asm.js', 'src/hash/sha256/sha256.js' ],
+        depends: [ 'common', 'hash' ],
         implies: [ 'sha256-exports' ]
     },
     {
         name: 'sha256-exports',
-        files: [ 'src/sha256/exports.js' ],
+        files: [ 'src/hash/sha256/exports.js' ],
         depends: [ 'sha256' ],
     },
     {
         name: 'sha512',
-        files: [ 'src/sha512/sha512.asm.js', 'src/sha512/sha512.js' ],
-        depends: [ 'common', 'utils' ],
+        files: [ 'src/hash/sha512/sha512.asm.js', 'src/hash/sha512/sha512.js' ],
+        depends: [ 'common', 'hash' ],
         implies: [ 'sha512-exports' ]
     },
     {
         name: 'sha512-exports',
-        files: [ 'src/sha512/exports.js' ],
+        files: [ 'src/hash/sha512/exports.js' ],
         depends: [ 'sha512' ]
     },
     {
