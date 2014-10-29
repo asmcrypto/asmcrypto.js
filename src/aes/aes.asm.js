@@ -2927,21 +2927,21 @@ function _aes_asm ( stdlib, foreign, buffer ) {
         }
 
         if ( (length|0) > 0 ) {
-            s0 = HEAP[offset|0],
-            s1 = (length|0) > 1 ? HEAP[offset|1] : 0,
-            s2 = (length|0) > 2 ? HEAP[offset|2] : 0,
-            s3 = (length|0) > 3 ? HEAP[offset|3] : 0,
-            s4 = (length|0) > 4 ? HEAP[offset|4] : 0,
-            s5 = (length|0) > 5 ? HEAP[offset|5] : 0,
-            s6 = (length|0) > 6 ? HEAP[offset|6] : 0,
-            s7 = (length|0) > 7 ? HEAP[offset|7] : 0,
-            s8 = (length|0) > 8 ? HEAP[offset|8] : 0,
-            s9 = (length|0) > 9 ? HEAP[offset|9] : 0,
-            sA = (length|0) > 10 ? HEAP[offset|10] : 0,
-            sB = (length|0) > 11 ? HEAP[offset|11] : 0,
-            sC = (length|0) > 12 ? HEAP[offset|12] : 0,
-            sD = (length|0) > 13 ? HEAP[offset|13] : 0,
-            sE = (length|0) > 14 ? HEAP[offset|14] : 0;
+            s0 = HEAP[offset|0]|0,
+            s1 = (length|0) > 1 ? HEAP[offset|1]|0 : 0,
+            s2 = (length|0) > 2 ? HEAP[offset|2]|0 : 0,
+            s3 = (length|0) > 3 ? HEAP[offset|3]|0 : 0,
+            s4 = (length|0) > 4 ? HEAP[offset|4]|0 : 0,
+            s5 = (length|0) > 5 ? HEAP[offset|5]|0 : 0,
+            s6 = (length|0) > 6 ? HEAP[offset|6]|0 : 0,
+            s7 = (length|0) > 7 ? HEAP[offset|7]|0 : 0,
+            s8 = (length|0) > 8 ? HEAP[offset|8]|0 : 0,
+            s9 = (length|0) > 9 ? HEAP[offset|9]|0 : 0,
+            sA = (length|0) > 10 ? HEAP[offset|10]|0 : 0,
+            sB = (length|0) > 11 ? HEAP[offset|11]|0 : 0,
+            sC = (length|0) > 12 ? HEAP[offset|12]|0 : 0,
+            sD = (length|0) > 13 ? HEAP[offset|13]|0 : 0,
+            sE = (length|0) > 14 ? HEAP[offset|14]|0 : 0;
             sF = /*(length|0) > 15 ? HEAP[offset|15] :*/ 0;
 
             _gcm_mult(
