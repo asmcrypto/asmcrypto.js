@@ -14,13 +14,15 @@
  */
 
 function _cbc_mac_process ( data ) {
-    var dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+    var heap = this.heap,
+        asm  = this.asm,
+        dpos = 0,
+        dlen = data.length || 0,
         wlen = 0;
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( this.heap, _aes_heap_start, data, dpos, dlen );
-        this.asm.cbc_mac( _aes_heap_start, wlen, -1 );
+        wlen = _aes_heap_write( heap, _aes_heap_start, data, dpos, dlen );
+        asm.cbc_mac( _aes_heap_start, wlen, -1 );
         dpos += wlen;
         dlen -= wlen;
     }
@@ -30,7 +32,7 @@ var _ccm_adata_maxLength = 65279,       // 2^16 - 2^8
     _ccm_data_maxLength = 68719476720;  // 2^36 - 2^4
 
 function ccm_aes_constructor ( options ) {
-    this.padding    = false;
+    this.padding    = false; // WAT?
     this.mode       = 'ccm';
 
     this.tagSize    = _aes_block_size;
@@ -64,7 +66,7 @@ function _ccm_calculate_iv () {
         lengthSize = this.lengthSize,
         dataLength = this.dataLength;
 
-    var data = new Uint8Array( _aes_block_size + ( adata ? 2 + adata.byteLength : 0 ) );
+    var data = new Uint8Array( _aes_block_size + ( adata ? 2 + adata.length : 0 ) );
 
     // B0: flags(adata?, M', L'), nonce, len(data)
     data[0] = ( adata ? 64 : 0 ) | ( (tagSize-2)<<2 ) | ( lengthSize-1 );
@@ -77,8 +79,8 @@ function _ccm_calculate_iv () {
 
     // B*: len(adata), adata
     if ( adata ) {
-        data[16] = adata.byteLength>>>8&255;
-        data[17] = adata.byteLength&255;
+        data[16] = adata.length>>>8&255;
+        data[17] = adata.length&255;
         data.set( adata, 18 );
     }
 
@@ -202,7 +204,7 @@ function ccm_aes_reset ( options ) {
             throw new TypeError("unexpected adata type");
         }
 
-        if ( adata.byteLength === 0 || adata.byteLength > _ccm_adata_maxLength )
+        if ( adata.length === 0 || adata.length > _ccm_adata_maxLength )
             throw new IllegalArgumentError("illegal adata length");
 
         this.adata = adata;
@@ -222,8 +224,17 @@ function ccm_aes_encrypt_process ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
-    var dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
+    var dpos = 0,
+        dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
         nonce = this.nonce,
@@ -323,7 +334,7 @@ function ccm_aes_encrypt_finish () {
 }
 
 function ccm_aes_encrypt ( data ) {
-    this.dataLength = this.dataLeft = data.byteLength || data.length || 0;
+    this.dataLength = this.dataLeft = data.length || 0;
 
     var result1 = ccm_aes_encrypt_process.call( this, data ).result,
         result2 = ccm_aes_encrypt_finish.call(this).result,
@@ -341,8 +352,17 @@ function ccm_aes_decrypt_process ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
-    var dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
+    var dpos = 0,
+        dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
         nonce = this.nonce,
@@ -451,7 +471,7 @@ function ccm_aes_decrypt_finish () {
 }
 
 function ccm_aes_decrypt ( data ) {
-    this.dataLength = this.dataLeft = data.byteLength || data.length || 0;
+    this.dataLength = this.dataLeft = data.length || 0;
 
     var result1 = ccm_aes_decrypt_process.call( this, data ).result,
         result2 = ccm_aes_decrypt_finish.call(this).result,

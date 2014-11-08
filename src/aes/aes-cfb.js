@@ -32,8 +32,17 @@ function cfb_aes_encrypt_process ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
-    var dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
+    var dpos = 0,
+        dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
         pos = this.pos,
@@ -111,8 +120,17 @@ function cfb_aes_decrypt_process ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
-    var dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
+    var dpos = 0,
+        dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
         pos = this.pos,
