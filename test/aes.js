@@ -138,6 +138,20 @@ if ( typeof asmCrypto.AES_CBC !== 'undefined' )
                 asmCrypto.bytes_to_hex(clear),
                 "decrypt vector " + i
             );
+
+            if ( asmCrypto.bytes_to_string !== undefined ) {
+                equal(
+                    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( asmCrypto.bytes_to_string(clear), key, false, iv ) ),
+                    asmCrypto.bytes_to_hex(cipher),
+                    "encrypt (string) vector " + i
+                );
+
+                equal(
+                    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.decrypt( asmCrypto.bytes_to_string(cipher), key, false, iv ) ),
+                    asmCrypto.bytes_to_hex(clear),
+                    "decrypt (string) vector " + i
+                );
+            }
         }
     });
 }

@@ -45,11 +45,11 @@ function sha1_process ( data ) {
         hpos = this.pos,
         hlen = this.len,
         dpos = 0,
-        dlen = data.byteLength,
+        dlen = data.length,
         wlen = 0;
 
     while ( dlen > 0 ) {
-        wlen = heap.byteLength - hpos - hlen;
+        wlen = heap.length - hpos - hlen;
         wlen = ( wlen < dlen ) ? wlen : dlen;
 
         heap.set( new Uint8Array( (data.buffer||data), dpos, wlen ), this.pos + this.len );

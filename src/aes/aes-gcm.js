@@ -5,7 +5,7 @@
 var _gcm_data_maxLength = 68719476704;  // 2^36 - 2^5
 
 function gcm_aes_constructor ( options ) {
-    this.padding    = false;
+    this.padding    = false; // WAT?
     this.mode       = 'gcm';
 
     this.tagSize    = _aes_block_size;
@@ -28,8 +28,8 @@ function gcm_aes_decrypt_constructor ( options ) {
 function _gcm_ghash ( data ) {
     var asm = this.asm,
         heap = this.heap,
-        dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+        dpos = 0,
+        dlen = data.length || 0,
         hpos = _aes_heap_start,
         hlen = 0,
         wlen = 0;
@@ -75,7 +75,7 @@ function gcm_aes_reset ( options ) {
             throw new TypeError("unexpected iv type");
         }
 
-        var ivlen = iv.byteLength || iv.length || 0;
+        var ivlen = iv.length || 0;
         if ( ivlen !== 12 ) {
             asm.init_state( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
 
@@ -148,7 +148,7 @@ function gcm_aes_reset ( options ) {
             throw new TypeError("unexpected adata type");
         }
 
-        if ( adata.byteLength === 0 || adata.byteLength > _gcm_data_maxLength )
+        if ( adata.length === 0 || adata.length > _gcm_data_maxLength )
             throw new IllegalArgumentError("illegal adata length");
 
         _gcm_ghash.call( this, adata );
@@ -166,12 +166,21 @@ function gcm_aes_encrypt_process ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
     var asm = this.asm,
         heap = this.heap,
         iv  = this.iv,
         counter = this.counter,
-        dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+        dpos = 0,
+        dlen = data.length || 0,
         hpos = this.pos,
         hlen = this.len,
         rpos = 0,
@@ -231,7 +240,7 @@ function gcm_aes_encrypt_finish () {
         if ( wlen ) result.set( heap.subarray( pos, pos+wlen ) );
     }
 
-    var alen = ( adata !== null ) ? adata.byteLength || adata.length || 0 : 0,
+    var alen = ( adata !== null ) ? adata.length || 0 : 0,
         clen = ( (counter-1) << 4) + wlen;
     heap[_aes_heap_start|0] = heap[_aes_heap_start|1] = heap[_aes_heap_start|2] = 0,
     heap[_aes_heap_start|3] = (alen >>> 29),
@@ -275,13 +284,22 @@ function gcm_aes_decrypt_process ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
     var asm = this.asm,
         heap = this.heap,
         iv  = this.iv,
         counter = this.counter,
         tagSize = this.tagSize,
-        dpos = data.byteOffset || 0,
-        dlen = data.byteLength || data.length || 0,
+        dpos = 0,
+        dlen = data.length || 0,
         hpos = this.pos,
         hlen = this.len,
         rpos = 0,
@@ -343,7 +361,7 @@ function gcm_aes_decrypt_finish () {
         if ( wlen ) result.set( heap.subarray( hpos, hpos+wlen ) );
     }
 
-    var alen = ( adata !== null ) ? adata.byteLength || adata.length || 0 : 0,
+    var alen = ( adata !== null ) ? adata.length || 0 : 0,
         clen = ( (counter-1) << 4) + wlen;
     heap[_aes_heap_start|0] = heap[_aes_heap_start|1] = heap[_aes_heap_start|2] = 0,
     heap[_aes_heap_start|3] = (alen >>> 29),

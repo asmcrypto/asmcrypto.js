@@ -38,11 +38,10 @@ function bytes_to_string ( arr ) {
 }
 
 function bytes_to_hex ( arr ) {
-    var sz = ( arr.byteLength || arr.length ) / arr.length,
-        str = '';
+    var str = '';
     for ( var i = 0; i < arr.length; i++ ) {
-        var h = arr[i].toString(16);
-        if ( h.length < 2*sz ) str += '00000000000000'.substr( 0, 2*sz-h.length );
+        var h = ( arr[i] & 0xff ).toString(16);
+        if ( h.length < 2 ) str += '0';
         str += h;
     }
     return str;

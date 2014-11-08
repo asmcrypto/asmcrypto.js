@@ -88,15 +88,10 @@ function _aes_init_iv ( iv ) {
 }
 
 function _aes_heap_write ( heap, hpos, data, dpos, dlen ) {
-    var hlen = heap.byteLength - hpos,
-        wlen = (hlen < dlen) ? hlen : dlen;
+    var hlen = heap.length - hpos,
+        wlen = ( hlen < dlen ) ? hlen : dlen;
 
-    if ( is_buffer(data) || is_bytes(data) ) {
-        heap.set( new Uint8Array( (data.buffer||data), dpos, wlen ), hpos );
-    }
-    else {
-        throw new TypeError("unexpected data type");
-    }
+    heap.set( data.subarray( dpos, dpos+wlen ), hpos );
 
     return wlen;
 }
