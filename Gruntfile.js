@@ -122,7 +122,7 @@ var modules = [
     {
         name: 'sha1',
         files: [ 'src/hash/sha1/sha1.asm.js', 'src/hash/sha1/sha1.js' ],
-        depends: [ 'common', 'hash' ],
+        depends: [ 'common', 'hash', 'utils' ],
         implies: [ 'sha1-exports' ]
     },
     {
@@ -133,7 +133,7 @@ var modules = [
     {
         name: 'sha256',
         files: [ 'src/hash/sha256/sha256.asm.js', 'src/hash/sha256/sha256.js' ],
-        depends: [ 'common', 'hash' ],
+        depends: [ 'common', 'hash', 'utils' ],
         implies: [ 'sha256-exports' ]
     },
     {
@@ -144,7 +144,7 @@ var modules = [
     {
         name: 'sha512',
         files: [ 'src/hash/sha512/sha512.asm.js', 'src/hash/sha512/sha512.js' ],
-        depends: [ 'common', 'hash' ],
+        depends: [ 'common', 'hash', 'utils' ],
         implies: [ 'sha512-exports' ]
     },
     {

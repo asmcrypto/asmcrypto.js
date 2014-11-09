@@ -3,12 +3,8 @@ var _sha512_block_size = 128,
 
 function sha512_constructor ( options ) {
     options = options || {};
-    options.heapSize = options.heapSize || 4096;
 
-    if ( options.heapSize <= 0 || options.heapSize % 4096 )
-        throw new IllegalArgumentError("heapSize must be a positive number and multiple of 4096");
-
-    this.heap = options.heap || new Uint8Array(options.heapSize);
+    this.heap = _heap_init( Uint8Array, options );
     this.asm = options.asm || sha512_asm( global, null, this.heap.buffer );
 
     this.BLOCK_SIZE = _sha512_block_size;
