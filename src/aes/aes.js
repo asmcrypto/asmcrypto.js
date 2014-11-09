@@ -82,12 +82,3 @@ function _aes_init_iv ( iv ) {
         asm.init_state( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
     }
 }
-
-function _aes_heap_write ( heap, hpos, data, dpos, dlen ) {
-    var hlen = heap.length - hpos,
-        wlen = ( hlen < dlen ) ? hlen : dlen;
-
-    heap.set( data.subarray( dpos, dpos+wlen ), hpos );
-
-    return wlen;
-}

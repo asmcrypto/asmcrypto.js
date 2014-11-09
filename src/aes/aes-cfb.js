@@ -54,7 +54,7 @@ function cfb_aes_encrypt_process ( data ) {
     var result = new Uint8Array(rlen);
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, pos+len, data, dpos, dlen );
+        wlen = _heap_write( heap, pos+len, data, dpos, dlen );
         len  += wlen;
         dpos += wlen;
         dlen -= wlen;
@@ -142,7 +142,7 @@ function cfb_aes_decrypt_process ( data ) {
     var result = new Uint8Array(rlen);
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, pos+len, data, dpos, dlen );
+        wlen = _heap_write( heap, pos+len, data, dpos, dlen );
         len  += wlen;
         dpos += wlen;
         dlen -= wlen;

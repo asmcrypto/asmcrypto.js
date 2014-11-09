@@ -35,7 +35,7 @@ function _gcm_ghash ( data ) {
         wlen = 0;
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, hpos+hlen, data, dpos, dlen ),
+        wlen = _heap_write( heap, hpos+hlen, data, dpos, dlen ),
         hlen += wlen,
         dpos += wlen,
         dlen -= wlen;
@@ -193,7 +193,7 @@ function gcm_aes_encrypt_process ( data ) {
         throw new IllegalStateError("counter overflow");
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, hpos+hlen, data, dpos, dlen );
+        wlen = _heap_write( heap, hpos+hlen, data, dpos, dlen );
         hlen  += wlen;
         dpos += wlen;
         dlen -= wlen;
@@ -312,7 +312,7 @@ function gcm_aes_decrypt_process ( data ) {
         throw new IllegalStateError("counter overflow");
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, hpos+hlen, data, dpos, dlen ),
+        wlen = _heap_write( heap, hpos+hlen, data, dpos, dlen ),
         hlen += wlen,
         dpos += wlen,
         dlen -= wlen;

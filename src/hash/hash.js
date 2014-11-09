@@ -30,12 +30,7 @@ function hash_process ( data ) {
         wlen = 0;
 
     while ( dlen > 0 ) {
-        wlen = heap.length - hpos - hlen;
-        wlen = ( wlen < dlen ) ? wlen : dlen;
-
-        heap.set( new Uint8Array( (data.buffer||data), dpos, wlen ), this.pos + this.len );
-        heap.set( data.subarray( dpos, dpos+wlen ), hpos+hlen );
-
+        wlen = _heap_write( heap, hpos+hlen, data, dpos, dlen );
         hlen += wlen;
         dpos += wlen;
         dlen -= wlen;

@@ -21,7 +21,7 @@ function _cbc_mac_process ( data ) {
         wlen = 0;
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, _aes_heap_start, data, dpos, dlen );
+        wlen = _heap_write( heap, _aes_heap_start, data, dpos, dlen );
         asm.cbc_mac( _aes_heap_start, wlen, -1 );
         dpos += wlen;
         dlen -= wlen;
@@ -254,7 +254,7 @@ function ccm_aes_encrypt_process ( data ) {
     for ( var i = 0; i < nonce.length; i++ ) asm_args[3+i] = nonce[i];
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, pos+len, data, dpos, dlen );
+        wlen = _heap_write( heap, pos+len, data, dpos, dlen );
         len  += wlen;
         dpos += wlen;
         dlen -= wlen;
@@ -383,7 +383,7 @@ function ccm_aes_decrypt_process ( data ) {
     for ( var i = 0; i < nonce.length; i++ ) asm_args[3+i] = nonce[i];
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, pos+len, data, dpos, dlen );
+        wlen = _heap_write( heap, pos+len, data, dpos, dlen );
         len  += wlen;
         dpos += wlen;
         dlen -= wlen;

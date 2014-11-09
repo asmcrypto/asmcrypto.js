@@ -97,3 +97,12 @@ function _heap_init ( constructor, options ) {
 
     return heap;
 }
+
+function _heap_write ( heap, hpos, data, dpos, dlen ) {
+    var hlen = heap.length - hpos,
+        wlen = ( hlen < dlen ) ? hlen : dlen;
+
+    heap.set( data.subarray( dpos, dpos+wlen ), hpos );
+
+    return wlen;
+}

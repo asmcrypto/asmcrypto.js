@@ -94,7 +94,7 @@ function ctr_aes_encrypt_process ( data ) {
     var nc = (nonce[12] << 24) | (nonce[13] << 16) | (nonce[14] << 8) | nonce[15];
 
     while ( dlen > 0 ) {
-        wlen = _aes_heap_write( heap, pos+len, data, dpos, dlen );
+        wlen = _heap_write( heap, pos+len, data, dpos, dlen );
         len  += wlen;
         dpos += wlen;
         dlen -= wlen;
