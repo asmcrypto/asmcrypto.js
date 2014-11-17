@@ -190,6 +190,8 @@ function Random_getValues ( buffer ) {
         bytes[i] ^= r;
         r >>>= 8;
     }
+
+    return buffer;
 }
 
 /**
