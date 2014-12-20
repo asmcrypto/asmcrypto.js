@@ -2987,6 +2987,9 @@ function _aes_asm ( stdlib, foreign, buffer ) {
     }
 
     return {
+        _encrypt: _encrypt,
+        _decrypt: _decrypt,
+
         init_state: init_state,
         save_state: save_state,
 

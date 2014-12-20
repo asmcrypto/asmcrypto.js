@@ -595,3 +595,69 @@ else
 {
     skip( "asmCrypto.AES_CFB" );
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+Uint32Array.prototype.map = Array.prototype.map;
+
+// New AES asm.js model test
+testIf( typeof naes_asm !== 'undefined', "New AES asm.js module", function () {
+    var heap = new Uint8Array(65536);
+    var naes = naes_asm( window, null, heap.buffer );
+
+    naes.set_key( 4, 0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f );
+
+    var keys = new Uint32Array(heap.buffer);
+    deepEqual(
+        keys.subarray( 0, 44 ).map( function (x) { return x } ),
+        [
+            0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f,
+            0xd6aa74fd, 0xd2af72fa, 0xdaa678f1, 0xd6ab76fe,
+            0xb692cf0b, 0x643dbdf1, 0xbe9bc500, 0x6830b3fe,
+            0xb6ff744e, 0xd2c2c9bf, 0x6c590cbf, 0x0469bf41,
+            0x47f7f7bc, 0x95353e03, 0xf96c32bc, 0xfd058dfd,
+            0x3caaa3e8, 0xa99f9deb, 0x50f3af57, 0xadf622aa,
+            0x5e390f7d, 0xf7a69296, 0xa7553dc1, 0x0aa31f6b,
+            0x14f9701a, 0xe35fe28c, 0x440adf4d, 0x4ea9c026,
+            0x47438735, 0xa41c65b9, 0xe016baf4, 0xaebf7ad2,
+            0x549932d1, 0xf0855768, 0x1093ed9c, 0xbe2c974e,
+            0x13111d7f, 0xe3944a17, 0xf307a78b, 0x4d2b30c5
+        ],
+        "encryption key schedule ok"
+    );
+
+    deepEqual(
+        keys.subarray( 0x100, 0x100+44 ).map( function (x) { return x } ),
+        [
+            0x13111d7f, 0x4d2b30c5, 0xf307a78b, 0xe3944a17,
+            0x13aa29be, 0x00f7bf03, 0xf770f580, 0x9c8faff6,
+            0x1362a463, 0xf7874a83, 0x6bff5a76, 0x8f258648,
+            0x8d82fc74, 0x9c7810f5, 0xe4dadc3e, 0x9c47222b,
+            0x72e3098d, 0x78a2cccb, 0x789dfe15, 0x11c5de5f,
+            0x2ec41027, 0x003f32de, 0x6958204a, 0x6326d7d2,
+            0xa8a2f504, 0x69671294, 0x0a7ef798, 0x4de2c7f5,
+            0xc7c6e391, 0x6319e50c, 0x479c306d, 0xe54032f1,
+            0xa0db0299, 0x2485d561, 0xa2dc029c, 0x2286d160,
+            0x8c56dff0, 0x8659d7fd, 0x805ad3fc, 0x825dd3f9,
+            0x00010203, 0x0c0d0e0f, 0x08090a0b, 0x04050607
+        ],
+        "decryption key schedule ok"
+    );
+
+    heap.set( asmCrypto.hex_to_bytes('00112233445566778899aabbccddeeff'), 0x3000 );
+    naes.process( 4, 0, 0x3000, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        '69c4e0d86a7b0430d8cdb78070b4c55a',
+        "ECB encrypt ok"
+    );
+
+    naes.process( 4, 1, 0x3000, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        '00112233445566778899aabbccddeeff',
+        "ECB decrypt ok"
+    );
+});
