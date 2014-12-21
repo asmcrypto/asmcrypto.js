@@ -345,6 +345,118 @@ var naes_asm = function () {
             }
 
             /**
+             * CFB mode encryption
+             * @private
+             */
+            function _cfb_enc ( r, x0, x1, x2, x3 ) {
+                r = r|0;
+                x0 = x0|0;
+                x1 = x1|0;
+                x2 = x2|0;
+                x3 = x3|0;
+
+                _core(
+                    0x0000, 0x0800, 0x1000,
+                    r,
+                    T0,
+                    T1,
+                    T2,
+                    T3
+                );
+
+                T0 = S0 = S0 ^ x0,
+                T1 = S1 = S1 ^ x1,
+                T2 = S2 = S2 ^ x2,
+                T3 = S3 = S3 ^ x3;
+            }
+
+
+            /**
+             * CFB mode decryption
+             * @private
+             */
+            function _cfb_dec ( r, x0, x1, x2, x3 ) {
+                r = r|0;
+                x0 = x0|0;
+                x1 = x1|0;
+                x2 = x2|0;
+                x3 = x3|0;
+
+                _core(
+                    0x0000, 0x0800, 0x1000,
+                    r,
+                    T0,
+                    T1,
+                    T2,
+                    T3
+                );
+
+                S0 = S0 ^ x0,
+                S1 = S1 ^ x1,
+                S2 = S2 ^ x2,
+                S3 = S3 ^ x3;
+
+                T0 = x0, T1 = x1, T2 = x2, T3 = x3;
+            }
+
+            /**
+             * OFB mode encryption / decryption
+             * @private
+             */
+            function _ofb ( r, x0, x1, x2, x3 ) {
+                r = r|0;
+                x0 = x0|0;
+                x1 = x1|0;
+                x2 = x2|0;
+                x3 = x3|0;
+
+                _core(
+                    0x0000, 0x0800, 0x1000,
+                    r,
+                    T0,
+                    T1,
+                    T2,
+                    T3
+                );
+
+                T0 = S0, T1 = S1, T2 = S2, T3 = S3;
+
+                S0 = S0 ^ x0,
+                S1 = S1 ^ x1,
+                S2 = S2 ^ x2,
+                S3 = S3 ^ x3;
+            }
+
+            /**
+             * CTR mode encryption / decryption
+             * @private
+             */
+            function _ctr ( r, x0, x1, x2, x3 ) {
+                r = r|0;
+                x0 = x0|0;
+                x1 = x1|0;
+                x2 = x2|0;
+                x3 = x3|0;
+
+                _core(
+                    0x0000, 0x0800, 0x1000,
+                    r,
+                    T0,
+                    T1,
+                    T2,
+                    T3
+                );
+
+                T3 = (T3 + 1)|0;
+                if ( (T3|0) == 0 ) T2 = (T2 + 1)|0;
+
+                S0 = S0 ^ x0,
+                S1 = S1 ^ x1,
+                S2 = S2 ^ x2,
+                S3 = S3 ^ x3;
+            }
+
+            /**
              * Populate the internal state of the module
              * @public
              */
@@ -422,7 +534,7 @@ var naes_asm = function () {
                 r = (ks + 5)|0;
 
                 while ( (len|0) >= 16 ) {
-                    _modes[mode&3](
+                    _modes[mode&7](
                         r,
                         DATA[pos|0]<<24 | DATA[pos|1]<<16 | DATA[pos|2]<<8 | DATA[pos|3],
                         DATA[pos|4]<<24 | DATA[pos|5]<<16 | DATA[pos|6]<<8 | DATA[pos|7],
@@ -459,7 +571,7 @@ var naes_asm = function () {
              * AES cipher modes table (virual methods)
              * @private
              */
-            var _modes = [ _ecb_enc, _ecb_dec, _cbc_enc, _cbc_dec ];
+            var _modes = [ _ecb_enc, _ecb_dec, _cbc_enc, _cbc_dec, _cfb_enc, _cfb_dec, _ofb, _ctr ];
 
             return {
                 set_state:  set_state,
@@ -482,6 +594,10 @@ var naes_asm = function () {
     asm_wrapper.MODE_ECB_DEC = 1,
     asm_wrapper.MODE_CBC_ENC = 2,
     asm_wrapper.MODE_CBC_DEC = 3;
+    asm_wrapper.MODE_CFB_ENC = 4;
+    asm_wrapper.MODE_CFB_DEC = 5;
+    asm_wrapper.MODE_OFB = 6;
+    asm_wrapper.MODE_CTR = 7;
 
     Object.freeze(asm_wrapper);
 
