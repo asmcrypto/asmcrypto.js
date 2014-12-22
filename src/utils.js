@@ -88,7 +88,7 @@ function is_typed_array ( a ) {
 
 function _heap_init ( constructor, options ) {
     var heap = options.heap,
-        size = heap ? heap.byteLength : options.heapSize || 4096;
+        size = heap ? heap.byteLength : options.heapSize || 65536;
 
     if ( size & 0xfff || size <= 0 )
         throw new Error("heap size must be a positive integer and a multiple of 4096");
