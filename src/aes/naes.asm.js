@@ -133,7 +133,7 @@ var naes_asm = function () {
     }
 
     // Asm.js AES module wrapper
-    var asm_wrapper = function ( stdlib, foreign, buffer ) {
+    var wrapper = function ( stdlib, foreign, buffer ) {
         // Init AES stuff for the first time
         if ( !aes_init_done ) aes_init();
 
@@ -513,7 +513,7 @@ var naes_asm = function () {
             }
 
             /**
-             * Perform crypto operation on a supplied data
+             * Perform ciphering operation on the supplied data
              * @public
              * @param {int} ks — key size, 4/6/8
              * @param {int} mode — block cipher mode (see mode constants)
@@ -521,7 +521,7 @@ var naes_asm = function () {
              * @param {int} len — length of the data being processed
              * @return {int} actual amount of the data processed
              */
-            function process ( ks, mode, pos, len ) {
+            function cipher ( ks, mode, pos, len ) {
                 ks = ks|0;
                 mode = mode|0;
                 pos = pos|0;
@@ -534,7 +534,7 @@ var naes_asm = function () {
                 r = (ks + 5)|0;
 
                 while ( (len|0) >= 16 ) {
-                    _modes[mode&7](
+                    _cipher_modes[mode&7](
                         r,
                         DATA[pos|0]<<24 | DATA[pos|1]<<16 | DATA[pos|2]<<8 | DATA[pos|3],
                         DATA[pos|4]<<24 | DATA[pos|5]<<16 | DATA[pos|6]<<8 | DATA[pos|7],
@@ -568,16 +568,64 @@ var naes_asm = function () {
             }
 
             /**
+             * Calculates MAC of the supplied data
+             * @public
+             * @param {int} ks — key size, 4/6/8
+             * @param {int} mode — block cipher mode (see mode constants)
+             * @param {int} pos — offset of the data being processed
+             * @param {int} len — length of the data being processed
+             * @return {int} actual amount of the data processed
+             */
+            function mac ( ks, mode, pos, len ) {
+                ks = ks|0;
+                mode = mode|0;
+                pos = pos|0;
+                len = len|0;
+
+                var ret = 0, r = 0;
+
+                if ( pos & 15 ) return -1;
+
+                r = (ks + 5)|0;
+
+                while ( (len|0) >= 16 ) {
+                    _mac_modes[mode&0](
+                        r,
+                        DATA[pos|0]<<24 | DATA[pos|1]<<16 | DATA[pos|2]<<8 | DATA[pos|3],
+                        DATA[pos|4]<<24 | DATA[pos|5]<<16 | DATA[pos|6]<<8 | DATA[pos|7],
+                        DATA[pos|8]<<24 | DATA[pos|9]<<16 | DATA[pos|10]<<8 | DATA[pos|11],
+                        DATA[pos|12]<<24 | DATA[pos|13]<<16 | DATA[pos|14]<<8 | DATA[pos|15]
+                    );
+
+                    ret = (ret + 16)|0,
+                    pos = (pos + 16)|0,
+                    len = (len - 16)|0;
+                }
+
+                return ret|0;
+            }
+
+            /**
              * AES cipher modes table (virual methods)
              * @private
              */
-            var _modes = [ _ecb_enc, _ecb_dec, _cbc_enc, _cbc_dec, _cfb_enc, _cfb_dec, _ofb, _ctr ];
+            var _cipher_modes = [ _ecb_enc, _ecb_dec, _cbc_enc, _cbc_dec, _cfb_enc, _cfb_dec, _ofb, _ctr ];
 
+            /**
+             * AES MAC modes table (virual methods)
+             * @private
+             */
+            var _mac_modes = [ _cbc_enc ];
+
+            /**
+             * Asm.js module exports
+             */
             return {
                 set_state:  set_state,
                 set_iv:     set_iv,
                 flush_state: flush_state,
-                process:    process
+                cipher:     cipher,
+                mac:        mac
             };
         }( stdlib, foreign, buffer );
 
@@ -590,16 +638,28 @@ var naes_asm = function () {
      * AES cipher mode constants
      * @public
      */
-    asm_wrapper.MODE_ECB_ENC = 0,
-    asm_wrapper.MODE_ECB_DEC = 1,
-    asm_wrapper.MODE_CBC_ENC = 2,
-    asm_wrapper.MODE_CBC_DEC = 3;
-    asm_wrapper.MODE_CFB_ENC = 4;
-    asm_wrapper.MODE_CFB_DEC = 5;
-    asm_wrapper.MODE_OFB = 6;
-    asm_wrapper.MODE_CTR = 7;
+    wrapper.ECB_ENC = 0,
+    wrapper.ECB_DEC = 1,
+    wrapper.CBC_ENC = 2,
+    wrapper.CBC_DEC = 3,
+    wrapper.CFB_ENC = 4,
+    wrapper.CFB_DEC = 5,
+    wrapper.OFB = 6,
+    wrapper.CTR = 7;
 
-    Object.freeze(asm_wrapper);
+    /**
+     * AES MAC mode constants
+     * @public
+     */
+    wrapper.CBC_MAC = 0;
 
-    return asm_wrapper;
+    /**
+     * Heap data offset
+     */
+    wrapper.HEAP_DATA = 0x3000;
+
+    // Prevent further modifications
+    Object.freeze(wrapper);
+
+    return wrapper;
 }();

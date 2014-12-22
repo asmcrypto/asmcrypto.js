@@ -51,7 +51,7 @@ var modules = [
     },
     {
         name: 'aes-cbc',
-        files: [ 'src/aes/aes-cbc.js' ],
+        files: [ 'src/aes/aes-cbc.js', 'src/aes/naes.asm.js', 'src/aes/naes-cbc.js' ],
         depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-cbc-exports' ]
     },

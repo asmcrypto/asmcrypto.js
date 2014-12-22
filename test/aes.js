@@ -607,7 +607,7 @@ testIf( typeof naes_asm !== 'undefined', "New AES asm.js module", function () {
     var naes = naes_asm( window, null, heap.buffer );
 
     // data block
-    heap.set( asmCrypto.hex_to_bytes('00112233445566778899aabbccddeeff'), 0x3000 );
+    heap.set( asmCrypto.hex_to_bytes('00112233445566778899aabbccddeeff'), naes_asm.HEAP_DATA );
 
     //
     // AES-128
@@ -651,18 +651,18 @@ testIf( typeof naes_asm !== 'undefined', "New AES asm.js module", function () {
         "AES-128: decryption key schedule ok"
     );
 
-    naes.process( 4, 0, 0x3000, 16 );
+    naes.cipher( 4, naes_asm.ECB_ENC, naes_asm.HEAP_DATA, 16 );
 
     equal(
-        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
         '69c4e0d86a7b0430d8cdb78070b4c55a',
         "AES-128: encrypt ok"
     );
 
-    naes.process( 4, 1, 0x3000, 16 );
+    naes.cipher( 4, naes_asm.ECB_DEC, naes_asm.HEAP_DATA, 16 );
 
     equal(
-        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
         '00112233445566778899aabbccddeeff',
         "AES-128: decrypt ok"
     );
@@ -713,18 +713,18 @@ testIf( typeof naes_asm !== 'undefined', "New AES asm.js module", function () {
         "AES-192: decryption key schedule ok"
     );
 
-    naes.process( 6, 0, 0x3000, 16 );
+    naes.cipher( 6, naes_asm.ECB_ENC, naes_asm.HEAP_DATA, 16 );
 
     equal(
-        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
         'dda97ca4864cdfe06eaf70a0ec0d7191',
         "AES-192: encrypt ok"
     );
 
-    naes.process( 6, 1, 0x3000, 16 );
+    naes.cipher( 6, naes_asm.ECB_DEC, naes_asm.HEAP_DATA, 16 );
 
     equal(
-        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
         '00112233445566778899aabbccddeeff',
         "AES-192: decrypt ok"
     );
@@ -779,18 +779,18 @@ testIf( typeof naes_asm !== 'undefined', "New AES asm.js module", function () {
         "AES-256: decryption key schedule ok"
     );
 
-    naes.process( 8, 0, 0x3000, 16 );
+    naes.cipher( 8, naes_asm.ECB_ENC, naes_asm.HEAP_DATA, 16 );
 
     equal(
-        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
         '8ea2b7ca516745bfeafc49904b496089',
         "AES-256: encrypt ok"
     );
 
-    naes.process( 8, 1, 0x3000, 16 );
+    naes.cipher( 8, naes_asm.ECB_DEC, naes_asm.HEAP_DATA, 16 );
 
     equal(
-        asmCrypto.bytes_to_hex( heap.subarray( 0x3000, 0x3010 ) ),
+        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
         '00112233445566778899aabbccddeeff',
         "AES-256: decrypt ok"
     );
