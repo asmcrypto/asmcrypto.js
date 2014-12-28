@@ -44,27 +44,32 @@ var modules = [
         depends: [ 'common', 'utils' ]
     },
     {
+        name: 'naes',
+        files: [ 'src/aes/naes.asm.js', 'src/aes/naes.js' ],
+        depends: [ 'common', 'utils' ]
+    },
+    {
         name: 'aes-ecb',
-        files: [ 'src/aes/aes-ecb.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/ecb/ecb.js' ],
+        depends: [ 'naes' ],
         implies: [ 'aes-exports', 'aes-ecb-exports' ]
     },
     {
         name: 'aes-cbc',
-        files: [ 'src/aes/aes-cbc.js', 'src/aes/naes.asm.js', 'src/aes/naes-cbc.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/cbc/cbc.js' ],
+        depends: [ 'naes' ],
         implies: [ 'aes-exports', 'aes-cbc-exports' ]
     },
     {
         name: 'aes-cfb',
-        files: [ 'src/aes/aes-cfb.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/cfb/cfb.js' ],
+        depends: [ 'naes' ],
         implies: [ 'aes-exports', 'aes-cfb-exports' ]
     },
     {
         name: 'aes-ctr',
-        files: [ 'src/aes/aes-ctr.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/ctr/ctr.js' ],
+        depends: [ 'naes' ],
         implies: [ 'aes-exports', 'aes-ctr-exports' ]
     },
     {
@@ -86,22 +91,22 @@ var modules = [
     },
     {
         name: 'aes-ecb-exports',
-        files: [ 'src/aes/exports-ecb.js' ],
+        files: [ 'src/aes/ecb/exports.js' ],
         depends: [ 'aes-ecb', 'aes-exports' ]
     },
     {
         name: 'aes-cbc-exports',
-        files: [ 'src/aes/exports-cbc.js' ],
+        files: [ 'src/aes/cbc/exports.js' ],
         depends: [ 'aes-cbc', 'aes-exports' ]
     },
     {
         name: 'aes-cfb-exports',
-        files: [ 'src/aes/exports-cfb.js' ],
+        files: [ 'src/aes/cfb/exports.js' ],
         depends: [ 'aes-cfb', 'aes-exports' ]
     },
     {
         name: 'aes-ctr-exports',
-        files: [ 'src/aes/exports-ctr.js' ],
+        files: [ 'src/aes/ctr/exports.js' ],
         depends: [ 'aes-ctr', 'aes-exports' ]
     },
     {

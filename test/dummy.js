@@ -124,10 +124,10 @@ else {
     skip("asmCrypto.string_to_bytes()");
 }
 
-testIf( true, "Conditional test", function () {
+testIf( true, "Conditional test should pass", function () {
     ok( true, "Passed!" );
 });
 
-testIf( false, "Conditional test", function () {
+testIf( false, "Conditional test should skip", function () {
     ok( false, "Failed!" );
 });

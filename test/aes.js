@@ -1,5 +1,208 @@
 module("AES");
 
+Uint32Array.prototype.map = Array.prototype.map;
+
+///////////////////////////////////////////////////////////////////////////////
+
+//
+// Asm.js module test
+//
+
+testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
+    var heap = new Uint8Array(65536);
+    var keys = new Uint32Array(heap.buffer);
+    var aes = AES_asm( window, null, heap.buffer );
+
+    // data block
+    heap.set( asmCrypto.hex_to_bytes('00112233445566778899aabbccddeeff'), AES_asm.HEAP_DATA );
+
+    //
+    // AES-128
+    //
+
+    aes.set_key( 4, 0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f );
+
+    deepEqual(
+        keys.subarray( 0, 44 ).map( function (x) { return x } ),
+        [
+            0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f,
+            0xd6aa74fd, 0xd2af72fa, 0xdaa678f1, 0xd6ab76fe,
+            0xb692cf0b, 0x643dbdf1, 0xbe9bc500, 0x6830b3fe,
+            0xb6ff744e, 0xd2c2c9bf, 0x6c590cbf, 0x0469bf41,
+            0x47f7f7bc, 0x95353e03, 0xf96c32bc, 0xfd058dfd,
+            0x3caaa3e8, 0xa99f9deb, 0x50f3af57, 0xadf622aa,
+            0x5e390f7d, 0xf7a69296, 0xa7553dc1, 0x0aa31f6b,
+            0x14f9701a, 0xe35fe28c, 0x440adf4d, 0x4ea9c026,
+            0x47438735, 0xa41c65b9, 0xe016baf4, 0xaebf7ad2,
+            0x549932d1, 0xf0855768, 0x1093ed9c, 0xbe2c974e,
+            0x13111d7f, 0xe3944a17, 0xf307a78b, 0x4d2b30c5
+        ],
+        "AES-128: encryption key schedule ok"
+    );
+
+    deepEqual(
+        keys.subarray( 0x100, 0x100+44 ).map( function (x) { return x } ),
+        [
+            0x13111d7f, 0x4d2b30c5, 0xf307a78b, 0xe3944a17,
+            0x13aa29be, 0x00f7bf03, 0xf770f580, 0x9c8faff6,
+            0x1362a463, 0xf7874a83, 0x6bff5a76, 0x8f258648,
+            0x8d82fc74, 0x9c7810f5, 0xe4dadc3e, 0x9c47222b,
+            0x72e3098d, 0x78a2cccb, 0x789dfe15, 0x11c5de5f,
+            0x2ec41027, 0x003f32de, 0x6958204a, 0x6326d7d2,
+            0xa8a2f504, 0x69671294, 0x0a7ef798, 0x4de2c7f5,
+            0xc7c6e391, 0x6319e50c, 0x479c306d, 0xe54032f1,
+            0xa0db0299, 0x2485d561, 0xa2dc029c, 0x2286d160,
+            0x8c56dff0, 0x8659d7fd, 0x805ad3fc, 0x825dd3f9,
+            0x00010203, 0x0c0d0e0f, 0x08090a0b, 0x04050607
+        ],
+        "AES-128: decryption key schedule ok"
+    );
+
+    aes.cipher( 4, AES_asm.ECB_ENC, AES_asm.HEAP_DATA, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
+        '69c4e0d86a7b0430d8cdb78070b4c55a',
+        "AES-128: encrypt ok"
+    );
+
+    aes.cipher( 4, AES_asm.ECB_DEC, AES_asm.HEAP_DATA, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
+        '00112233445566778899aabbccddeeff',
+        "AES-128: decrypt ok"
+    );
+
+    //
+    // AES-192
+    //
+
+    aes.set_key( 6, 0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617 );
+
+    deepEqual(
+        keys.subarray( 0, 52 ).map( function (x) { return x } ),
+        [
+            0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f,
+            0x10111213, 0x14151617, 0x5846f2f9, 0x5c43f4fe,
+            0x544afef5, 0x5847f0fa, 0x4856e2e9, 0x5c43f4fe,
+            0x40f949b3, 0x1cbabd4d, 0x48f043b8, 0x10b7b342,
+            0x58e151ab, 0x04a2a555, 0x7effb541, 0x6245080c,
+            0x2ab54bb4, 0x3a02f8f6, 0x62e3a95d, 0x66410c08,
+            0xf5018572, 0x97448d7e, 0xbdf1c6ca, 0x87f33e3c,
+            0xe5109761, 0x83519b69, 0x34157c9e, 0xa351f1e0,
+            0x1ea0372a, 0x99530916, 0x7c439e77, 0xff12051e,
+            0xdd7e0e88, 0x7e2fff68, 0x608fc842, 0xf9dcc154,
+            0x859f5f23, 0x7a8d5a3d, 0xc0c02952, 0xbeefd63a,
+            0xde601e78, 0x27bcdf2c, 0xa223800f, 0xd8aeda32,
+            0xa4970a33, 0x1a78dc09, 0xc418c271, 0xe3a41d5d
+        ],
+        "AES-192: encryption key schedule ok"
+    );
+
+    deepEqual(
+        keys.subarray( 0x100, 0x100+52 ).map( function (x) { return x } ),
+        [
+            0xa4970a33, 0xe3a41d5d, 0xc418c271, 0x1a78dc09,
+            0xd6bebd0d, 0x3e021bb9, 0x4db07380, 0xc209ea49,
+            0x8fb999c9, 0x85c68c72, 0xc7f9d89d, 0x73b26839,
+            0xf77d6ec1, 0x14b75744, 0x5378317f, 0x423f54ef,
+            0x11476590, 0xfc0bf1f0, 0x9b0ece8d, 0x47cf663b,
+            0xdcc1a8b6, 0xb5423a2e, 0xcc5c194a, 0x67053f7d,
+            0xc6deb0ab, 0x568803ab, 0xa4055fbe, 0x791e2364,
+            0xdd1b7cda, 0xbbc497cb, 0x8a49ab1d, 0xf28d5c15,
+            0x78c4f708, 0xbfc093cf, 0x9655b701, 0x318d3cd6,
+            0x60dcef10, 0x2f9620cf, 0x62dbef15, 0x299524ce,
+            0x4b4ecbdb, 0x4949cbde, 0x5752d7c7, 0x4d4dcfda,
+            0x1a1f181d, 0x4949cbde, 0x4742c7d7, 0x1e1b1c19,
+            0x00010203, 0x0c0d0e0f, 0x08090a0b, 0x04050607
+        ],
+        "AES-192: decryption key schedule ok"
+    );
+
+    aes.cipher( 6, AES_asm.ECB_ENC, AES_asm.HEAP_DATA, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
+        'dda97ca4864cdfe06eaf70a0ec0d7191',
+        "AES-192: encrypt ok"
+    );
+
+    aes.cipher( 6, AES_asm.ECB_DEC, AES_asm.HEAP_DATA, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
+        '00112233445566778899aabbccddeeff',
+        "AES-192: decrypt ok"
+    );
+
+    //
+    // AES-256
+    //
+
+    aes.set_key( 8, 0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617, 0x18191a1b, 0x1c1d1e1f );
+
+    deepEqual(
+        keys.subarray( 0, 60 ).map( function (x) { return x } ),
+        [
+            0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f,
+            0x10111213, 0x14151617, 0x18191a1b, 0x1c1d1e1f,
+            0xa573c29f, 0xa176c498, 0xa97fce93, 0xa572c09c,
+            0x1651a8cd, 0x0244beda, 0x1a5da4c1, 0x0640bade,
+            0xae87dff0, 0x0ff11b68, 0xa68ed5fb, 0x03fc1567,
+            0x6de1f148, 0x6fa54f92, 0x75f8eb53, 0x73b8518d,
+            0xc656827f, 0xc9a79917, 0x6f294cec, 0x6cd5598b,
+            0x3de23a75, 0x524775e7, 0x27bf9eb4, 0x5407cf39,
+            0x0bdc905f, 0xc27b0948, 0xad5245a4, 0xc1871c2f,
+            0x45f5a660, 0x17b2d387, 0x300d4d33, 0x640a820a,
+            0x7ccff71c, 0xbeb4fe54, 0x13e6bbf0, 0xd261a7df,
+            0xf01afafe, 0xe7a82979, 0xd7a5644a, 0xb3afe640,
+            0x2541fe71, 0x9bf50025, 0x8813bbd5, 0x5a721c0a,
+            0x4e5a6699, 0xa9f24fe0, 0x7e572baa, 0xcdf8cdea,
+            0x24fc79cc, 0xbf0979e9, 0x371ac23c, 0x6d68de36
+        ],
+        "AES-256: encryption key schedule ok"
+    );
+
+    deepEqual(
+        keys.subarray( 0x100, 0x100+60 ).map( function (x) { return x } ),
+        [
+            0x24fc79cc, 0x6d68de36, 0x371ac23c, 0xbf0979e9,
+            0x34f1d1ff, 0x2558016e, 0xfce9e25f, 0xbfceaa2f,
+            0x5e1648eb, 0xdc80e684, 0x7571b746, 0x384c350a,
+            0xc8a30580, 0xd9b1e331, 0x43274870, 0x8b3f7bd0,
+            0xb5708e13, 0xa9f151c2, 0x4d3d824c, 0x665a7de1,
+            0x74da7ba3, 0x9a96ab41, 0xc81833a0, 0x439c7e50,
+            0x3ca69715, 0xe4ccd38e, 0x2b67ffad, 0xd32af3f2,
+            0xf85fc4f3, 0x528e98e1, 0x8b844df0, 0x374605f3,
+            0xde69409a, 0xcfab2c23, 0xf84d0c5f, 0xef8c64e7,
+            0xaed55816, 0xd90ad511, 0xbcc24803, 0xcf19c100,
+            0x15c668bd, 0x37e6207c, 0x17c168b8, 0x31e5247d,
+            0x7fd7850f, 0x65c89d12, 0x73db8903, 0x61cc9916,
+            0x2a2840c9, 0x202748c4, 0x26244cc5, 0x24234cc0,
+            0x1a1f181d, 0x16131411, 0x12171015, 0x1e1b1c19,
+            0x00010203, 0x0c0d0e0f, 0x08090a0b, 0x04050607
+         ],
+        "AES-256: decryption key schedule ok"
+    );
+
+    aes.cipher( 8, AES_asm.ECB_ENC, AES_asm.HEAP_DATA, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
+        '8ea2b7ca516745bfeafc49904b496089',
+        "AES-256: encrypt ok"
+    );
+
+    aes.cipher( 8, AES_asm.ECB_DEC, AES_asm.HEAP_DATA, 16 );
+
+    equal(
+        asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
+        '00112233445566778899aabbccddeeff',
+        "AES-256: decrypt ok"
+    );
+});
+
 ///////////////////////////////////////////////////////////////////////////////
 
 if ( typeof asmCrypto.AES_ECB !== 'undefined' )
@@ -578,13 +781,13 @@ if ( typeof asmCrypto.AES_CFB !== 'undefined' )
                 cipher = new Uint8Array( cfb_aes_vectors[i][3] );
 
             equal(
-                asmCrypto.bytes_to_hex( asmCrypto.AES_CFB.encrypt( clear, key, false, iv ) ),
+                asmCrypto.bytes_to_hex( asmCrypto.AES_CFB.encrypt( clear, key, iv ) ),
                 asmCrypto.bytes_to_hex(cipher),
                     "encrypt vector " + i
             );
 
             equal(
-                asmCrypto.bytes_to_hex( asmCrypto.AES_CFB.decrypt( cipher, key, false, iv ) ),
+                asmCrypto.bytes_to_hex( asmCrypto.AES_CFB.decrypt( cipher, key, iv ) ),
                 asmCrypto.bytes_to_hex(clear),
                     "decrypt vector " + i
             );
@@ -595,203 +798,3 @@ else
 {
     skip( "asmCrypto.AES_CFB" );
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-Uint32Array.prototype.map = Array.prototype.map;
-
-// New AES asm.js model test
-testIf( typeof naes_asm !== 'undefined', "New AES asm.js module", function () {
-    var heap = new Uint8Array(65536);
-    var keys = new Uint32Array(heap.buffer);
-    var naes = naes_asm( window, null, heap.buffer );
-
-    // data block
-    heap.set( asmCrypto.hex_to_bytes('00112233445566778899aabbccddeeff'), naes_asm.HEAP_DATA );
-
-    //
-    // AES-128
-    //
-
-    naes.set_key( 4, 0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f );
-
-    deepEqual(
-        keys.subarray( 0, 44 ).map( function (x) { return x } ),
-        [
-            0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f,
-            0xd6aa74fd, 0xd2af72fa, 0xdaa678f1, 0xd6ab76fe,
-            0xb692cf0b, 0x643dbdf1, 0xbe9bc500, 0x6830b3fe,
-            0xb6ff744e, 0xd2c2c9bf, 0x6c590cbf, 0x0469bf41,
-            0x47f7f7bc, 0x95353e03, 0xf96c32bc, 0xfd058dfd,
-            0x3caaa3e8, 0xa99f9deb, 0x50f3af57, 0xadf622aa,
-            0x5e390f7d, 0xf7a69296, 0xa7553dc1, 0x0aa31f6b,
-            0x14f9701a, 0xe35fe28c, 0x440adf4d, 0x4ea9c026,
-            0x47438735, 0xa41c65b9, 0xe016baf4, 0xaebf7ad2,
-            0x549932d1, 0xf0855768, 0x1093ed9c, 0xbe2c974e,
-            0x13111d7f, 0xe3944a17, 0xf307a78b, 0x4d2b30c5
-        ],
-        "AES-128: encryption key schedule ok"
-    );
-
-    deepEqual(
-        keys.subarray( 0x100, 0x100+44 ).map( function (x) { return x } ),
-        [
-            0x13111d7f, 0x4d2b30c5, 0xf307a78b, 0xe3944a17,
-            0x13aa29be, 0x00f7bf03, 0xf770f580, 0x9c8faff6,
-            0x1362a463, 0xf7874a83, 0x6bff5a76, 0x8f258648,
-            0x8d82fc74, 0x9c7810f5, 0xe4dadc3e, 0x9c47222b,
-            0x72e3098d, 0x78a2cccb, 0x789dfe15, 0x11c5de5f,
-            0x2ec41027, 0x003f32de, 0x6958204a, 0x6326d7d2,
-            0xa8a2f504, 0x69671294, 0x0a7ef798, 0x4de2c7f5,
-            0xc7c6e391, 0x6319e50c, 0x479c306d, 0xe54032f1,
-            0xa0db0299, 0x2485d561, 0xa2dc029c, 0x2286d160,
-            0x8c56dff0, 0x8659d7fd, 0x805ad3fc, 0x825dd3f9,
-            0x00010203, 0x0c0d0e0f, 0x08090a0b, 0x04050607
-        ],
-        "AES-128: decryption key schedule ok"
-    );
-
-    naes.cipher( 4, naes_asm.ECB_ENC, naes_asm.HEAP_DATA, 16 );
-
-    equal(
-        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
-        '69c4e0d86a7b0430d8cdb78070b4c55a',
-        "AES-128: encrypt ok"
-    );
-
-    naes.cipher( 4, naes_asm.ECB_DEC, naes_asm.HEAP_DATA, 16 );
-
-    equal(
-        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
-        '00112233445566778899aabbccddeeff',
-        "AES-128: decrypt ok"
-    );
-
-    //
-    // AES-192
-    //
-
-    naes.set_key( 6, 0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617 );
-
-    deepEqual(
-        keys.subarray( 0, 52 ).map( function (x) { return x } ),
-        [
-            0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f,
-            0x10111213, 0x14151617, 0x5846f2f9, 0x5c43f4fe,
-            0x544afef5, 0x5847f0fa, 0x4856e2e9, 0x5c43f4fe,
-            0x40f949b3, 0x1cbabd4d, 0x48f043b8, 0x10b7b342,
-            0x58e151ab, 0x04a2a555, 0x7effb541, 0x6245080c,
-            0x2ab54bb4, 0x3a02f8f6, 0x62e3a95d, 0x66410c08,
-            0xf5018572, 0x97448d7e, 0xbdf1c6ca, 0x87f33e3c,
-            0xe5109761, 0x83519b69, 0x34157c9e, 0xa351f1e0,
-            0x1ea0372a, 0x99530916, 0x7c439e77, 0xff12051e,
-            0xdd7e0e88, 0x7e2fff68, 0x608fc842, 0xf9dcc154,
-            0x859f5f23, 0x7a8d5a3d, 0xc0c02952, 0xbeefd63a,
-            0xde601e78, 0x27bcdf2c, 0xa223800f, 0xd8aeda32,
-            0xa4970a33, 0x1a78dc09, 0xc418c271, 0xe3a41d5d
-        ],
-        "AES-192: encryption key schedule ok"
-    );
-
-    deepEqual(
-        keys.subarray( 0x100, 0x100+52 ).map( function (x) { return x } ),
-        [
-            0xa4970a33, 0xe3a41d5d, 0xc418c271, 0x1a78dc09,
-            0xd6bebd0d, 0x3e021bb9, 0x4db07380, 0xc209ea49,
-            0x8fb999c9, 0x85c68c72, 0xc7f9d89d, 0x73b26839,
-            0xf77d6ec1, 0x14b75744, 0x5378317f, 0x423f54ef,
-            0x11476590, 0xfc0bf1f0, 0x9b0ece8d, 0x47cf663b,
-            0xdcc1a8b6, 0xb5423a2e, 0xcc5c194a, 0x67053f7d,
-            0xc6deb0ab, 0x568803ab, 0xa4055fbe, 0x791e2364,
-            0xdd1b7cda, 0xbbc497cb, 0x8a49ab1d, 0xf28d5c15,
-            0x78c4f708, 0xbfc093cf, 0x9655b701, 0x318d3cd6,
-            0x60dcef10, 0x2f9620cf, 0x62dbef15, 0x299524ce,
-            0x4b4ecbdb, 0x4949cbde, 0x5752d7c7, 0x4d4dcfda,
-            0x1a1f181d, 0x4949cbde, 0x4742c7d7, 0x1e1b1c19,
-            0x00010203, 0x0c0d0e0f, 0x08090a0b, 0x04050607
-        ],
-        "AES-192: decryption key schedule ok"
-    );
-
-    naes.cipher( 6, naes_asm.ECB_ENC, naes_asm.HEAP_DATA, 16 );
-
-    equal(
-        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
-        'dda97ca4864cdfe06eaf70a0ec0d7191',
-        "AES-192: encrypt ok"
-    );
-
-    naes.cipher( 6, naes_asm.ECB_DEC, naes_asm.HEAP_DATA, 16 );
-
-    equal(
-        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
-        '00112233445566778899aabbccddeeff',
-        "AES-192: decrypt ok"
-    );
-
-    //
-    // AES-256
-    //
-
-    naes.set_key( 8, 0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617, 0x18191a1b, 0x1c1d1e1f );
-
-    deepEqual(
-        keys.subarray( 0, 60 ).map( function (x) { return x } ),
-        [
-            0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f,
-            0x10111213, 0x14151617, 0x18191a1b, 0x1c1d1e1f,
-            0xa573c29f, 0xa176c498, 0xa97fce93, 0xa572c09c,
-            0x1651a8cd, 0x0244beda, 0x1a5da4c1, 0x0640bade,
-            0xae87dff0, 0x0ff11b68, 0xa68ed5fb, 0x03fc1567,
-            0x6de1f148, 0x6fa54f92, 0x75f8eb53, 0x73b8518d,
-            0xc656827f, 0xc9a79917, 0x6f294cec, 0x6cd5598b,
-            0x3de23a75, 0x524775e7, 0x27bf9eb4, 0x5407cf39,
-            0x0bdc905f, 0xc27b0948, 0xad5245a4, 0xc1871c2f,
-            0x45f5a660, 0x17b2d387, 0x300d4d33, 0x640a820a,
-            0x7ccff71c, 0xbeb4fe54, 0x13e6bbf0, 0xd261a7df,
-            0xf01afafe, 0xe7a82979, 0xd7a5644a, 0xb3afe640,
-            0x2541fe71, 0x9bf50025, 0x8813bbd5, 0x5a721c0a,
-            0x4e5a6699, 0xa9f24fe0, 0x7e572baa, 0xcdf8cdea,
-            0x24fc79cc, 0xbf0979e9, 0x371ac23c, 0x6d68de36
-        ],
-        "AES-256: encryption key schedule ok"
-    );
-
-    deepEqual(
-        keys.subarray( 0x100, 0x100+60 ).map( function (x) { return x } ),
-        [
-            0x24fc79cc, 0x6d68de36, 0x371ac23c, 0xbf0979e9,
-            0x34f1d1ff, 0x2558016e, 0xfce9e25f, 0xbfceaa2f,
-            0x5e1648eb, 0xdc80e684, 0x7571b746, 0x384c350a,
-            0xc8a30580, 0xd9b1e331, 0x43274870, 0x8b3f7bd0,
-            0xb5708e13, 0xa9f151c2, 0x4d3d824c, 0x665a7de1,
-            0x74da7ba3, 0x9a96ab41, 0xc81833a0, 0x439c7e50,
-            0x3ca69715, 0xe4ccd38e, 0x2b67ffad, 0xd32af3f2,
-            0xf85fc4f3, 0x528e98e1, 0x8b844df0, 0x374605f3,
-            0xde69409a, 0xcfab2c23, 0xf84d0c5f, 0xef8c64e7,
-            0xaed55816, 0xd90ad511, 0xbcc24803, 0xcf19c100,
-            0x15c668bd, 0x37e6207c, 0x17c168b8, 0x31e5247d,
-            0x7fd7850f, 0x65c89d12, 0x73db8903, 0x61cc9916,
-            0x2a2840c9, 0x202748c4, 0x26244cc5, 0x24234cc0,
-            0x1a1f181d, 0x16131411, 0x12171015, 0x1e1b1c19,
-            0x00010203, 0x0c0d0e0f, 0x08090a0b, 0x04050607
-         ],
-        "AES-256: decryption key schedule ok"
-    );
-
-    naes.cipher( 8, naes_asm.ECB_ENC, naes_asm.HEAP_DATA, 16 );
-
-    equal(
-        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
-        '8ea2b7ca516745bfeafc49904b496089',
-        "AES-256: encrypt ok"
-    );
-
-    naes.cipher( 8, naes_asm.ECB_DEC, naes_asm.HEAP_DATA, 16 );
-
-    equal(
-        asmCrypto.bytes_to_hex( heap.subarray( naes_asm.HEAP_DATA, naes_asm.HEAP_DATA+16 ) ),
-        '00112233445566778899aabbccddeeff',
-        "AES-256: decrypt ok"
-    );
-});

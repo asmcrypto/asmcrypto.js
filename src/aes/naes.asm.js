@@ -8,11 +8,12 @@
  * 0x0c00   inv sbox
  * 0x1000   encryption tables
  * 0x2000   decryption tables
- * 0x3000   data
+ * 0x3000   reserved (GCM multiplication table)
+ * 0x4000   data
  *
  * @protected
  */
-var naes_asm = function () {
+var AES_asm = function () {
     "use strict";
 
     /**
@@ -449,6 +450,8 @@ var naes_asm = function () {
 
                 T3 = (T3 + 1)|0;
                 if ( (T3|0) == 0 ) T2 = (T2 + 1)|0;
+                if ( (T2|0) == 0 ) T1 = (T1 + 1)|0;
+                if ( (T1|0) == 0 ) T0 = (T0 + 1)|0;
 
                 S0 = S0 ^ x0,
                 S1 = S1 ^ x1,
@@ -644,8 +647,10 @@ var naes_asm = function () {
     wrapper.CBC_DEC = 3,
     wrapper.CFB_ENC = 4,
     wrapper.CFB_DEC = 5,
-    wrapper.OFB = 6,
-    wrapper.CTR = 7;
+    wrapper.OFB_ENC = 6,
+    wrapper.OFB_DEC = 6,
+    wrapper.CTR_ENC = 7,
+    wrapper.CTR_DEC = 7;
 
     /**
      * AES MAC mode constants
@@ -656,7 +661,7 @@ var naes_asm = function () {
     /**
      * Heap data offset
      */
-    wrapper.HEAP_DATA = 0x3000;
+    wrapper.HEAP_DATA = 0x4000;
 
     // Prevent further modifications
     Object.freeze(wrapper);
