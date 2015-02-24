@@ -191,7 +191,9 @@ var AES_asm = function () {
             "use asm";
 
             var S0 = 0, S1 = 0, S2 = 0, S3 = 0,
-                T0 = 0, T1 = 0, T2 = 0, T3 = 0;
+                T0 = 0, T1 = 0, T2 = 0, T3 = 0,
+                N0 = 0, N1 = 0, N2 = 0, N3 = 0,
+                M0 = 0, M1 = 0, M2 = 0, M3 = 0;
 
             var HEAP = new stdlib.Uint32Array(buffer),
                 DATA = new stdlib.Uint8Array(buffer);
@@ -442,16 +444,16 @@ var AES_asm = function () {
                 _core(
                     0x0000, 0x0800, 0x1000,
                     r,
-                    T0,
-                    T1,
-                    T2,
-                    T3
+                    N0,
+                    N1,
+                    N2,
+                    N3
                 );
 
-                T3 = (T3 + 1)|0;
-                if ( (T3|0) == 0 ) T2 = (T2 + 1)|0;
-                if ( (T2|0) == 0 ) T1 = (T1 + 1)|0;
-                if ( (T1|0) == 0 ) T0 = (T0 + 1)|0;
+                N3 = ( ~M3 & N3 ) | M3 & ( N3 + 1 );
+                N2 = ( ~M2 & N2 ) | M2 & ( N2 + ( (N3|0) == 0 ) );
+                N1 = ( ~M1 & N1 ) | M1 & ( N1 + ( (N2|0) == 0 ) );
+                N0 = ( ~M0 & N0 ) | M0 & ( N0 + ( (N1|0) == 0 ) );
 
                 S0 = S0 ^ x0,
                 S1 = S1 ^ x1,
@@ -486,11 +488,53 @@ var AES_asm = function () {
             }
 
             /**
+             * Set nonce for CTR-family modes
+             * @public
+             */
+            function set_nonce ( n0, n1, n2, n3 ) {
+                n0 = n0|0;
+                n1 = n1|0;
+                n2 = n2|0;
+                n3 = n3|0;
+
+                N0 = n0, N1 = n1, N2 = n2, N3 = n3;
+            }
+
+            /**
+             * Set counter mask for CTR-family modes
+             * @public
+             */
+            function set_mask ( m0, m1, m2, m3 ) {
+                m0 = m0|0;
+                m1 = m1|0;
+                m2 = m2|0;
+                m3 = m3|0;
+
+                M0 = m0, M1 = m1, M2 = m2, M3 = m3;
+            }
+
+            /**
+             * Set counter for CTR-family modes
+             * @public
+             */
+            function set_counter ( c0, c1, c2, c3 ) {
+                c0 = c0|0;
+                c1 = c1|0;
+                c2 = c2|0;
+                c3 = c3|0;
+
+                N3 = ( ~M3 & N3 ) | M3 & c3;
+                N2 = ( ~M2 & N2 ) | M2 & c2;
+                N1 = ( ~M1 & N1 ) | M1 & c1;
+                N0 = ( ~M0 & N0 ) | M0 & c0;
+            }
+
+            /**
              * Store the internal state into the heap
              * @public
              * @param {int} pos — offset where to put the data
              */
-            function flush_state ( pos ) {
+            function get_state ( pos ) {
                 pos = pos|0;
 
                 if ( pos & 15 ) return -1;
@@ -511,6 +555,36 @@ var AES_asm = function () {
                 DATA[pos|13] = S3>>>16&255,
                 DATA[pos|14] = S3>>>8&255,
                 DATA[pos|15] = S3&255;
+
+                return 16;
+            }
+
+            /**
+             * Store the internal iv into the heap
+             * @public
+             * @param {int} pos — offset where to put the data
+             */
+            function get_iv ( pos ) {
+                pos = pos|0;
+
+                if ( pos & 15 ) return -1;
+
+                DATA[pos|0] = T0>>>24,
+                DATA[pos|1] = T0>>>16&255,
+                DATA[pos|2] = T0>>>8&255,
+                DATA[pos|3] = T0&255,
+                DATA[pos|4] = T1>>>24,
+                DATA[pos|5] = T1>>>16&255,
+                DATA[pos|6] = T1>>>8&255,
+                DATA[pos|7] = T1&255,
+                DATA[pos|8] = T2>>>24,
+                DATA[pos|9] = T2>>>16&255,
+                DATA[pos|10] = T2>>>8&255,
+                DATA[pos|11] = T2&255,
+                DATA[pos|12] = T3>>>24,
+                DATA[pos|13] = T3>>>16&255,
+                DATA[pos|14] = T3>>>8&255,
+                DATA[pos|15] = T3&255;
 
                 return 16;
             }
@@ -626,7 +700,11 @@ var AES_asm = function () {
             return {
                 set_state:  set_state,
                 set_iv:     set_iv,
-                flush_state: flush_state,
+                set_nonce:  set_nonce,
+                set_mask:   set_mask,
+                set_counter:set_counter,
+                get_state:  get_state,
+                get_iv:     get_iv,
                 cipher:     cipher,
                 mac:        mac
             };

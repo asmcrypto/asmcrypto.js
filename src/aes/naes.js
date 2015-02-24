@@ -307,3 +307,17 @@ function AES_Decrypt_finish ( data ) {
 
     return this;
 }
+
+function createLazyInstanceGetter ( Constructor ) {
+    var _instance = null;
+
+    return function ( options ) {
+        if ( _instance ) return _instance.reset(options);
+
+//        options = options || {};
+//        options.heap = options.heap || _aes_heap_instance;
+//        options.asm = options.asm || _aes_asm_instance;
+
+        return _instance = new Constructor(options);
+    };
+};

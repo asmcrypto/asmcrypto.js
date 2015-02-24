@@ -74,8 +74,8 @@ var modules = [
     },
     {
         name: 'aes-ccm',
-        files: [ 'src/aes/aes-ccm.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/ccm/ccm.js' ],
+        depends: [ 'naes', 'aes-ctr' ],
         implies: [ 'aes-exports', 'aes-ccm-exports' ]
     },
     {
@@ -111,7 +111,7 @@ var modules = [
     },
     {
         name: 'aes-ccm-exports',
-        files: [ 'src/aes/exports-ccm.js' ],
+        files: [ 'src/aes/ccm/exports.js' ],
         depends: [ 'aes-ccm', 'aes-exports' ]
     },
     {
