@@ -80,8 +80,8 @@ var modules = [
     },
     {
         name: 'aes-gcm',
-        files: [ 'src/aes/aes-gcm.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/gcm/gcm.js' ],
+        depends: [ 'naes', 'aes-ctr' ],
         implies: [ 'aes-exports', 'aes-gcm-exports' ]
     },
     {
@@ -116,7 +116,7 @@ var modules = [
     },
     {
         name: 'aes-gcm-exports',
-        files: [ 'src/aes/exports-gcm.js' ],
+        files: [ 'src/aes/gcm/exports.js' ],
         depends: [ 'aes-gcm', 'aes-exports' ]
     },
     {

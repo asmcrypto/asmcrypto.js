@@ -509,21 +509,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
-            // iv
-            null,
-            // adata
-            null,
-            // tagSize
-            16,
-            // input message
-            '',
-            // encrypted message
-            asmCrypto.hex_to_bytes('58e2fccefa7e3061367f1d57a4e7455a')
-        ],
-        [
-            // key
-            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
-            // iv
+            // nonce
             asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
             null,
@@ -537,10 +523,10 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
-            // iv
-            null,
+            // nonce
+            asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            null,
+            '',
             // tagSize
             16,
             // input message
@@ -551,10 +537,10 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
-            // iv
+            // nonce
             asmCrypto.hex_to_bytes('cafebabefacedbaddecaf888'),
             // adata
-            null,
+            '',
             // tagSize
             16,
             // input message
@@ -565,7 +551,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
-            // iv
+            // nonce
             asmCrypto.hex_to_bytes('cafebabefacedbaddecaf888'),
             // adata
             asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
@@ -579,7 +565,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
-            // iv
+            // nonce
             asmCrypto.hex_to_bytes('cafebabefacedbad'),
             // adata
             asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
@@ -593,7 +579,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308'),
-            // iv
+            // nonce
             asmCrypto.hex_to_bytes('9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b'),
             // adata
             asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
@@ -607,10 +593,10 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
-            // iv
-            null,
+            // nonce
+            asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            null,
+            '',
             // tagSize
             16,
             // input message
@@ -621,24 +607,10 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
-            // iv
-            null,
-            // adata
-            null,
-            // tagSize
-            16,
-            // input message
-            asmCrypto.hex_to_bytes(''),
-            // encrypted message
-            asmCrypto.hex_to_bytes('530f8afbc74536b9a963b4f1c4cb738b')
-        ],
-        [
-            // key
-            asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
-            // iv
+            // nonce
             asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            null,
+            '',
             // tagSize
             16,
             // input message
@@ -649,10 +621,24 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
-            // iv
-            null,
+            // nonce
+            asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            null,
+            '',
+            // tagSize
+            16,
+            // input message
+            '',
+            // encrypted message
+            asmCrypto.hex_to_bytes('530f8afbc74536b9a963b4f1c4cb738b')
+        ],
+        [
+            // key
+            asmCrypto.hex_to_bytes('0000000000000000000000000000000000000000000000000000000000000000'),
+            // nonce
+            asmCrypto.hex_to_bytes('000000000000000000000000'),
+            // adata
+            '',
             // tagSize
             16,
             // input message
@@ -663,7 +649,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
         [
             // key
             asmCrypto.hex_to_bytes('feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308'),
-            // iv
+            // nonce
             asmCrypto.hex_to_bytes('9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b'),
             // adata
             asmCrypto.hex_to_bytes('feedfacedeadbeeffeedfacedeadbeefabaddad2'),
@@ -679,20 +665,20 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
     test( "asmCrypto.AES_GCM.encrypt", function () {
         for ( var i = 0; i < gcm_aes_vectors.length; ++i ) {
             var key = gcm_aes_vectors[i][0],
-                iv = gcm_aes_vectors[i][1],
+                nonce = gcm_aes_vectors[i][1],
                 adata = gcm_aes_vectors[i][2],
                 tagsize = gcm_aes_vectors[i][3],
                 cleartext = gcm_aes_vectors[i][4],
                 ciphertext = gcm_aes_vectors[i][5];
 
             equal(
-                asmCrypto.bytes_to_hex( asmCrypto.AES_GCM.encrypt( cleartext, key, iv, adata, tagsize ) ),
+                asmCrypto.bytes_to_hex( asmCrypto.AES_GCM.encrypt( cleartext, key, nonce, adata, tagsize ) ),
                 asmCrypto.bytes_to_hex( ciphertext ),
                 "encrypt vector " + i
             );
 
             equal(
-                asmCrypto.bytes_to_hex( asmCrypto.AES_GCM.decrypt( ciphertext, key, iv, adata, tagsize ) ),
+                asmCrypto.bytes_to_hex( asmCrypto.AES_GCM.decrypt( ciphertext, key, nonce, adata, tagsize ) ),
                 asmCrypto.bytes_to_hex( cleartext ),
                 "decrypt vector " + i
             );

@@ -193,7 +193,8 @@ var AES_asm = function () {
             var S0 = 0, S1 = 0, S2 = 0, S3 = 0,
                 T0 = 0, T1 = 0, T2 = 0, T3 = 0,
                 N0 = 0, N1 = 0, N2 = 0, N3 = 0,
-                M0 = 0, M1 = 0, M2 = 0, M3 = 0;
+                M0 = 0, M1 = 0, M2 = 0, M3 = 0,
+                H0 = 0, H1 = 0, H2 = 0, H3 = 0;
 
             var HEAP = new stdlib.Uint32Array(buffer),
                 DATA = new stdlib.Uint8Array(buffer);
@@ -462,6 +463,60 @@ var AES_asm = function () {
             }
 
             /**
+             * GCM mode MAC calculation
+             * @private
+             */
+            function _gcm_mac ( r, x0, x1, x2, x3 ) {
+                r = r|0;
+                x0 = x0|0;
+                x1 = x1|0;
+                x2 = x2|0;
+                x3 = x3|0;
+
+                var y0 = 0, y1 = 0, y2 = 0, y3 = 0,
+                    z0 = 0, z1 = 0, z2 = 0, z3 = 0,
+                    i = 0, c = 0;
+
+                x0 = x0 ^ T0,
+                x1 = x1 ^ T1,
+                x2 = x2 ^ T2,
+                x3 = x3 ^ T3;
+
+                y0 = H0|0,
+                y1 = H1|0,
+                y2 = H2|0,
+                y3 = H3|0;
+
+                for ( ; (i|0) < 128; i = (i + 1)|0 ) {
+                    if ( y0 >>> 31 ) {
+                        z0 = z0 ^ x0,
+                        z1 = z1 ^ x1,
+                        z2 = z2 ^ x2,
+                        z3 = z3 ^ x3;
+                    }
+
+                    y0 = (y0 << 1) | (y1 >>> 31),
+                    y1 = (y1 << 1) | (y2 >>> 31),
+                    y2 = (y2 << 1) | (y3 >>> 31),
+                    y3 = (y3 << 1);
+
+                    c = x3 & 1;
+
+                    x3 = (x3 >>> 1) | (x2 << 31),
+                    x2 = (x2 >>> 1) | (x1 << 31),
+                    x1 = (x1 >>> 1) | (x0 << 31),
+                    x0 = (x0 >>> 1);
+
+                    if ( c ) x0 = x0 ^ 0xe1000000;
+                }
+
+                T0 = z0,
+                T1 = z1,
+                T2 = z2,
+                T3 = z3;
+            }
+
+            /**
              * Populate the internal state of the module
              * @public
              */
@@ -590,6 +645,19 @@ var AES_asm = function () {
             }
 
             /**
+             * GCM initialization
+             * @public
+             */
+            function gcm_init ( ks ) {
+                ks = ks|0;
+                _ecb_enc( (ks + 5)|0, 0, 0, 0, 0 );
+                H0 = S0,
+                H1 = S1,
+                H2 = S2,
+                H3 = S3;
+            }
+
+            /**
              * Perform ciphering operation on the supplied data
              * @public
              * @param {int} ks — key size, 4/6/8
@@ -666,7 +734,7 @@ var AES_asm = function () {
                 r = (ks + 5)|0;
 
                 while ( (len|0) >= 16 ) {
-                    _mac_modes[mode&0](
+                    _mac_modes[mode&1](
                         r,
                         DATA[pos|0]<<24 | DATA[pos|1]<<16 | DATA[pos|2]<<8 | DATA[pos|3],
                         DATA[pos|4]<<24 | DATA[pos|5]<<16 | DATA[pos|6]<<8 | DATA[pos|7],
@@ -692,7 +760,7 @@ var AES_asm = function () {
              * AES MAC modes table (virual methods)
              * @private
              */
-            var _mac_modes = [ _cbc_enc ];
+            var _mac_modes = [ _cbc_enc, _gcm_mac ];
 
             /**
              * Asm.js module exports
@@ -705,6 +773,7 @@ var AES_asm = function () {
                 set_counter:set_counter,
                 get_state:  get_state,
                 get_iv:     get_iv,
+                gcm_init:   gcm_init,
                 cipher:     cipher,
                 mac:        mac
             };
@@ -734,7 +803,8 @@ var AES_asm = function () {
      * AES MAC mode constants
      * @public
      */
-    wrapper.CBC_MAC = 0;
+    wrapper.CBC_MAC = 0,
+    wrapper.GCM_MAC = 1;
 
     /**
      * Heap data offset
