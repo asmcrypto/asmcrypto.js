@@ -206,10 +206,10 @@ function AES_GCM_Encrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, wlen );
-        wlen = asm.mac( ks, AES_asm.GCM_MAC, hpos + pos, len );
+        wlen = asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, len );
+        wlen = asm.mac( ks, AES_asm.GCM_MAC, hpos + pos, wlen );
 
-        result.set( heap.subarray( pos, pos + wlen ), rpos );
+        if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
         counter += (wlen>>>4);
         rpos += wlen;
 
@@ -244,7 +244,7 @@ function AES_GCM_Encrypt_finish () {
     var result = new Uint8Array( len + tagSize );
 
     asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, (len + 15) & -16 );
-    result.set( heap.subarray( pos, pos + len ) );
+    if ( len ) result.set( heap.subarray( pos, pos + len ) );
 
     for ( var i = len; i & 15; i++ ) heap[ pos + i ] = 0;
     asm.mac( ks, AES_asm.GCM_MAC, hpos + pos, i );
@@ -329,7 +329,7 @@ function AES_GCM_Decrypt_process ( data ) {
         wlen = asm.mac( ks, AES_asm.GCM_MAC, hpos+pos, wlen );
         wlen = asm.cipher( ks, AES_asm.CTR_DEC, hpos+pos, wlen );
 
-        result.set( heap.subarray( pos, pos+wlen ), rpos );
+        if ( wlen ) result.set( heap.subarray( pos, pos+wlen ), rpos );
         counter += (wlen>>>4);
         rpos += wlen;
 
@@ -372,7 +372,7 @@ function AES_GCM_Decrypt_finish () {
 
     wlen = asm.mac( ks, AES_asm.GCM_MAC, hpos+pos, i );
     wlen = asm.cipher( ks, AES_asm.CTR_DEC, hpos + pos, i );
-    result.set( heap.subarray( pos, pos+rlen ) );
+    if ( rlen ) result.set( heap.subarray( pos, pos+rlen ) );
 
     var alen = ( adata !== null ) ? adata.length : 0,
         clen = ( (counter-1) << 4) + len - tagSize;
@@ -433,5 +433,3 @@ var AES_GCM_Decrypt_prototype = AES_GCM_Decrypt.prototype;
 AES_GCM_Decrypt_prototype.reset = AES_GCM_reset;
 AES_GCM_Decrypt_prototype.process = AES_GCM_Decrypt_process;
 AES_GCM_Decrypt_prototype.finish = AES_GCM_Decrypt_finish;
-
-var get_AES_GCM_instance = createLazyInstanceGetter(AES_GCM);

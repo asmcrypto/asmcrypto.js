@@ -92,18 +92,3 @@ var AES_CTR_Crypt_prototype = AES_CTR_Crypt.prototype;
 AES_CTR_Crypt_prototype.reset = AES_CTR_reset;
 AES_CTR_Crypt_prototype.process = AES_Encrypt_process;
 AES_CTR_Crypt_prototype.finish = AES_Encrypt_finish;
-
-var get_AES_CTR_instance = function ()
-{
-    var _instance = null;
-
-    return function ( options ) {
-        if ( _instance ) return _instance.reset(options);
-
-//        options = options || {};
-//        options.heap = options.heap || _aes_heap_instance;
-//        options.asm = options.asm || _aes_asm_instance;
-
-        return _instance = new AES_CTR(options);
-    };
-}();

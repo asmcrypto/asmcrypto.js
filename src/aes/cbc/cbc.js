@@ -33,18 +33,3 @@ var AES_CBC_Decrypt_prototype = AES_CBC_Decrypt.prototype;
 AES_CBC_Decrypt_prototype.reset = AES_reset;
 AES_CBC_Decrypt_prototype.process = AES_Decrypt_process;
 AES_CBC_Decrypt_prototype.finish = AES_Decrypt_finish;
-
-var get_AES_CBC_instance = function ()
-{
-    var _instance = null;
-
-    return function ( options ) {
-        if ( _instance ) return _instance.reset(options);
-
-//        options = options || {};
-//        options.heap = options.heap || _aes_heap_instance;
-//        options.asm = options.asm || _aes_asm_instance;
-
-        return _instance = new AES_CBC(options);
-    };
-}();

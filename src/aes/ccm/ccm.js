@@ -36,7 +36,7 @@ var _AES_CCM_adata_maxLength = 65279,            // 2^16 - 2^8
     _AES_CCM_data_maxLength = 4503599627370480;  // 2^52 - 2^4
 
 function AES_CCM ( options ) {
-    this.tagSize    = _aes_block_size;
+    this.tagSize    = 16;
     this.lengthSize = 4;
     this.nonce      = null;
     this.adata      = null;
@@ -64,7 +64,7 @@ function AES_CCM_calculate_iv () {
         lengthSize = this.lengthSize,
         dataLength = this.dataLength;
 
-    var data = new Uint8Array( _aes_block_size + ( adata ? 2 + adata.length : 0 ) );
+    var data = new Uint8Array( 16 + ( adata ? 2 + adata.length : 0 ) );
 
     // B0: flags(adata?, M', L'), nonce, len(data)
     data[0] = ( adata ? 64 : 0 ) | ( (tagSize-2)<<2 ) | ( lengthSize-1 );
@@ -87,7 +87,7 @@ function AES_CCM_calculate_iv () {
     _cbc_mac_process.call( this, data );
     this.asm.get_state( AES_asm.HEAP_DATA );
 
-    this.iv = new Uint8Array( this.heap.subarray( 0, _aes_block_size ) );
+    this.iv = new Uint8Array( this.heap.subarray( 0, 16 ) );
 }
 
 function AES_CCM_reset ( options ) {
@@ -113,7 +113,7 @@ function AES_CCM_reset ( options ) {
         this.tagSize = tagSize;
     }
     else {
-        this.tagSize = _aes_block_size;
+        this.tagSize = 16;
     }
 
     if ( nonce !== undefined ) {
@@ -249,7 +249,7 @@ function AES_CCM_Encrypt_process ( data ) {
     return this;
 }
 
-function ccm_aes_encrypt_finish () {
+function AES_CCM_Encrypt_finish () {
     var asm = this.asm,
         heap = this.heap,
         hpos = AES_asm.HEAP_DATA,
@@ -265,7 +265,7 @@ function ccm_aes_encrypt_finish () {
 
     wlen = asm.mac( ks, AES_asm.CBC_MAC, hpos + pos, i );
     wlen = asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, i );
-    result.set( heap.subarray( pos, pos + len ) );
+    if ( len ) result.set( heap.subarray( pos, pos + len ) );
 
     asm.set_counter( 0, 0, 0, 0 );
     asm.get_iv(hpos);
@@ -280,22 +280,22 @@ function ccm_aes_encrypt_finish () {
     return this;
 }
 
-function ccm_aes_encrypt ( data ) {
+function AES_CCM_encrypt ( data ) {
     this.dataLength = data.length || 0;
 
     var result1 = AES_CCM_Encrypt_process.call( this, data ).result,
-        result2 = ccm_aes_encrypt_finish.call(this).result,
+        result2 = AES_CCM_Encrypt_finish.call(this).result,
         result;
 
     result = new Uint8Array( result1.length + result2.length );
-    result.set(result1);
-    result.set( result2, result1.length );
+    if ( result1.length ) result.set(result1);
+    if ( result2.length ) result.set( result2, result1.length );
     this.result = result;
 
     return this;
 }
 
-function ccm_aes_decrypt_process ( data ) {
+function AES_CCM_Decrypt_process ( data ) {
     if ( is_string(data) )
         data = string_to_bytes(data);
 
@@ -354,7 +354,7 @@ function ccm_aes_decrypt_process ( data ) {
     return this;
 }
 
-function ccm_aes_decrypt_finish () {
+function AES_CCM_Decrypt_finish () {
     var asm = this.asm,
         heap = this.heap,
         hpos = AES_asm.HEAP_DATA,
@@ -394,34 +394,32 @@ function ccm_aes_decrypt_finish () {
     return this;
 }
 
-function ccm_aes_decrypt ( data ) {
+function AES_CCM_decrypt ( data ) {
     this.dataLength = data.length || 0;
 
-    var result1 = ccm_aes_decrypt_process.call( this, data ).result,
-        result2 = ccm_aes_decrypt_finish.call(this).result,
+    var result1 = AES_CCM_Decrypt_process.call( this, data ).result,
+        result2 = AES_CCM_Decrypt_finish.call(this).result,
         result;
 
     result = new Uint8Array( result1.length + result2.length );
-    result.set(result1);
-    result.set( result2, result1.length );
+    if ( result1.length ) result.set(result1);
+    if ( result1.length ) result.set( result2, result1.length );
     this.result = result;
 
     return this;
 }
 
-var ccm_aes_prototype = AES_CCM.prototype;
-ccm_aes_prototype.reset = AES_CCM_reset;
-ccm_aes_prototype.encrypt = ccm_aes_encrypt;
-ccm_aes_prototype.decrypt = ccm_aes_decrypt;
+var AES_CCM_prototype = AES_CCM.prototype;
+AES_CCM_prototype.reset = AES_CCM_reset;
+AES_CCM_prototype.encrypt = AES_CCM_encrypt;
+AES_CCM_prototype.decrypt = AES_CCM_decrypt;
 
-var ccm_aes_encrypt_prototype = AES_CCM_Encrypt.prototype;
-ccm_aes_encrypt_prototype.reset = AES_CCM_reset;
-ccm_aes_encrypt_prototype.process = AES_CCM_Encrypt_process;
-ccm_aes_encrypt_prototype.finish = ccm_aes_encrypt_finish;
+var AES_CCM_encrypt_prototype = AES_CCM_Encrypt.prototype;
+AES_CCM_encrypt_prototype.reset = AES_CCM_reset;
+AES_CCM_encrypt_prototype.process = AES_CCM_Encrypt_process;
+AES_CCM_encrypt_prototype.finish = AES_CCM_Encrypt_finish;
 
-var ccm_aes_decrypt_prototype = AES_CCM_Decrypt.prototype;
-ccm_aes_decrypt_prototype.reset = AES_CCM_reset;
-ccm_aes_decrypt_prototype.process = ccm_aes_decrypt_process;
-ccm_aes_decrypt_prototype.finish = ccm_aes_decrypt_finish;
-
-var get_AES_CCM_instance = createLazyInstanceGetter(AES_CCM);
+var AES_CCM_decrypt_prototype = AES_CCM_Decrypt.prototype;
+AES_CCM_decrypt_prototype.reset = AES_CCM_reset;
+AES_CCM_decrypt_prototype.process = AES_CCM_Decrypt_process;
+AES_CCM_decrypt_prototype.finish = AES_CCM_Decrypt_finish;

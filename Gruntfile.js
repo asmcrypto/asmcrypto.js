@@ -44,44 +44,39 @@ var modules = [
         depends: [ 'common', 'utils' ]
     },
     {
-        name: 'naes',
-        files: [ 'src/aes/naes.asm.js', 'src/aes/naes.js' ],
-        depends: [ 'common', 'utils' ]
-    },
-    {
         name: 'aes-ecb',
         files: [ 'src/aes/ecb/ecb.js' ],
-        depends: [ 'naes' ],
+        depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-ecb-exports' ]
     },
     {
         name: 'aes-cbc',
         files: [ 'src/aes/cbc/cbc.js' ],
-        depends: [ 'naes' ],
+        depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-cbc-exports' ]
     },
     {
         name: 'aes-cfb',
         files: [ 'src/aes/cfb/cfb.js' ],
-        depends: [ 'naes' ],
+        depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-cfb-exports' ]
     },
     {
         name: 'aes-ctr',
         files: [ 'src/aes/ctr/ctr.js' ],
-        depends: [ 'naes' ],
+        depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-ctr-exports' ]
     },
     {
         name: 'aes-ccm',
         files: [ 'src/aes/ccm/ccm.js' ],
-        depends: [ 'naes', 'aes-ctr' ],
+        depends: [ 'aes', 'aes-ctr' ],
         implies: [ 'aes-exports', 'aes-ccm-exports' ]
     },
     {
         name: 'aes-gcm',
         files: [ 'src/aes/gcm/gcm.js' ],
-        depends: [ 'naes', 'aes-ctr' ],
+        depends: [ 'aes', 'aes-ctr' ],
         implies: [ 'aes-exports', 'aes-gcm-exports' ]
     },
     {
