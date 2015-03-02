@@ -445,8 +445,8 @@ module.exports = function ( grunt ) {
                     mangle: false,
                     compress: false,
                     beautify: true,
-                    sourceMap: 'asmcrypto.js.map',
-                    wrap: 'asmCrypto'
+                    wrap: 'asmCrypto',
+                    sourceMap: true,
                 },
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
@@ -457,8 +457,9 @@ module.exports = function ( grunt ) {
                     mangle: true,
                     compress: true,
                     beautify: false,
-                    sourceMap: 'asmcrypto.js.map',
-                    wrap: 'asmCrypto'
+                    wrap: 'asmCrypto',
+                    sourceMap: true,
+                    sourceMapIncludeSources: true
                 },
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
