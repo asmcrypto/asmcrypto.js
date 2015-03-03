@@ -1,5 +1,3 @@
-"use strict";
-
 var FloatArray = global.Float64Array || global.Float32Array; // make PhantomJS happy
 
 function string_to_bytes ( str ) {
