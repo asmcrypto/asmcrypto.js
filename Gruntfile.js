@@ -357,6 +357,7 @@ var browsers = [
 // Grunt setup
 module.exports = function ( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
@@ -439,28 +440,29 @@ module.exports = function ( grunt ) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        uglify: {
+        concat: {
+            options: {
+                banner: "!function ( exports, global ) {\n\n",
+                footer: "\nglobal.asmCrypto=exports;\n}( {}, function(){return this}() );",
+                sourceMap: true,
+                sourceMapStyle: 'link'
+            },
             devel: {
-                options: {
-                    mangle: false,
-                    compress: false,
-                    beautify: true,
-                    wrap: 'asmCrypto',
-                    sourceMap: true,
-                },
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
                 }
+            }
+        },
+
+        uglify: {
+            options: {
+                mangle: true,
+                compress: true,
+                wrap: 'asmCrypto',
+                sourceMap: true,
+                sourceMapIncludeSources: true
             },
             release: {
-                options: {
-                    mangle: true,
-                    compress: true,
-                    beautify: false,
-                    wrap: 'asmCrypto',
-                    sourceMap: true,
-                    sourceMapIncludeSources: true
-                },
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
                 }
@@ -502,7 +504,7 @@ module.exports = function ( grunt ) {
         watch: {
             all: {
                 files: '<%= sources.files %>',
-                tasks: ['sources','uglify:devel']
+                tasks: ['sources','concat']
             }
         },
 
@@ -513,8 +515,8 @@ module.exports = function ( grunt ) {
     });
 
     grunt.registerTask('sources', sources);
-    grunt.registerTask('default', ['sources','uglify:release']);
-    grunt.registerTask('devel', ['sources','uglify:devel','connect','watch']);
+    grunt.registerTask('default', ['sources','uglify']);
+    grunt.registerTask('devel', ['sources','concat','connect','watch']);
     grunt.registerTask('test', ['connect','qunit']);
     grunt.registerTask('sauce', ['connect','saucelabs-qunit']);
 };
