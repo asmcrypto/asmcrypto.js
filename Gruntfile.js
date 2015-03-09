@@ -62,6 +62,12 @@ var modules = [
         implies: [ 'aes-exports', 'aes-cfb-exports' ]
     },
     {
+        name: 'aes-ofb',
+        files: [ 'src/aes/ofb/ofb.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'aes-exports', 'aes-ofb-exports' ]
+    },
+    {
         name: 'aes-ctr',
         files: [ 'src/aes/ctr/ctr.js' ],
         depends: [ 'aes' ],
@@ -98,6 +104,11 @@ var modules = [
         name: 'aes-cfb-exports',
         files: [ 'src/aes/cfb/exports.js' ],
         depends: [ 'aes-cfb', 'aes-exports' ]
+    },
+    {
+        name: 'aes-ofb-exports',
+        files: [ 'src/aes/ofb/exports.js' ],
+        depends: [ 'aes-ofb', 'aes-exports' ]
     },
     {
         name: 'aes-ctr-exports',

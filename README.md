@@ -33,6 +33,7 @@ Index
     * [Block Cipher](#aes)
         * [AES-CBC](#aes_cbc)
         * [AES-CFB](#aes_cfb)
+        * [AES-OFB](#aes_ofb)
         * [AES-CCM](#aes_ccm)
     * [Asymmetric encryption](#rsa)
         * [RSA](#rsa)
@@ -405,19 +406,39 @@ Returns encrypted data as `Uint8Array`.
 
 Cipher Feedback Mode.
 
-##### AES_CFB.encrypt( data, key, padding, iv )
+##### AES_CFB.encrypt( data, key, iv )
 
 Encrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
 
 Returns encrypted data as `Uint8Array`.
 
-##### AES_CFB.decrypt( data, key, padding, iv )
+##### AES_CFB.decrypt( data, key, iv )
 
 Decrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
+
+Returns encrypted data as `Uint8Array`.
+
+#### AES_OFB
+
+Output Feedback Mode.
+
+##### AES_OFB.encrypt( data, key, iv )
+
+Encrypts supplied `data` with `key` in OFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
+
+Returns encrypted data as `Uint8Array`.
+
+##### AES_OFB.decrypt( data, key, iv )
+
+Decrypts supplied `data` with `key` in OFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
 
 Returns encrypted data as `Uint8Array`.
 

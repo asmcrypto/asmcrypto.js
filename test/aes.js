@@ -784,3 +784,100 @@ else
 {
     skip( "asmCrypto.AES_CFB" );
 }
+
+testIf( asmCrypto.AES_OFB !== undefined, "asmCrypto.AES_OFB", function () {
+    // key, iv, cleartext, ciphertext
+    var ofb_vectors = [
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes('000102030405060708090A0B0C0D0E0F'),
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e117393172a'),
+            asmCrypto.hex_to_bytes('3b3fd92eb72dad20333449f8e83cfb4a'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes('50FE67CC996D32B6DA0937E99BAFEC60'),
+            asmCrypto.hex_to_bytes('ae2d8a571e03ac9c9eb76fac45af8e51'),
+            asmCrypto.hex_to_bytes('7789508d16918f03f53c52dac54ed825'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes('D9A4DADA0892239F6B8B3D7680E15674'),
+            asmCrypto.hex_to_bytes('30c81c46a35ce411e5fbc1191a0a52ef'),
+            asmCrypto.hex_to_bytes('9740051e9c5fecf64344f7a82260edcc'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes('A78819583F0308E7A6BF36B1386ABF23'),
+            asmCrypto.hex_to_bytes('f69f2445df4f9b17ad2b417be66c3710'),
+            asmCrypto.hex_to_bytes('304c6528f659c77866a510d9c1d6ae5e'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'),
+            asmCrypto.hex_to_bytes('000102030405060708090A0B0C0D0E0F'),
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e117393172a'),
+            asmCrypto.hex_to_bytes('cdc80d6fddf18cab34c25909c99a4174'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'),
+            asmCrypto.hex_to_bytes('A609B38DF3B1133DDDFF2718BA09565E'),
+            asmCrypto.hex_to_bytes('ae2d8a571e03ac9c9eb76fac45af8e51'),
+            asmCrypto.hex_to_bytes('fcc28b8d4c63837c09e81700c1100401'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'),
+            asmCrypto.hex_to_bytes('52EF01DA52602FE0975F78AC84BF8A50'),
+            asmCrypto.hex_to_bytes('30c81c46a35ce411e5fbc1191a0a52ef'),
+            asmCrypto.hex_to_bytes('8d9a9aeac0f6596f559c6d4daf59a5f2'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b'),
+            asmCrypto.hex_to_bytes('BD5286AC63AABD7EB067AC54B553F71D'),
+            asmCrypto.hex_to_bytes('f69f2445df4f9b17ad2b417be66c3710'),
+            asmCrypto.hex_to_bytes('6d9f200857ca6c3e9cac524bd9acc92a'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4'),
+            asmCrypto.hex_to_bytes('000102030405060708090A0B0C0D0E0F'),
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e117393172a'),
+            asmCrypto.hex_to_bytes('dc7e84bfda79164b7ecd8486985d3860'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4'),
+            asmCrypto.hex_to_bytes('B7BF3A5DF43989DD97F0FA97EBCE2F4A'),
+            asmCrypto.hex_to_bytes('ae2d8a571e03ac9c9eb76fac45af8e51'),
+            asmCrypto.hex_to_bytes('4febdc6740d20b3ac88f6ad82a4fb08d'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4'),
+            asmCrypto.hex_to_bytes('E1C656305ED1A7A6563805746FE03EDC'),
+            asmCrypto.hex_to_bytes('30c81c46a35ce411e5fbc1191a0a52ef'),
+            asmCrypto.hex_to_bytes('71ab47a086e86eedf39d1c5bba97c408'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4'),
+            asmCrypto.hex_to_bytes('41635BE625B48AFC1666DD42A09D96E7'),
+            asmCrypto.hex_to_bytes('f69f2445df4f9b17ad2b417be66c3710'),
+            asmCrypto.hex_to_bytes('0126141d67f37be8538f5a8be740e484'),
+        ],
+    ];
+
+    for ( var i = 0; i < ofb_vectors.length; ++i ) {
+        var key = new Uint8Array( ofb_vectors[i][0] ),
+            iv = new Uint8Array( ofb_vectors[i][1] ),
+            clear = new Uint8Array( ofb_vectors[i][2] ),
+            cipher = new Uint8Array( ofb_vectors[i][3] );
+
+        equal(
+            asmCrypto.bytes_to_hex( asmCrypto.AES_OFB.encrypt( clear, key, iv ) ),
+            asmCrypto.bytes_to_hex( cipher ),
+                "encrypt vector " + i
+        );
+
+        equal(
+            asmCrypto.bytes_to_hex( asmCrypto.AES_OFB.decrypt( cipher, key, iv ) ),
+            asmCrypto.bytes_to_hex( clear ),
+                "decrypt vector " + i
+        );
+    }
+});
