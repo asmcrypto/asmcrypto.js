@@ -1,6 +1,4 @@
 function AES ( options ) {
-    this.BLOCK_SIZE = 16;
-
     options = options || {};
 
     this.heap = _heap_init( Uint8Array, options ).subarray( AES_asm.HEAP_DATA );
@@ -108,9 +106,8 @@ function AES_Encrypt_process ( data ) {
 
     var asm = this.asm,
         heap = this.heap,
-        amode = AES_asm[this.mode+'_ENC'],
+        amode = AES_asm.ENC[this.mode],
         hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         pos = this.pos,
         len = this.len,
         dpos = 0,
@@ -127,7 +124,7 @@ function AES_Encrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.cipher( ks, amode, hpos + pos, len );
+        wlen = asm.cipher( amode, hpos + pos, len );
 
         if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
         rpos += wlen;
@@ -159,9 +156,8 @@ function AES_Encrypt_finish ( data ) {
 
     var asm = this.asm,
         heap = this.heap,
-        amode = AES_asm[this.mode+'_ENC'],
+        amode = AES_asm.ENC[this.mode],
         hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         pos = this.pos,
         len = this.len,
         plen = 16 - len % 16,
@@ -185,7 +181,7 @@ function AES_Encrypt_finish ( data ) {
 
     if ( prlen ) result.set( presult );
 
-    if ( len ) asm.cipher( ks, amode, hpos + pos, len );
+    if ( len ) asm.cipher( amode, hpos + pos, len );
 
     if ( rlen ) result.set( heap.subarray( pos, pos + rlen ), prlen );
 
@@ -208,9 +204,8 @@ function AES_Decrypt_process ( data ) {
 
     var asm = this.asm,
         heap = this.heap,
-        amode = AES_asm[this.mode+'_DEC'],
+        amode = AES_asm.DEC[this.mode],
         hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         pos = this.pos,
         len = this.len,
         dpos = 0,
@@ -233,7 +228,7 @@ function AES_Decrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.cipher( ks, amode, hpos + pos, len - ( !dlen ? plen : 0 ) );
+        wlen = asm.cipher( amode, hpos + pos, len - ( !dlen ? plen : 0 ) );
 
         if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
         rpos += wlen;
@@ -265,9 +260,8 @@ function AES_Decrypt_finish ( data ) {
 
     var asm = this.asm,
         heap = this.heap,
-        amode = AES_asm[this.mode+'_DEC'],
+        amode = AES_asm.DEC[this.mode],
         hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         pos = this.pos,
         len = this.len,
         rlen = len;
@@ -281,7 +275,7 @@ function AES_Decrypt_finish ( data ) {
             }
         }
 
-        asm.cipher( ks, amode, hpos + pos, len );
+        asm.cipher( amode, hpos + pos, len );
 
         if ( this.hasOwnProperty('padding') && this.padding ) {
             var pad = heap[ pos + rlen - 1 ];

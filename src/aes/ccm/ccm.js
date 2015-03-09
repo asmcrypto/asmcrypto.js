@@ -16,8 +16,6 @@
 function _cbc_mac_process ( data ) {
     var heap = this.heap,
         asm  = this.asm,
-        ks = this.key.length >> 2,
-        hpos = AES_asm.HEAP_DATA,
         dpos = 0,
         dlen = data.length || 0,
         wlen = 0;
@@ -28,7 +26,7 @@ function _cbc_mac_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        asm.mac( ks, AES_asm.CBC_MAC, hpos, wlen );
+        asm.mac( AES_asm.MAC.CBC, AES_asm.HEAP_DATA, wlen );
     }
 }
 
@@ -205,8 +203,6 @@ function AES_CCM_Encrypt_process ( data ) {
         dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         counter = this.counter,
         pos = this.pos,
         len = this.len,
@@ -225,8 +221,8 @@ function AES_CCM_Encrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.mac( ks, AES_asm.CBC_MAC, hpos + pos, len );
-        wlen = asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, wlen );
+        wlen = asm.mac( AES_asm.MAC.CBC, AES_asm.HEAP_DATA + pos, len );
+        wlen = asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, wlen );
 
         result.set( heap.subarray( pos, pos + wlen ), rpos );
         counter += (wlen>>>4);
@@ -252,8 +248,6 @@ function AES_CCM_Encrypt_process ( data ) {
 function AES_CCM_Encrypt_finish () {
     var asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         tagSize = this.tagSize,
         pos = this.pos,
         len = this.len,
@@ -263,13 +257,13 @@ function AES_CCM_Encrypt_finish () {
 
     for ( var i = len; i & 15; i++ ) heap[ pos + i ] = 0;
 
-    wlen = asm.mac( ks, AES_asm.CBC_MAC, hpos + pos, i );
-    wlen = asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, i );
+    wlen = asm.mac( AES_asm.MAC.CBC, AES_asm.HEAP_DATA + pos, i );
+    wlen = asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, i );
     if ( len ) result.set( heap.subarray( pos, pos + len ) );
 
     asm.set_counter( 0, 0, 0, 0 );
-    asm.get_iv(hpos);
-    asm.cipher( ks, AES_asm.CTR_ENC, hpos, 16 );
+    asm.get_iv( AES_asm.HEAP_DATA );
+    asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16 );
     result.set( heap.subarray( 0, tagSize ), len );
 
     this.result = result;
@@ -309,8 +303,6 @@ function AES_CCM_Decrypt_process ( data ) {
         dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         counter = this.counter,
         tagSize = this.tagSize,
         pos = this.pos,
@@ -331,8 +323,8 @@ function AES_CCM_Decrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.cipher( ks, AES_asm.CTR_DEC, hpos+pos, wlen );
-        wlen = asm.mac( ks, AES_asm.CBC_MAC, hpos+pos, wlen );
+        wlen = asm.cipher( AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, wlen );
+        wlen = asm.mac( AES_asm.MAC.CBC, AES_asm.HEAP_DATA + pos, wlen );
 
         result.set( heap.subarray( pos, pos+wlen ), rpos );
         counter += (wlen>>>4);
@@ -357,8 +349,6 @@ function AES_CCM_Decrypt_process ( data ) {
 function AES_CCM_Decrypt_finish () {
     var asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         tagSize = this.tagSize,
         pos = this.pos,
         len = this.len,
@@ -371,15 +361,15 @@ function AES_CCM_Decrypt_finish () {
     var result = new Uint8Array(rlen),
         atag = new Uint8Array( heap.subarray( pos+rlen, pos+len ) );
 
-    wlen = asm.cipher( ks, AES_asm.CTR_DEC, hpos + pos, (rlen + 15) & -16 );
-    result.set( heap.subarray( pos, pos+rlen ) );
+    wlen = asm.cipher( AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, (rlen + 15) & -16 );
+    result.set( heap.subarray( pos, pos + rlen ) );
 
     for ( var i = rlen; i & 15; i++ ) heap[ pos + i ] = 0;
-    wlen = asm.mac( ks, AES_asm.CBC_MAC, hpos+pos, i );
+    wlen = asm.mac( AES_asm.MAC.CBC, AES_asm.HEAP_DATA + pos, i );
 
     asm.set_counter( 0, 0, 0, 0 );
-    asm.get_iv(hpos);
-    asm.cipher( ks, AES_asm.CTR_ENC, hpos, 16 );
+    asm.get_iv( AES_asm.HEAP_DATA );
+    asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16 );
 
     var acheck = 0;
     for ( var i = 0; i < tagSize; ++i ) acheck |= atag[i] ^ heap[i];
@@ -410,16 +400,19 @@ function AES_CCM_decrypt ( data ) {
 }
 
 var AES_CCM_prototype = AES_CCM.prototype;
+AES_CCM_prototype.BLOCK_SIZE = 16;
 AES_CCM_prototype.reset = AES_CCM_reset;
 AES_CCM_prototype.encrypt = AES_CCM_encrypt;
 AES_CCM_prototype.decrypt = AES_CCM_decrypt;
 
-var AES_CCM_encrypt_prototype = AES_CCM_Encrypt.prototype;
-AES_CCM_encrypt_prototype.reset = AES_CCM_reset;
-AES_CCM_encrypt_prototype.process = AES_CCM_Encrypt_process;
-AES_CCM_encrypt_prototype.finish = AES_CCM_Encrypt_finish;
+var AES_CCM_Encrypt_prototype = AES_CCM_Encrypt.prototype;
+AES_CCM_Encrypt_prototype.BLOCK_SIZE = 16;
+AES_CCM_Encrypt_prototype.reset = AES_CCM_reset;
+AES_CCM_Encrypt_prototype.process = AES_CCM_Encrypt_process;
+AES_CCM_Encrypt_prototype.finish = AES_CCM_Encrypt_finish;
 
-var AES_CCM_decrypt_prototype = AES_CCM_Decrypt.prototype;
-AES_CCM_decrypt_prototype.reset = AES_CCM_reset;
-AES_CCM_decrypt_prototype.process = AES_CCM_Decrypt_process;
-AES_CCM_decrypt_prototype.finish = AES_CCM_Decrypt_finish;
+var AES_CCM_Decrypt_prototype = AES_CCM_Decrypt.prototype;
+AES_CCM_Decrypt_prototype.BLOCK_SIZE = 16;
+AES_CCM_Decrypt_prototype.reset = AES_CCM_reset;
+AES_CCM_Decrypt_prototype.process = AES_CCM_Decrypt_process;
+AES_CCM_Decrypt_prototype.finish = AES_CCM_Decrypt_finish;

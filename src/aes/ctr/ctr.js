@@ -84,11 +84,13 @@ function AES_CTR_reset ( options ) {
 }
 
 var AES_CTR_prototype = AES_CTR.prototype;
+AES_CTR_prototype.BLOCK_SIZE = 16;
 AES_CTR_prototype.reset = AES_CTR_reset;
 AES_CTR_prototype.encrypt = AES_Encrypt_finish;
 AES_CTR_prototype.decrypt = AES_Encrypt_finish;
 
 var AES_CTR_Crypt_prototype = AES_CTR_Crypt.prototype;
+AES_CTR_Crypt_prototype.BLOCK_SIZE = 16;
 AES_CTR_Crypt_prototype.reset = AES_CTR_reset;
 AES_CTR_Crypt_prototype.process = AES_Encrypt_process;
 AES_CTR_Crypt_prototype.finish = AES_Encrypt_finish;

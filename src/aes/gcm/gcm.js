@@ -7,7 +7,6 @@ var _AES_GCM_data_maxLength = 68719476704;  // 2^36 - 2^5
 function _gcm_mac_process ( data ) {
     var heap = this.heap,
         asm  = this.asm,
-        ks = this.key.length >> 2,
         dpos = 0,
         dlen = data.length || 0,
         wlen = 0;
@@ -19,7 +18,7 @@ function _gcm_mac_process ( data ) {
 
         while ( wlen & 15 ) heap[ wlen++ ] = 0;
 
-        asm.mac( ks, AES_asm.GCM_MAC, AES_asm.HEAP_DATA, wlen );
+        asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA, wlen );
     }
 }
 
@@ -49,10 +48,9 @@ function AES_GCM_reset ( options ) {
     AES_reset.call( this, options );
 
     var asm = this.asm,
-        heap = this.heap,
-        ks = this.key.length >> 2;
+        heap = this.heap;
 
-    asm.gcm_init(ks);
+    asm.gcm_init();
 
     var tagSize = options.tagSize;
     if ( tagSize !== undefined ) {
@@ -94,7 +92,7 @@ function AES_GCM_reset ( options ) {
             heap[13] = noncelen>>>13&255,
             heap[14] = noncelen>>>5&255,
             heap[15] = noncelen<<3&255;
-            asm.mac( ks, AES_asm.GCM_MAC, AES_asm.HEAP_DATA, 16 );
+            asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16 );
 
             asm.get_iv( AES_asm.HEAP_DATA );
 
@@ -186,8 +184,6 @@ function AES_GCM_Encrypt_process ( data ) {
         dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         counter = this.counter,
         pos = this.pos,
         len = this.len,
@@ -206,8 +202,8 @@ function AES_GCM_Encrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, len );
-        wlen = asm.mac( ks, AES_asm.GCM_MAC, hpos + pos, wlen );
+        wlen = asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, len );
+        wlen = asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, wlen );
 
         if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
         counter += (wlen>>>4);
@@ -233,8 +229,6 @@ function AES_GCM_Encrypt_process ( data ) {
 function AES_GCM_Encrypt_finish () {
     var asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         counter = this.counter,
         tagSize = this.tagSize,
         adata = this.adata,
@@ -243,11 +237,11 @@ function AES_GCM_Encrypt_finish () {
 
     var result = new Uint8Array( len + tagSize );
 
-    asm.cipher( ks, AES_asm.CTR_ENC, hpos + pos, (len + 15) & -16 );
+    asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, (len + 15) & -16 );
     if ( len ) result.set( heap.subarray( pos, pos + len ) );
 
     for ( var i = len; i & 15; i++ ) heap[ pos + i ] = 0;
-    asm.mac( ks, AES_asm.GCM_MAC, hpos + pos, i );
+    asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, i );
 
     var alen = ( adata !== null ) ? adata.length : 0,
         clen = ( (counter-1) << 4) + len;
@@ -263,11 +257,11 @@ function AES_GCM_Encrypt_finish () {
     heap[13] = clen>>>13&255,
     heap[14] = clen>>>5&255,
     heap[15] = clen<<3&255;
-    asm.mac( ks, AES_asm.GCM_MAC, hpos, 16 );
-    asm.get_iv(hpos);
+    asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16 );
+    asm.get_iv( AES_asm.HEAP_DATA );
 
     asm.set_counter( 0, 0, 0, this.gamma0 );
-    asm.cipher( ks, AES_asm.CTR_ENC, hpos, 16 );
+    asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16 );
     result.set( heap.subarray( 0, tagSize ), len );
 
     this.result = result;
@@ -304,8 +298,6 @@ function AES_GCM_Decrypt_process ( data ) {
         dlen = data.length || 0,
         asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         counter = this.counter,
         tagSize = this.tagSize,
         pos = this.pos,
@@ -326,8 +318,8 @@ function AES_GCM_Decrypt_process ( data ) {
         dpos += wlen;
         dlen -= wlen;
 
-        wlen = asm.mac( ks, AES_asm.GCM_MAC, hpos+pos, wlen );
-        wlen = asm.cipher( ks, AES_asm.CTR_DEC, hpos+pos, wlen );
+        wlen = asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, wlen );
+        wlen = asm.cipher( AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, wlen );
 
         if ( wlen ) result.set( heap.subarray( pos, pos+wlen ), rpos );
         counter += (wlen>>>4);
@@ -352,8 +344,6 @@ function AES_GCM_Decrypt_process ( data ) {
 function AES_GCM_Decrypt_finish () {
     var asm = this.asm,
         heap = this.heap,
-        hpos = AES_asm.HEAP_DATA,
-        ks = this.key.length >> 2,
         tagSize = this.tagSize,
         adata = this.adata,
         counter = this.counter,
@@ -370,8 +360,8 @@ function AES_GCM_Decrypt_finish () {
 
     for ( var i = rlen; i & 15; i++ ) heap[ pos + i ] = 0;
 
-    wlen = asm.mac( ks, AES_asm.GCM_MAC, hpos+pos, i );
-    wlen = asm.cipher( ks, AES_asm.CTR_DEC, hpos + pos, i );
+    wlen = asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, i );
+    wlen = asm.cipher( AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, i );
     if ( rlen ) result.set( heap.subarray( pos, pos+rlen ) );
 
     var alen = ( adata !== null ) ? adata.length : 0,
@@ -388,11 +378,11 @@ function AES_GCM_Decrypt_finish () {
     heap[13] = clen>>>13&255,
     heap[14] = clen>>>5&255,
     heap[15] = clen<<3&255;
-    asm.mac( ks, AES_asm.GCM_MAC, hpos, 16 );
-    asm.get_iv(hpos);
+    asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16 );
+    asm.get_iv( AES_asm.HEAP_DATA );
 
     asm.set_counter( 0, 0, 0, this.gamma0 );
-    asm.cipher( ks, AES_asm.CTR_ENC, hpos, 16 );
+    asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16 );
 
     var acheck = 0;
     for ( var i = 0; i < tagSize; ++i ) acheck |= atag[i] ^ heap[i];
@@ -420,16 +410,19 @@ function AES_GCM_decrypt ( data ) {
 }
 
 var AES_GCM_prototype = AES_GCM.prototype;
+AES_GCM_prototype.BLOCK_SIZE = 16;
 AES_GCM_prototype.reset = AES_GCM_reset;
 AES_GCM_prototype.encrypt = AES_GCM_encrypt;
 AES_GCM_prototype.decrypt = AES_GCM_decrypt;
 
 var AES_GCM_Encrypt_prototype = AES_GCM_Encrypt.prototype;
+AES_GCM_Encrypt_prototype.BLOCK_SIZE = 16;
 AES_GCM_Encrypt_prototype.reset = AES_GCM_reset;
 AES_GCM_Encrypt_prototype.process = AES_GCM_Encrypt_process;
 AES_GCM_Encrypt_prototype.finish = AES_GCM_Encrypt_finish;
 
 var AES_GCM_Decrypt_prototype = AES_GCM_Decrypt.prototype;
+AES_GCM_Decrypt_prototype.BLOCK_SIZE = 16;
 AES_GCM_Decrypt_prototype.reset = AES_GCM_reset;
 AES_GCM_Decrypt_prototype.process = AES_GCM_Decrypt_process;
 AES_GCM_Decrypt_prototype.finish = AES_GCM_Decrypt_finish;

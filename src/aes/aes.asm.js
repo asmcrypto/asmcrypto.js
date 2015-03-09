@@ -185,16 +185,20 @@ var AES_asm = function () {
                     }
                 }
             }
+
+            // Set rounds number
+            asm.set_rounds( ks + 5 );
         }
 
         var asm = function ( stdlib, foreign, buffer ) {
             "use asm";
 
             var S0 = 0, S1 = 0, S2 = 0, S3 = 0,
-                T0 = 0, T1 = 0, T2 = 0, T3 = 0,
+                I0 = 0, I1 = 0, I2 = 0, I3 = 0,
                 N0 = 0, N1 = 0, N2 = 0, N3 = 0,
                 M0 = 0, M1 = 0, M2 = 0, M3 = 0,
-                H0 = 0, H1 = 0, H2 = 0, H3 = 0;
+                H0 = 0, H1 = 0, H2 = 0, H3 = 0,
+                R = 0;
 
             var HEAP = new stdlib.Uint32Array(buffer),
                 DATA = new stdlib.Uint8Array(buffer);
@@ -250,8 +254,7 @@ var AES_asm = function () {
              * ECB mode encryption
              * @private
              */
-            function _ecb_enc ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _ecb_enc ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
@@ -259,7 +262,7 @@ var AES_asm = function () {
 
                 _core(
                     0x0000, 0x0800, 0x1000,
-                    r,
+                    R,
                     x0,
                     x1,
                     x2,
@@ -271,25 +274,24 @@ var AES_asm = function () {
              * ECB mode decryption
              * @private
              */
-            function _ecb_dec ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _ecb_dec ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
                 x3 = x3|0;
 
-                var s = 0;
+                var t = 0;
 
                 _core(
                     0x0400, 0x0c00, 0x2000,
-                    r,
+                    R,
                     x0,
                     x3,
                     x2,
                     x1
                 );
 
-                s = S1, S1 = S3, S3 = s;
+                t = S1, S1 = S3, S3 = t;
             }
 
 
@@ -297,8 +299,7 @@ var AES_asm = function () {
              * CBC mode encryption
              * @private
              */
-            function _cbc_enc ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _cbc_enc ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
@@ -306,54 +307,58 @@ var AES_asm = function () {
 
                 _core(
                     0x0000, 0x0800, 0x1000,
-                    r,
-                    T0 ^ x0,
-                    T1 ^ x1,
-                    T2 ^ x2,
-                    T3 ^ x3
+                    R,
+                    I0 ^ x0,
+                    I1 ^ x1,
+                    I2 ^ x2,
+                    I3 ^ x3
                 );
 
-                T0 = S0, T1 = S1, T2 = S2, T3 = S3;
+                I0 = S0,
+                I1 = S1,
+                I2 = S2,
+                I3 = S3;
             }
 
             /**
              * CBC mode decryption
              * @private
              */
-            function _cbc_dec ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _cbc_dec ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
                 x3 = x3|0;
 
-                var s = 0;
+                var t = 0;
 
                 _core(
                     0x0400, 0x0c00, 0x2000,
-                    r,
+                    R,
                     x0,
                     x3,
                     x2,
                     x1
                 );
 
-                s = S1, S1 = S3, S3 = s;
+                t = S1, S1 = S3, S3 = t;
 
-                S0 = S0 ^ T0,
-                S1 = S1 ^ T1,
-                S2 = S2 ^ T2,
-                S3 = S3 ^ T3;
+                S0 = S0 ^ I0,
+                S1 = S1 ^ I1,
+                S2 = S2 ^ I2,
+                S3 = S3 ^ I3;
 
-                T0 = x0, T1 = x1, T2 = x2, T3 = x3;
+                I0 = x0,
+                I1 = x1,
+                I2 = x2,
+                I3 = x3;
             }
 
             /**
              * CFB mode encryption
              * @private
              */
-            function _cfb_enc ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _cfb_enc ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
@@ -361,17 +366,17 @@ var AES_asm = function () {
 
                 _core(
                     0x0000, 0x0800, 0x1000,
-                    r,
-                    T0,
-                    T1,
-                    T2,
-                    T3
+                    R,
+                    I0,
+                    I1,
+                    I2,
+                    I3
                 );
 
-                T0 = S0 = S0 ^ x0,
-                T1 = S1 = S1 ^ x1,
-                T2 = S2 = S2 ^ x2,
-                T3 = S3 = S3 ^ x3;
+                I0 = S0 = S0 ^ x0,
+                I1 = S1 = S1 ^ x1,
+                I2 = S2 = S2 ^ x2,
+                I3 = S3 = S3 ^ x3;
             }
 
 
@@ -379,8 +384,7 @@ var AES_asm = function () {
              * CFB mode decryption
              * @private
              */
-            function _cfb_dec ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _cfb_dec ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
@@ -388,11 +392,11 @@ var AES_asm = function () {
 
                 _core(
                     0x0000, 0x0800, 0x1000,
-                    r,
-                    T0,
-                    T1,
-                    T2,
-                    T3
+                    R,
+                    I0,
+                    I1,
+                    I2,
+                    I3
                 );
 
                 S0 = S0 ^ x0,
@@ -400,15 +404,17 @@ var AES_asm = function () {
                 S2 = S2 ^ x2,
                 S3 = S3 ^ x3;
 
-                T0 = x0, T1 = x1, T2 = x2, T3 = x3;
+                I0 = x0,
+                I1 = x1,
+                I2 = x2,
+                I3 = x3;
             }
 
             /**
              * OFB mode encryption / decryption
              * @private
              */
-            function _ofb ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _ofb ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
@@ -416,14 +422,17 @@ var AES_asm = function () {
 
                 _core(
                     0x0000, 0x0800, 0x1000,
-                    r,
-                    T0,
-                    T1,
-                    T2,
-                    T3
+                    R,
+                    I0,
+                    I1,
+                    I2,
+                    I3
                 );
 
-                T0 = S0, T1 = S1, T2 = S2, T3 = S3;
+                I0 = S0,
+                I1 = S1,
+                I2 = S2,
+                I3 = S3;
 
                 S0 = S0 ^ x0,
                 S1 = S1 ^ x1,
@@ -435,8 +444,7 @@ var AES_asm = function () {
              * CTR mode encryption / decryption
              * @private
              */
-            function _ctr ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _ctr ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
@@ -444,16 +452,16 @@ var AES_asm = function () {
 
                 _core(
                     0x0000, 0x0800, 0x1000,
-                    r,
+                    R,
                     N0,
                     N1,
                     N2,
                     N3
                 );
 
-                N3 = ( ~M3 & N3 ) | M3 & ( N3 + 1 );
-                N2 = ( ~M2 & N2 ) | M2 & ( N2 + ( (N3|0) == 0 ) );
-                N1 = ( ~M1 & N1 ) | M1 & ( N1 + ( (N2|0) == 0 ) );
+                N3 = ( ~M3 & N3 ) | M3 & ( N3 + 1 ),
+                N2 = ( ~M2 & N2 ) | M2 & ( N2 + ( (N3|0) == 0 ) ),
+                N1 = ( ~M1 & N1 ) | M1 & ( N1 + ( (N2|0) == 0 ) ),
                 N0 = ( ~M0 & N0 ) | M0 & ( N0 + ( (N1|0) == 0 ) );
 
                 S0 = S0 ^ x0,
@@ -466,8 +474,7 @@ var AES_asm = function () {
              * GCM mode MAC calculation
              * @private
              */
-            function _gcm_mac ( r, x0, x1, x2, x3 ) {
-                r = r|0;
+            function _gcm_mac ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
                 x1 = x1|0;
                 x2 = x2|0;
@@ -477,10 +484,10 @@ var AES_asm = function () {
                     z0 = 0, z1 = 0, z2 = 0, z3 = 0,
                     i = 0, c = 0;
 
-                x0 = x0 ^ T0,
-                x1 = x1 ^ T1,
-                x2 = x2 ^ T2,
-                x3 = x3 ^ T3;
+                x0 = x0 ^ I0,
+                x1 = x1 ^ I1,
+                x2 = x2 ^ I2,
+                x3 = x3 ^ I3;
 
                 y0 = H0|0,
                 y1 = H1|0,
@@ -510,10 +517,19 @@ var AES_asm = function () {
                     if ( c ) x0 = x0 ^ 0xe1000000;
                 }
 
-                T0 = z0,
-                T1 = z1,
-                T2 = z2,
-                T3 = z3;
+                I0 = z0,
+                I1 = z1,
+                I2 = z2,
+                I3 = z3;
+            }
+
+            /**
+             * Set the internal rounds number
+             * @public
+             */
+            function set_rounds ( r ) {
+                r = r|0;
+                R = r;
             }
 
             /**
@@ -526,7 +542,10 @@ var AES_asm = function () {
                 x2 = x2|0;
                 x3 = x3|0;
 
-                S0 = x0, S1 = x1, S2 = x2, S3 = x3;
+                S0 = x0,
+                S1 = x1,
+                S2 = x2,
+                S3 = x3;
             }
 
             /**
@@ -539,7 +558,10 @@ var AES_asm = function () {
                 x2 = x2|0;
                 x3 = x3|0;
 
-                T0 = x0, T1 = x1, T2 = x2, T3 = x3;
+                I0 = x0,
+                I1 = x1,
+                I2 = x2,
+                I3 = x3;
             }
 
             /**
@@ -552,7 +574,10 @@ var AES_asm = function () {
                 n2 = n2|0;
                 n3 = n3|0;
 
-                N0 = n0, N1 = n1, N2 = n2, N3 = n3;
+                N0 = n0,
+                N1 = n1,
+                N2 = n2,
+                N3 = n3;
             }
 
             /**
@@ -565,7 +590,10 @@ var AES_asm = function () {
                 m2 = m2|0;
                 m3 = m3|0;
 
-                M0 = m0, M1 = m1, M2 = m2, M3 = m3;
+                M0 = m0,
+                M1 = m1,
+                M2 = m2,
+                M3 = m3;
             }
 
             /**
@@ -578,9 +606,9 @@ var AES_asm = function () {
                 c2 = c2|0;
                 c3 = c3|0;
 
-                N3 = ( ~M3 & N3 ) | M3 & c3;
-                N2 = ( ~M2 & N2 ) | M2 & c2;
-                N1 = ( ~M1 & N1 ) | M1 & c1;
+                N3 = ( ~M3 & N3 ) | M3 & c3,
+                N2 = ( ~M2 & N2 ) | M2 & c2,
+                N1 = ( ~M1 & N1 ) | M1 & c1,
                 N0 = ( ~M0 & N0 ) | M0 & c0;
             }
 
@@ -624,22 +652,22 @@ var AES_asm = function () {
 
                 if ( pos & 15 ) return -1;
 
-                DATA[pos|0] = T0>>>24,
-                DATA[pos|1] = T0>>>16&255,
-                DATA[pos|2] = T0>>>8&255,
-                DATA[pos|3] = T0&255,
-                DATA[pos|4] = T1>>>24,
-                DATA[pos|5] = T1>>>16&255,
-                DATA[pos|6] = T1>>>8&255,
-                DATA[pos|7] = T1&255,
-                DATA[pos|8] = T2>>>24,
-                DATA[pos|9] = T2>>>16&255,
-                DATA[pos|10] = T2>>>8&255,
-                DATA[pos|11] = T2&255,
-                DATA[pos|12] = T3>>>24,
-                DATA[pos|13] = T3>>>16&255,
-                DATA[pos|14] = T3>>>8&255,
-                DATA[pos|15] = T3&255;
+                DATA[pos|0] = I0>>>24,
+                DATA[pos|1] = I0>>>16&255,
+                DATA[pos|2] = I0>>>8&255,
+                DATA[pos|3] = I0&255,
+                DATA[pos|4] = I1>>>24,
+                DATA[pos|5] = I1>>>16&255,
+                DATA[pos|6] = I1>>>8&255,
+                DATA[pos|7] = I1&255,
+                DATA[pos|8] = I2>>>24,
+                DATA[pos|9] = I2>>>16&255,
+                DATA[pos|10] = I2>>>8&255,
+                DATA[pos|11] = I2&255,
+                DATA[pos|12] = I3>>>24,
+                DATA[pos|13] = I3>>>16&255,
+                DATA[pos|14] = I3>>>8&255,
+                DATA[pos|15] = I3&255;
 
                 return 16;
             }
@@ -648,9 +676,8 @@ var AES_asm = function () {
              * GCM initialization
              * @public
              */
-            function gcm_init ( ks ) {
-                ks = ks|0;
-                _ecb_enc( (ks + 5)|0, 0, 0, 0, 0 );
+            function gcm_init ( ) {
+                _ecb_enc( 0, 0, 0, 0 );
                 H0 = S0,
                 H1 = S1,
                 H2 = S2,
@@ -660,27 +687,22 @@ var AES_asm = function () {
             /**
              * Perform ciphering operation on the supplied data
              * @public
-             * @param {int} ks — key size, 4/6/8
              * @param {int} mode — block cipher mode (see mode constants)
              * @param {int} pos — offset of the data being processed
              * @param {int} len — length of the data being processed
              * @return {int} actual amount of the data processed
              */
-            function cipher ( ks, mode, pos, len ) {
-                ks = ks|0;
+            function cipher ( mode, pos, len ) {
                 mode = mode|0;
                 pos = pos|0;
                 len = len|0;
 
-                var ret = 0, r = 0;
+                var ret = 0;
 
                 if ( pos & 15 ) return -1;
 
-                r = (ks + 5)|0;
-
                 while ( (len|0) >= 16 ) {
                     _cipher_modes[mode&7](
-                        r,
                         DATA[pos|0]<<24 | DATA[pos|1]<<16 | DATA[pos|2]<<8 | DATA[pos|3],
                         DATA[pos|4]<<24 | DATA[pos|5]<<16 | DATA[pos|6]<<8 | DATA[pos|7],
                         DATA[pos|8]<<24 | DATA[pos|9]<<16 | DATA[pos|10]<<8 | DATA[pos|11],
@@ -715,27 +737,22 @@ var AES_asm = function () {
             /**
              * Calculates MAC of the supplied data
              * @public
-             * @param {int} ks — key size, 4/6/8
              * @param {int} mode — block cipher mode (see mode constants)
              * @param {int} pos — offset of the data being processed
              * @param {int} len — length of the data being processed
              * @return {int} actual amount of the data processed
              */
-            function mac ( ks, mode, pos, len ) {
-                ks = ks|0;
+            function mac ( mode, pos, len ) {
                 mode = mode|0;
                 pos = pos|0;
                 len = len|0;
 
-                var ret = 0, r = 0;
+                var ret = 0;
 
                 if ( pos & 15 ) return -1;
 
-                r = (ks + 5)|0;
-
                 while ( (len|0) >= 16 ) {
                     _mac_modes[mode&1](
-                        r,
                         DATA[pos|0]<<24 | DATA[pos|1]<<16 | DATA[pos|2]<<8 | DATA[pos|3],
                         DATA[pos|4]<<24 | DATA[pos|5]<<16 | DATA[pos|6]<<8 | DATA[pos|7],
                         DATA[pos|8]<<24 | DATA[pos|9]<<16 | DATA[pos|10]<<8 | DATA[pos|11],
@@ -766,6 +783,7 @@ var AES_asm = function () {
              * Asm.js module exports
              */
             return {
+                set_rounds: set_rounds,
                 set_state:  set_state,
                 set_iv:     set_iv,
                 set_nonce:  set_nonce,
@@ -785,26 +803,37 @@ var AES_asm = function () {
     };
 
     /**
-     * AES cipher mode constants
+     * AES enciphering mode constants
      * @public
      */
-    wrapper.ECB_ENC = 0,
-    wrapper.ECB_DEC = 1,
-    wrapper.CBC_ENC = 2,
-    wrapper.CBC_DEC = 3,
-    wrapper.CFB_ENC = 4,
-    wrapper.CFB_DEC = 5,
-    wrapper.OFB_ENC = 6,
-    wrapper.OFB_DEC = 6,
-    wrapper.CTR_ENC = 7,
-    wrapper.CTR_DEC = 7;
+    wrapper.ENC = {
+        ECB: 0,
+        CBC: 2,
+        CFB: 4,
+        OFB: 6,
+        CTR: 7
+    },
+
+    /**
+     * AES deciphering mode constants
+     * @public
+     */
+    wrapper.DEC = {
+        ECB: 1,
+        CBC: 3,
+        CFB: 5,
+        OFB: 6,
+        CTR: 7
+    },
 
     /**
      * AES MAC mode constants
      * @public
      */
-    wrapper.CBC_MAC = 0,
-    wrapper.GCM_MAC = 1;
+    wrapper.MAC = {
+        CBC: 0,
+        GCM: 1
+    };
 
     /**
      * Heap data offset

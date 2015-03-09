@@ -58,7 +58,7 @@ testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
         "AES-128: decryption key schedule ok"
     );
 
-    aes.cipher( 4, AES_asm.ECB_ENC, AES_asm.HEAP_DATA, 16 );
+    aes.cipher( AES_asm.ENC.ECB, AES_asm.HEAP_DATA, 16 );
 
     equal(
         asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
@@ -66,7 +66,7 @@ testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
         "AES-128: encrypt ok"
     );
 
-    aes.cipher( 4, AES_asm.ECB_DEC, AES_asm.HEAP_DATA, 16 );
+    aes.cipher( AES_asm.DEC.ECB, AES_asm.HEAP_DATA, 16 );
 
     equal(
         asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
@@ -120,7 +120,7 @@ testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
         "AES-192: decryption key schedule ok"
     );
 
-    aes.cipher( 6, AES_asm.ECB_ENC, AES_asm.HEAP_DATA, 16 );
+    aes.cipher( AES_asm.ENC.ECB, AES_asm.HEAP_DATA, 16 );
 
     equal(
         asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
@@ -128,7 +128,7 @@ testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
         "AES-192: encrypt ok"
     );
 
-    aes.cipher( 6, AES_asm.ECB_DEC, AES_asm.HEAP_DATA, 16 );
+    aes.cipher( AES_asm.DEC.ECB, AES_asm.HEAP_DATA, 16 );
 
     equal(
         asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
@@ -186,7 +186,7 @@ testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
         "AES-256: decryption key schedule ok"
     );
 
-    aes.cipher( 8, AES_asm.ECB_ENC, AES_asm.HEAP_DATA, 16 );
+    aes.cipher( AES_asm.ENC.ECB, AES_asm.HEAP_DATA, 16 );
 
     equal(
         asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
@@ -194,7 +194,7 @@ testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
         "AES-256: encrypt ok"
     );
 
-    aes.cipher( 8, AES_asm.ECB_DEC, AES_asm.HEAP_DATA, 16 );
+    aes.cipher( AES_asm.DEC.ECB, AES_asm.HEAP_DATA, 16 );
 
     equal(
         asmCrypto.bytes_to_hex( heap.subarray( AES_asm.HEAP_DATA, AES_asm.HEAP_DATA+16 ) ),
