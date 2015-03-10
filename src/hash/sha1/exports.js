@@ -17,8 +17,8 @@ function sha1_base64 ( data ) {
     return bytes_to_base64(result);
 }
 
-exports.SHA1 = {
-    bytes: sha1_bytes,
-    hex: sha1_hex,
-    base64: sha1_base64
-};
+sha1_constructor.bytes = sha1_bytes;
+sha1_constructor.hex = sha1_hex;
+sha1_constructor.base64 = sha1_base64;
+
+exports.SHA1 = sha1_constructor;

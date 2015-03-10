@@ -1,35 +1,15 @@
-var _aes_block_size = 16;
-
-function _aes_constructor ( options ) {
+function AES ( options ) {
     options = options || {};
-    options.heapSize = options.heapSize || 4096;
 
-    if ( options.heapSize <= 0 || options.heapSize % 4096 )
-        throw new IllegalArgumentError("heapSize must be a positive number and multiple of 4096");
-
-    this.BLOCK_SIZE = _aes_block_size;
-
-    this.heap = options.heap || new Uint8Array(options.heapSize);
-    this.asm = options.asm || aes_asm( global, null, this.heap.buffer );
-    this.pos = _aes_heap_start;
-    this.len = 0;
-
+    this.heap = _heap_init( Uint8Array, options ).subarray( AES_asm.HEAP_DATA );
+    this.asm = options.asm || AES_asm( global, null, this.heap.buffer );
+    this.mode = null;
     this.key = null;
-    this.result = null;
 
     this.reset( options );
 }
 
-function _aes_reset ( options ) {
-    options = options || {};
-
-    this.result = null;
-    this.pos = _aes_heap_start;
-    this.len = 0;
-
-    var asm = this.asm;
-
-    var key = options.key;
+function AES_set_key ( key ) {
     if ( key !== undefined ) {
         if ( is_buffer(key) || is_bytes(key) ) {
             key = new Uint8Array(key);
@@ -41,29 +21,31 @@ function _aes_reset ( options ) {
             throw new TypeError("unexpected key type");
         }
 
-        if ( key.length === 16 ) {
-            asm.init_key_128.call(asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
-        }
-        else if ( key.length === 24 ) {
-            // TODO support of 192-bit keys
+        var keylen = key.length;
+        if ( keylen !== 16 && keylen !== 24 && keylen !== 32 )
             throw new IllegalArgumentError("illegal key size");
-        }
-        else if ( key.length === 32 ) {
-            asm.init_key_256.call(asm, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15], key[16], key[17], key[18], key[19], key[20], key[21], key[22], key[23], key[24], key[25], key[26], key[27], key[28], key[29], key[30], key[31]);
-        }
-        else {
-            throw new IllegalArgumentError("illegal key size");
-        }
+
+        var keyview = new DataView( key.buffer, key.byteOffset, key.byteLength );
+        this.asm.set_key(
+            keylen >> 2,
+            keyview.getUint32(0),
+            keyview.getUint32(4),
+            keyview.getUint32(8),
+            keyview.getUint32(12),
+            keylen > 16 ? keyview.getUint32(16) : 0,
+            keylen > 16 ? keyview.getUint32(20) : 0,
+            keylen > 24 ? keyview.getUint32(24) : 0,
+            keylen > 24 ? keyview.getUint32(28) : 0
+        );
 
         this.key = key;
     }
-
-    return this;
+    else if ( !this.key ) {
+        throw new Error("key is required");
+    }
 }
 
-function _aes_init_iv ( iv ) {
-    var asm = this.asm;
-
+function AES_set_iv ( iv ) {
     if ( iv !== undefined ) {
         if ( is_buffer(iv) || is_bytes(iv) ) {
             iv = new Uint8Array(iv);
@@ -75,23 +57,253 @@ function _aes_init_iv ( iv ) {
             throw new TypeError("unexpected iv type");
         }
 
-        if ( iv.length !== _aes_block_size )
+        if ( iv.length !== 16 )
             throw new IllegalArgumentError("illegal iv size");
 
+        var ivview = new DataView( iv.buffer, iv.byteOffset, iv.byteLength );
+
         this.iv = iv;
-        asm.init_state.call( asm, iv[0], iv[1], iv[2], iv[3], iv[4], iv[5], iv[6], iv[7], iv[8], iv[9], iv[10], iv[11], iv[12], iv[13], iv[14], iv[15] );
+        this.asm.set_iv( ivview.getUint32(0), ivview.getUint32(4), ivview.getUint32(8), ivview.getUint32(12) );
     }
     else {
         this.iv = null;
-        asm.init_state.call( asm, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+        this.asm.set_iv( 0, 0, 0, 0 );
     }
 }
 
-function _aes_heap_write ( heap, hpos, data, dpos, dlen ) {
-    var hlen = heap.length - hpos,
-        wlen = ( hlen < dlen ) ? hlen : dlen;
+function AES_set_padding ( padding ) {
+    if ( padding !== undefined ) {
+        this.padding = !!padding;
+    }
+    else {
+        this.padding = true;
+    }
+}
 
-    heap.set( data.subarray( dpos, dpos+wlen ), hpos );
+function AES_reset ( options ) {
+    options = options || {};
 
-    return wlen;
+    this.result = null;
+    this.pos = 0;
+    this.len = 0;
+
+    AES_set_key.call( this, options.key );
+    if ( this.hasOwnProperty('iv') ) AES_set_iv.call( this, options.iv );
+    if ( this.hasOwnProperty('padding') ) AES_set_padding.call( this, options.padding );
+
+    return this;
+}
+
+function AES_Encrypt_process ( data ) {
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
+    var asm = this.asm,
+        heap = this.heap,
+        amode = AES_asm.ENC[this.mode],
+        hpos = AES_asm.HEAP_DATA,
+        pos = this.pos,
+        len = this.len,
+        dpos = 0,
+        dlen = data.length || 0,
+        rpos = 0,
+        rlen = (len + dlen) & -16,
+        wlen = 0;
+
+    var result = new Uint8Array(rlen);
+
+    while ( dlen > 0 ) {
+        wlen = _heap_write( heap, pos+len, data, dpos, dlen );
+        len  += wlen;
+        dpos += wlen;
+        dlen -= wlen;
+
+        wlen = asm.cipher( amode, hpos + pos, len );
+
+        if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
+        rpos += wlen;
+
+        if ( wlen < len ) {
+            pos += wlen;
+            len -= wlen;
+        } else {
+            pos = 0;
+            len = 0;
+        }
+    }
+
+    this.result = result;
+    this.pos = pos;
+    this.len = len;
+
+    return this;
+}
+
+function AES_Encrypt_finish ( data ) {
+    var presult = null,
+        prlen = 0;
+
+    if ( data !== undefined ) {
+        presult = AES_Encrypt_process.call( this, data ).result;
+        prlen = presult.length;
+    }
+
+    var asm = this.asm,
+        heap = this.heap,
+        amode = AES_asm.ENC[this.mode],
+        hpos = AES_asm.HEAP_DATA,
+        pos = this.pos,
+        len = this.len,
+        plen = 16 - len % 16,
+        rlen = len;
+
+    if ( this.hasOwnProperty('padding') ) {
+        if ( this.padding ) {
+            for ( var p = 0; p < plen; ++p ) heap[ pos + len + p ] = plen;
+            len += plen;
+            rlen = len;
+        }
+        else if ( len % 16 ) {
+            throw new IllegalArgumentError("data length must be a multiple of the block size");
+        }
+    }
+    else {
+        len += plen;
+    }
+
+    var result = new Uint8Array( prlen + rlen );
+
+    if ( prlen ) result.set( presult );
+
+    if ( len ) asm.cipher( amode, hpos + pos, len );
+
+    if ( rlen ) result.set( heap.subarray( pos, pos + rlen ), prlen );
+
+    this.result = result;
+    this.pos = 0;
+    this.len = 0;
+
+    return this;
+}
+
+function AES_Decrypt_process ( data ) {
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
+    var asm = this.asm,
+        heap = this.heap,
+        amode = AES_asm.DEC[this.mode],
+        hpos = AES_asm.HEAP_DATA,
+        pos = this.pos,
+        len = this.len,
+        dpos = 0,
+        dlen = data.length || 0,
+        rpos = 0,
+        rlen = (len + dlen) & -16,
+        plen = 0,
+        wlen = 0;
+
+    if ( this.hasOwnProperty('padding') && this.padding ) {
+        plen = len + dlen - rlen || 16;
+        rlen -= plen;
+    }
+
+    var result = new Uint8Array(rlen);
+
+    while ( dlen > 0 ) {
+        wlen = _heap_write( heap, pos+len, data, dpos, dlen );
+        len  += wlen;
+        dpos += wlen;
+        dlen -= wlen;
+
+        wlen = asm.cipher( amode, hpos + pos, len - ( !dlen ? plen : 0 ) );
+
+        if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
+        rpos += wlen;
+
+        if ( wlen < len ) {
+            pos += wlen;
+            len -= wlen;
+        } else {
+            pos = 0;
+            len = 0;
+        }
+    }
+
+    this.result = result;
+    this.pos = pos;
+    this.len = len;
+
+    return this;
+}
+
+function AES_Decrypt_finish ( data ) {
+    var presult = null,
+        prlen = 0;
+
+    if ( data !== undefined ) {
+        presult = AES_Decrypt_process.call( this, data ).result;
+        prlen = presult.length;
+    }
+
+    var asm = this.asm,
+        heap = this.heap,
+        amode = AES_asm.DEC[this.mode],
+        hpos = AES_asm.HEAP_DATA,
+        pos = this.pos,
+        len = this.len,
+        rlen = len;
+
+    if ( len > 0 ) {
+        if ( len % 16 ) {
+            if ( this.hasOwnProperty('padding') ) {
+                throw new IllegalArgumentError("data length must be a multiple of the block size");
+            } else {
+                len += 16 - len % 16;
+            }
+        }
+
+        asm.cipher( amode, hpos + pos, len );
+
+        if ( this.hasOwnProperty('padding') && this.padding ) {
+            var pad = heap[ pos + rlen - 1 ];
+            if ( pad < 1 || pad > 16 || pad > rlen )
+                throw new SecurityError("bad padding");
+
+            var pcheck = 0;
+            for ( var i = pad; i > 1; i-- ) pcheck |= pad ^ heap[ pos + rlen - i ];
+            if ( pcheck )
+                throw new SecurityError("bad padding");
+
+            rlen -= pad;
+        }
+    }
+
+    var result = new Uint8Array( prlen + rlen );
+
+    if ( prlen > 0 ) {
+        result.set( presult );
+    }
+
+    if ( rlen > 0 ) {
+        result.set( heap.subarray( pos, pos + rlen ), prlen );
+    }
+
+    this.result = result;
+    this.pos = 0;
+    this.len = 0;
+
+    return this;
 }

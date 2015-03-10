@@ -45,38 +45,44 @@ var modules = [
     },
     {
         name: 'aes-ecb',
-        files: [ 'src/aes/aes-ecb.js' ],
+        files: [ 'src/aes/ecb/ecb.js' ],
         depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-ecb-exports' ]
     },
     {
         name: 'aes-cbc',
-        files: [ 'src/aes/aes-cbc.js' ],
+        files: [ 'src/aes/cbc/cbc.js' ],
         depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-cbc-exports' ]
     },
     {
         name: 'aes-cfb',
-        files: [ 'src/aes/aes-cfb.js' ],
+        files: [ 'src/aes/cfb/cfb.js' ],
         depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-cfb-exports' ]
     },
     {
+        name: 'aes-ofb',
+        files: [ 'src/aes/ofb/ofb.js' ],
+        depends: [ 'aes' ],
+        implies: [ 'aes-exports', 'aes-ofb-exports' ]
+    },
+    {
         name: 'aes-ctr',
-        files: [ 'src/aes/aes-ctr.js' ],
+        files: [ 'src/aes/ctr/ctr.js' ],
         depends: [ 'aes' ],
         implies: [ 'aes-exports', 'aes-ctr-exports' ]
     },
     {
         name: 'aes-ccm',
-        files: [ 'src/aes/aes-ccm.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/ccm/ccm.js' ],
+        depends: [ 'aes', 'aes-ctr' ],
         implies: [ 'aes-exports', 'aes-ccm-exports' ]
     },
     {
         name: 'aes-gcm',
-        files: [ 'src/aes/aes-gcm.js' ],
-        depends: [ 'aes' ],
+        files: [ 'src/aes/gcm/gcm.js' ],
+        depends: [ 'aes', 'aes-ctr' ],
         implies: [ 'aes-exports', 'aes-gcm-exports' ]
     },
     {
@@ -86,65 +92,75 @@ var modules = [
     },
     {
         name: 'aes-ecb-exports',
-        files: [ 'src/aes/exports-ecb.js' ],
+        files: [ 'src/aes/ecb/exports.js' ],
         depends: [ 'aes-ecb', 'aes-exports' ]
     },
     {
         name: 'aes-cbc-exports',
-        files: [ 'src/aes/exports-cbc.js' ],
+        files: [ 'src/aes/cbc/exports.js' ],
         depends: [ 'aes-cbc', 'aes-exports' ]
     },
     {
         name: 'aes-cfb-exports',
-        files: [ 'src/aes/exports-cfb.js' ],
+        files: [ 'src/aes/cfb/exports.js' ],
         depends: [ 'aes-cfb', 'aes-exports' ]
     },
     {
+        name: 'aes-ofb-exports',
+        files: [ 'src/aes/ofb/exports.js' ],
+        depends: [ 'aes-ofb', 'aes-exports' ]
+    },
+    {
         name: 'aes-ctr-exports',
-        files: [ 'src/aes/exports-ctr.js' ],
+        files: [ 'src/aes/ctr/exports.js' ],
         depends: [ 'aes-ctr', 'aes-exports' ]
     },
     {
         name: 'aes-ccm-exports',
-        files: [ 'src/aes/exports-ccm.js' ],
+        files: [ 'src/aes/ccm/exports.js' ],
         depends: [ 'aes-ccm', 'aes-exports' ]
     },
     {
         name: 'aes-gcm-exports',
-        files: [ 'src/aes/exports-gcm.js' ],
+        files: [ 'src/aes/gcm/exports.js' ],
         depends: [ 'aes-gcm', 'aes-exports' ]
     },
     {
+        name: 'hash',
+        files: [ 'src/hash/hash.js' ],
+        depends: [ 'common', 'utils' ]
+    },
+    {
         name: 'sha1',
-        files: [ 'src/sha1/sha1.asm.js', 'src/sha1/sha1.js' ],
-        depends: [ 'common', 'utils' ],
+        files: [ 'src/hash/sha1/sha1.asm.js', 'src/hash/sha1/sha1.js' ],
+        depends: [ 'common', 'hash', 'utils' ],
         implies: [ 'sha1-exports' ]
     },
     {
         name: 'sha1-exports',
-        files: [ 'src/sha1/exports.js' ],
+        files: [ 'src/hash/sha1/exports.js' ],
         depends: [ 'sha1' ]
     },
     {
         name: 'sha256',
-        files: [ 'src/sha256/sha256.asm.js', 'src/sha256/sha256.js' ],
-        depends: [ 'common', 'utils' ],
+        files: [ 'src/hash/sha256/sha256.asm.js', 'src/hash/sha256/sha256.js' ],
+        depends: [ 'common', 'hash', 'utils' ],
         implies: [ 'sha256-exports' ]
     },
     {
         name: 'sha256-exports',
-        files: [ 'src/sha256/exports.js' ],
+        files: [ 'src/hash/sha256/exports.js' ],
         depends: [ 'sha256' ],
     },
     {
         name: 'sha512',
-        files: [ 'src/sha512/sha512.asm.js', 'src/sha512/sha512.js' ],
-        depends: [ 'common', 'utils' ],
+        files: [ 'src/hash/sha512/sha512.asm.js', 'src/hash/sha512/sha512.js' ],
+        depends: [ 'common', 'hash', 'utils' ],
         implies: [ 'sha512-exports' ]
     },
     {
         name: 'sha512-exports',
-        files: [ 'src/sha512/exports.js' ],
+        files: [ 'src/hash/sha512/exports.js' ],
         depends: [ 'sha512' ]
     },
     {
@@ -352,6 +368,7 @@ var browsers = [
 // Grunt setup
 module.exports = function ( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
@@ -434,27 +451,29 @@ module.exports = function ( grunt ) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        uglify: {
+        concat: {
+            options: {
+                banner: "!function ( exports, global ) {\n\n",
+                footer: "\nglobal.asmCrypto=exports;\n}( {}, function(){return this}() );",
+                sourceMap: true,
+                sourceMapStyle: 'link'
+            },
             devel: {
-                options: {
-                    mangle: false,
-                    compress: false,
-                    beautify: true,
-                    sourceMap: 'asmcrypto.js.map',
-                    wrap: 'asmCrypto'
-                },
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
                 }
+            }
+        },
+
+        uglify: {
+            options: {
+                mangle: true,
+                compress: true,
+                wrap: 'asmCrypto',
+                sourceMap: true,
+                sourceMapIncludeSources: true
             },
             release: {
-                options: {
-                    mangle: true,
-                    compress: true,
-                    beautify: false,
-                    sourceMap: 'asmcrypto.js.map',
-                    wrap: 'asmCrypto'
-                },
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
                 }
@@ -496,7 +515,7 @@ module.exports = function ( grunt ) {
         watch: {
             all: {
                 files: '<%= sources.files %>',
-                tasks: ['sources','uglify:devel']
+                tasks: ['sources','concat']
             }
         },
 
@@ -507,8 +526,8 @@ module.exports = function ( grunt ) {
     });
 
     grunt.registerTask('sources', sources);
-    grunt.registerTask('default', ['sources','uglify:release']);
-    grunt.registerTask('devel', ['sources','uglify:devel','connect','watch']);
+    grunt.registerTask('default', ['sources','uglify']);
+    grunt.registerTask('devel', ['sources','concat','connect','watch']);
     grunt.registerTask('test', ['connect','qunit']);
     grunt.registerTask('sauce', ['connect','saucelabs-qunit']);
 };

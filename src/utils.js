@@ -1,5 +1,3 @@
-"use strict";
-
 var FloatArray = global.Float64Array || global.Float32Array; // make PhantomJS happy
 
 function string_to_bytes ( str ) {
@@ -84,4 +82,25 @@ function is_typed_array ( a ) {
         || ( a instanceof Int32Array ) || ( a instanceof Uint32Array )
         || ( a instanceof Float32Array )
         || ( a instanceof Float64Array );
+}
+
+function _heap_init ( constructor, options ) {
+    var heap = options.heap,
+        size = heap ? heap.byteLength : options.heapSize || 65536;
+
+    if ( size & 0xfff || size <= 0 )
+        throw new Error("heap size must be a positive integer and a multiple of 4096");
+
+    heap = heap || new constructor( new ArrayBuffer(size) );
+
+    return heap;
+}
+
+function _heap_write ( heap, hpos, data, dpos, dlen ) {
+    var hlen = heap.length - hpos,
+        wlen = ( hlen < dlen ) ? hlen : dlen;
+
+    heap.set( data.subarray( dpos, dpos+wlen ), hpos );
+
+    return wlen;
 }

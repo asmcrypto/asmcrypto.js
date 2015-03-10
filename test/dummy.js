@@ -123,3 +123,11 @@ if ( asmCrypto.string_to_bytes ) {
 else {
     skip("asmCrypto.string_to_bytes()");
 }
+
+testIf( true, "Conditional test should pass", function () {
+    ok( true, "Passed!" );
+});
+
+testIf( false, "Conditional test should skip", function () {
+    ok( false, "Failed!" );
+});

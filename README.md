@@ -31,14 +31,20 @@ Index
         * [PBKDF2-HMAC-SHA256](#pbkdf2_hmac_sha256)
         * [PBKDF2-HMAC-SHA512](#pbkdf2_hmac_sha512)
     * [Block Cipher](#aes)
+        * [AES-EBC](#aes_ecb)
         * [AES-CBC](#aes_cbc)
         * [AES-CFB](#aes_cfb)
+        * [AES-OFB](#aes_ofb)
+        * [AES-CTR](#aes_ctr)
         * [AES-CCM](#aes_ccm)
+        * [AES-GCM](#aes_gcm)
     * [Asymmetric encryption](#rsa)
         * [RSA](#rsa)
+        * [RSA-OAEP-SHA1](#rsa_oaep_sha1)
         * [RSA-OAEP-SHA256](#rsa_oaep_sha256)
-        * [RSA-OAEP-SHA512](#rsa_oaep_sha256)
-        * [RSA-PSS-SHA256](#rsa_pss_sha512)
+        * [RSA-OAEP-SHA512](#rsa_oaep_sha512)
+        * [RSA-PSS-SHA1](#rsa_pss_sha1)
+        * [RSA-PSS-SHA256](#rsa_pss_sha256)
         * [RSA-PSS-SHA512](#rsa_pss_sha512)
     * [Cryptographically secure pseudorandom number generator](#cryptographically-secure-pseudorandom-number-generator)
 * [Bugs & TODO](#bugs--todo)
@@ -379,12 +385,14 @@ The same as above except returning value type.
 
 Advanced Encryption Standard
 
-#### AES.BLOCK_SIZE = 16
+#### AES_ECB
+
+TODO
 
 #### AES_CBC
 
 Cipher Block Chaining Mode.
-s
+
 ##### AES_CBC.encrypt( data, key, padding, iv )
 
 Encrypts supplied `data` with `key` in CBC mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
@@ -405,21 +413,45 @@ Returns encrypted data as `Uint8Array`.
 
 Cipher Feedback Mode.
 
-##### AES_CFB.encrypt( data, key, padding, iv )
+##### AES_CFB.encrypt( data, key, iv )
 
 Encrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
 
 Returns encrypted data as `Uint8Array`.
 
-##### AES_CFB.decrypt( data, key, padding, iv )
+##### AES_CFB.decrypt( data, key, iv )
 
 Decrypts supplied `data` with `key` in CFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
 
-Optional `padding` and `iv` may be passed to override default settings (PKCS#7 padding is on and iv is zero-vector).
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
 
 Returns encrypted data as `Uint8Array`.
+
+#### AES_OFB
+
+Output Feedback Mode.
+
+##### AES_OFB.encrypt( data, key, iv )
+
+Encrypts supplied `data` with `key` in OFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
+
+Returns encrypted data as `Uint8Array`.
+
+##### AES_OFB.decrypt( data, key, iv )
+
+Decrypts supplied `data` with `key` in OFB mode. Both can be either binary strings or `Uint8Array` objects or `ArrayBuffer` objects.
+
+Optional `iv` may be passed to override default settings (zero-vector `iv`).
+
+Returns encrypted data as `Uint8Array`.
+
+#### AES_CTR
+
+TODO
 
 #### AES_CCM
 
@@ -446,13 +478,25 @@ Decrypts supplied `data` with `key`-`nonce` in CCM mode.
 
 Returns encrypted data as `Uint8Array`.
 
+#### AES_GCM
+
+TODO
+
 ### RSA
 
 #### RSA.generateKey( bitlen, pubexp )
 
 Generate RSA private key of `bitlen` length along with the public exponent `pubexp`.
 
-Run 50 rounds of Miller-Rabin test for each prime candidate.
+#### RSA_OAEP_SHA1
+
+##### RSA_OAEP_SHA1.encrypt( data, key, label )
+
+TODO
+
+##### RSA_OAEP_SHA1.decrypt( data, key, label )
+
+TODO
 
 #### RSA_OAEP_SHA256
 
@@ -471,6 +515,16 @@ TODO
 TODO
 
 ##### RSA_OAEP_SHA512.decrypt( data, key, label )
+
+TODO
+
+#### RSA_PSS_SHA1
+
+##### RSA_PSS_SHA1.sign( data, key, slen )
+
+TODO
+
+##### RSA_PSS_SHA1.verify( signature, data, key, slen )
 
 TODO
 
@@ -496,7 +550,23 @@ TODO
 
 ### Cryptographically secure pseudorandom number generator
 
-TODO
+ISAAC-based CSPRG
+
+##### random.getValues( buffer )
+
+Drop-in replacement for `window.crypto.getRandomValues`
+
+##### random.getValues.seed( seed )
+
+Perform PRNG seeding.
+
+##### random.getValues.allowWeak = false
+
+Allow implicitly-only seeded random output.
+
+##### random.getValues.skipSystemRNGWarning = false
+
+Disable implicit seeding warning when it's not desirable, e.g. at a unit test run.
 
 Bugs & TODO
 -----------
@@ -505,7 +575,6 @@ Bugs & TODO
 * Moar docs needed ☺
 
 Not yet implemented:
-* aes-gcm,
 * scrypt,
 * dsa, ecdsa,
 * rsa-pkcs-v1.5

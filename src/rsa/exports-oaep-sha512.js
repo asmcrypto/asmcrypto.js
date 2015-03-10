@@ -14,6 +14,8 @@ function rsa_oaep_sha512_decrypt_bytes ( data, key, label ) {
     return (new RSA_OAEP({ hash: get_sha512_instance(), key: key, label: label })).decrypt(data).result;
 }
 
+exports.RSA_OAEP = RSA_OAEP;
+
 exports.RSA_OAEP_SHA512 = {
     encrypt: rsa_oaep_sha512_encrypt_bytes,
     decrypt: rsa_oaep_sha512_decrypt_bytes
