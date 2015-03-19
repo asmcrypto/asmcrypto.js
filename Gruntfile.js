@@ -374,6 +374,7 @@ module.exports = function ( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-saucelabs');
+    grunt.loadNpmTasks('grunt-jsdoc');
 
     function sources () {
         // Get the list of modules split by commas
@@ -480,6 +481,15 @@ module.exports = function ( grunt ) {
             }
         },
 
+        jsdoc: {
+            all: {
+                src: [ 'src/**/*.js', 'README.md' ],
+                options: {
+                    destination: 'doc'
+                }
+            }
+        },
+
         qunit: {
             all: {
                 options: {
@@ -521,7 +531,8 @@ module.exports = function ( grunt ) {
 
         clean: [
             'asmcrypto.js',
-            'asmcrypto.js.map'
+            'asmcrypto.js.map',
+            'doc/'
         ]
     });
 

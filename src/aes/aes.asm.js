@@ -1,36 +1,23 @@
 /**
- * Asm.js module w/ low-level core functions
- *
- * Heap layout:
- * 0x0000   encryption key schedule
- * 0x0400   decryption key schedule
- * 0x0800   sbox
- * 0x0c00   inv sbox
- * 0x1000   encryption tables
- * 0x2000   decryption tables
- * 0x3000   reserved (GCM multiplication table)
- * 0x4000   data
- *
- * @protected
+ * @file {@link http://asmjs.org Asm.js} implementation of the {@link https://en.wikipedia.org/wiki/Advanced_Encryption_Standard Advanced Encryption Standard}.
+ * @author Artem S Vybornov <vybornov@gmail.com>
+ * @license MIT
  */
 var AES_asm = function () {
     "use strict";
 
     /**
      * Galois Field stuff init flag
-     * @private
      */
     var ginit_done = false;
 
     /**
      * Galois Field exponentiation and logarithm tables for 3 (the generator)
-     * @private
      */
     var gexp3, glog3;
 
     /**
      * Init Galois Field tables
-     * @private
      */
     function ginit () {
         gexp3 = [],
@@ -56,10 +43,9 @@ var AES_asm = function () {
 
     /**
      * Galois Field multiplication
-     * @private
-     * @param {Number} a
-     * @param {Number} b
-     * @return {Number}
+     * @param {int} a
+     * @param {int} b
+     * @return {int}
      */
     function gmul ( a, b ) {
         var c = gexp3[ ( glog3[a] + glog3[b] ) % 255 ];
@@ -69,9 +55,8 @@ var AES_asm = function () {
 
     /**
      * Galois Field reciprocal
-     * @private
-     * @param {Number} a
-     * @return {Number}
+     * @param {int} a
+     * @return {int}
      */
     function ginv ( a ) {
         var i = gexp3[ 255 - glog3[a] ];
@@ -86,13 +71,11 @@ var AES_asm = function () {
 
     /**
      * Encryption, Decryption, S-Box and KeyTransform tables
-     * @private
      */
     var aes_sbox, aes_sinv, aes_enc, aes_dec;
 
     /**
      * Init AES tables
-     * @private
      */
     function aes_init () {
         if ( !ginit_done ) ginit();
@@ -133,7 +116,30 @@ var AES_asm = function () {
         }
     }
 
-    // Asm.js AES module wrapper
+    /**
+     * Asm.js module constructor.
+     *
+     * <p>
+     * Heap buffer layout by offset:
+     * <pre>
+     * 0x0000   encryption key schedule
+     * 0x0400   decryption key schedule
+     * 0x0800   sbox
+     * 0x0c00   inv sbox
+     * 0x1000   encryption tables
+     * 0x2000   decryption tables
+     * 0x3000   reserved (future GCM multiplication lookup table)
+     * 0x4000   data
+     * </pre>
+     * Don't touch anything before <code>0x400</code>.
+     * </p>
+     *
+     * @alias AES_asm
+     * @class
+     * @param {GlobalScope} stdlib - global scope object (e.g. <code>window</code>)
+     * @param {Object} foreign - <i>ignored</i>
+     * @param {ArrayBuffer} buffer - heap buffer to link with
+     */
     var wrapper = function ( stdlib, foreign, buffer ) {
         // Init AES stuff for the first time
         if ( !aes_init_done ) aes_init();
@@ -148,10 +154,11 @@ var AES_asm = function () {
         }
 
         /**
-         * Calculate AES key schedules
-         * @public
-         * @param {Number} ks — key size, 4/6/8 (for 128/192/256-bit key correspondingly).
-         * @param {Number} k0..k7 — key components.
+         * Calculate AES key schedules.
+         * @instance
+         * @memberof AES_asm
+         * @param {int} ks - key size, 4/6/8 (for 128/192/256-bit key correspondingly)
+         * @param {int} k0..k7 - key vector components
          */
         function set_key ( ks, k0, k1, k2, k3, k4, k5, k6, k7 ) {
             var ekeys = heap.subarray( 0x000, 60 ),
@@ -205,12 +212,11 @@ var AES_asm = function () {
 
             /**
              * AES core
-             * @private
-             * @param {int} k — precomputed key schedule offset
-             * @param {int} s — precomputed sbox table offset
-             * @param {int} t — precomputed round table offset
-             * @param {int} r — number of inner rounds to perform
-             * @param {int} x0..x3 — 128-bit input block
+             * @param {int} k - precomputed key schedule offset
+             * @param {int} s - precomputed sbox table offset
+             * @param {int} t - precomputed round table offset
+             * @param {int} r - number of inner rounds to perform
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _core ( k, s, t, r, x0, x1, x2, x3 ) {
                 k = k|0;
@@ -252,7 +258,7 @@ var AES_asm = function () {
 
             /**
              * ECB mode encryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _ecb_enc ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -272,7 +278,7 @@ var AES_asm = function () {
 
             /**
              * ECB mode decryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _ecb_dec ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -297,7 +303,7 @@ var AES_asm = function () {
 
             /**
              * CBC mode encryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _cbc_enc ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -322,7 +328,7 @@ var AES_asm = function () {
 
             /**
              * CBC mode decryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _cbc_dec ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -356,7 +362,7 @@ var AES_asm = function () {
 
             /**
              * CFB mode encryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _cfb_enc ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -382,7 +388,7 @@ var AES_asm = function () {
 
             /**
              * CFB mode decryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _cfb_dec ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -412,7 +418,7 @@ var AES_asm = function () {
 
             /**
              * OFB mode encryption / decryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _ofb ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -442,7 +448,7 @@ var AES_asm = function () {
 
             /**
              * CTR mode encryption / decryption
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _ctr ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -472,7 +478,7 @@ var AES_asm = function () {
 
             /**
              * GCM mode MAC calculation
-             * @private
+             * @param {int} x0..x3 - 128-bit input block vector
              */
             function _gcm_mac ( x0, x1, x2, x3 ) {
                 x0 = x0|0;
@@ -524,8 +530,10 @@ var AES_asm = function () {
             }
 
             /**
-             * Set the internal rounds number
-             * @public
+             * Set the internal rounds number.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} r - number if inner AES rounds
              */
             function set_rounds ( r ) {
                 r = r|0;
@@ -533,40 +541,46 @@ var AES_asm = function () {
             }
 
             /**
-             * Populate the internal state of the module
-             * @public
+             * Populate the internal state of the module.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} s0...s3 - state vector
              */
-            function set_state ( x0, x1, x2, x3 ) {
-                x0 = x0|0;
-                x1 = x1|0;
-                x2 = x2|0;
-                x3 = x3|0;
+            function set_state ( s0, s1, s2, s3 ) {
+                s0 = s0|0;
+                s1 = s1|0;
+                s2 = s2|0;
+                s3 = s3|0;
 
-                S0 = x0,
-                S1 = x1,
-                S2 = x2,
-                S3 = x3;
+                S0 = s0,
+                S1 = s1,
+                S2 = s2,
+                S3 = s3;
             }
 
             /**
-             * Populate the internal iv of the module
-             * @public
+             * Populate the internal iv of the module.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} i0...i3 - iv vector
              */
-            function set_iv ( x0, x1, x2, x3 ) {
-                x0 = x0|0;
-                x1 = x1|0;
-                x2 = x2|0;
-                x3 = x3|0;
+            function set_iv ( i0, i1, i2, i3 ) {
+                i0 = i0|0;
+                i1 = i1|0;
+                i2 = i2|0;
+                i3 = i3|0;
 
-                I0 = x0,
-                I1 = x1,
-                I2 = x2,
-                I3 = x3;
+                I0 = i0,
+                I1 = i1,
+                I2 = i2,
+                I3 = i3;
             }
 
             /**
-             * Set nonce for CTR-family modes
-             * @public
+             * Set nonce for CTR-family modes.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} n0..n3 - nonce vector
              */
             function set_nonce ( n0, n1, n2, n3 ) {
                 n0 = n0|0;
@@ -581,8 +595,10 @@ var AES_asm = function () {
             }
 
             /**
-             * Set counter mask for CTR-family modes
-             * @public
+             * Set counter mask for CTR-family modes.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} m0...m3 - counter mask vector
              */
             function set_mask ( m0, m1, m2, m3 ) {
                 m0 = m0|0;
@@ -597,8 +613,10 @@ var AES_asm = function () {
             }
 
             /**
-             * Set counter for CTR-family modes
-             * @public
+             * Set counter for CTR-family modes.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} c0...c3 - counter vector
              */
             function set_counter ( c0, c1, c2, c3 ) {
                 c0 = c0|0;
@@ -613,9 +631,11 @@ var AES_asm = function () {
             }
 
             /**
-             * Store the internal state into the heap
-             * @public
-             * @param {int} pos — offset where to put the data
+             * Store the internal state vector into the heap.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} pos - offset where to put the data
+             * @return {int} The number of bytes have been written into the heap, always 16.
              */
             function get_state ( pos ) {
                 pos = pos|0;
@@ -643,9 +663,11 @@ var AES_asm = function () {
             }
 
             /**
-             * Store the internal iv into the heap
-             * @public
-             * @param {int} pos — offset where to put the data
+             * Store the internal iv vector into the heap.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} pos - offset where to put the data
+             * @return {int} The number of bytes have been written into the heap, always 16.
              */
             function get_iv ( pos ) {
                 pos = pos|0;
@@ -673,8 +695,9 @@ var AES_asm = function () {
             }
 
             /**
-             * GCM initialization
-             * @public
+             * GCM initialization.
+             * @instance
+             * @memberof AES_asm
              */
             function gcm_init ( ) {
                 _ecb_enc( 0, 0, 0, 0 );
@@ -685,12 +708,13 @@ var AES_asm = function () {
             }
 
             /**
-             * Perform ciphering operation on the supplied data
-             * @public
-             * @param {int} mode — block cipher mode (see mode constants)
-             * @param {int} pos — offset of the data being processed
-             * @param {int} len — length of the data being processed
-             * @return {int} actual amount of the data processed
+             * Perform ciphering operation on the supplied data.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} mode - block cipher mode (see {@link AES_asm} mode constants)
+             * @param {int} pos - offset of the data being processed
+             * @param {int} len - length of the data being processed
+             * @return {int} Actual amount of data have been processed.
              */
             function cipher ( mode, pos, len ) {
                 mode = mode|0;
@@ -735,12 +759,13 @@ var AES_asm = function () {
             }
 
             /**
-             * Calculates MAC of the supplied data
-             * @public
-             * @param {int} mode — block cipher mode (see mode constants)
-             * @param {int} pos — offset of the data being processed
-             * @param {int} len — length of the data being processed
-             * @return {int} actual amount of the data processed
+             * Calculates MAC of the supplied data.
+             * @instance
+             * @memberof AES_asm
+             * @param {int} mode - block cipher mode (see {@link AES_asm} mode constants)
+             * @param {int} pos - offset of the data being processed
+             * @param {int} len - length of the data being processed
+             * @return {int} Actual amount of data have been processed.
              */
             function mac ( mode, pos, len ) {
                 mode = mode|0;
@@ -769,13 +794,11 @@ var AES_asm = function () {
 
             /**
              * AES cipher modes table (virual methods)
-             * @private
              */
             var _cipher_modes = [ _ecb_enc, _ecb_dec, _cbc_enc, _cbc_dec, _cfb_enc, _cfb_dec, _ofb, _ctr ];
 
             /**
              * AES MAC modes table (virual methods)
-             * @private
              */
             var _mac_modes = [ _cbc_enc, _gcm_mac ];
 
@@ -804,7 +827,8 @@ var AES_asm = function () {
 
     /**
      * AES enciphering mode constants
-     * @public
+     * @enum {int}
+     * @const
      */
     wrapper.ENC = {
         ECB: 0,
@@ -816,7 +840,8 @@ var AES_asm = function () {
 
     /**
      * AES deciphering mode constants
-     * @public
+     * @enum {int}
+     * @const
      */
     wrapper.DEC = {
         ECB: 1,
@@ -828,7 +853,8 @@ var AES_asm = function () {
 
     /**
      * AES MAC mode constants
-     * @public
+     * @enum {int}
+     * @const
      */
     wrapper.MAC = {
         CBC: 0,
@@ -837,11 +863,10 @@ var AES_asm = function () {
 
     /**
      * Heap data offset
+     * @type {int}
+     * @const
      */
     wrapper.HEAP_DATA = 0x4000;
-
-    // Prevent further modifications
-    Object.freeze(wrapper);
 
     return wrapper;
 }();
