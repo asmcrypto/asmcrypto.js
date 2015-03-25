@@ -454,7 +454,8 @@ module.exports = function ( grunt ) {
 
         concat: {
             options: {
-                banner: "!function ( exports, global ) {\n\n",
+                banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2013 <%= pkg.author.name %>, opensource.org/licenses/MIT */\n"
+                      + "!function ( exports, global ) {\n\n",
                 footer: "\nglobal.asmCrypto=exports;\n}( {}, function(){return this}() );",
                 sourceMap: true,
                 sourceMapStyle: 'link'
@@ -472,7 +473,9 @@ module.exports = function ( grunt ) {
                 compress: true,
                 wrap: 'asmCrypto',
                 sourceMap: true,
-                sourceMapIncludeSources: true
+                sourceMapIncludeSources: true,
+                screwIE8: true,
+                banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2013 <%= pkg.author.name %>, opensource.org/licenses/MIT */"
             },
             release: {
                 files: {
