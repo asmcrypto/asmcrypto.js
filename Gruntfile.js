@@ -469,8 +469,8 @@ module.exports = function ( grunt ) {
 
         uglify: {
             options: {
-                mangle: true,
-                compress: true,
+                mangle: {},
+                compress: {},
                 wrap: 'asmCrypto',
                 sourceMap: true,
                 sourceMapIncludeSources: true,
