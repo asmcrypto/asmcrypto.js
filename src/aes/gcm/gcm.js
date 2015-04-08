@@ -83,7 +83,6 @@ function AES_GCM_reset ( options ) {
         var noncelen = nonce.length || 0,
             noncebuf = new Uint8Array(16);
         if ( noncelen !== 12 ) {
-            asm.set_iv();
             _gcm_mac_process.call( this, nonce );
 
             heap[0] = heap[1] = heap[2] = heap[3] = heap[4] = heap[5] = heap[6] = heap[7] = heap[8] = heap[9] = heap[10] = 0,
@@ -95,6 +94,7 @@ function AES_GCM_reset ( options ) {
             asm.mac( AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16 );
 
             asm.get_iv( AES_asm.HEAP_DATA );
+            asm.set_iv();
 
             noncebuf.set( heap.subarray( 0, 16 ) );
         }
@@ -130,7 +130,6 @@ function AES_GCM_reset ( options ) {
 
         if ( adata.length ) {
             this.adata = adata;
-            asm.set_iv();
             _gcm_mac_process.call( this, adata );
         }
         else {
