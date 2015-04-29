@@ -25,6 +25,9 @@
         "grunt-saucelabs": "~8.0.0",
         "grunt-contrib-clean": "~0.4.0"
     },
+    "engines": {
+        "node": "~0.10"
+    },
     "scripts": {
         "prepublish": "grunt",
         "test": "grunt test"
