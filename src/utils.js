@@ -101,8 +101,19 @@ function utf8bytes_to_string ( arr ) {
 			throw new Error("Not a UTF8 encoded byte array.");
 		}
     }
-		
-    return String.fromCharCode.apply(null, strBuffer.subarray(0, j));
+	
+	var batchSize = 16384;
+	if (j < batchSize) {
+		return String.fromCharCode.apply(null, strBuffer.subarray(0, j));
+	}
+
+	var str = '';
+	for (var i = 0; i < j; i += batchSize) {
+		var batch = strBuffer.subarray(i, i + batchSize > j ? j : i + batchSize);
+		str += String.fromCharCode.apply(null, batch);
+	}
+	
+	return str;
 }
 
 function bytes_to_hex ( arr ) {
