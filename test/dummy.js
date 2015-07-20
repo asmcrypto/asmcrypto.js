@@ -105,29 +105,48 @@ test( "Math.random()", function () {
     ok( r >= 0 && r < 1, "0 <= r < 1" );
 });
 
-if ( asmCrypto.string_to_bytes ) {
-    test( "asmCrypto.string_to_bytes()", function () {
-        var bytes = asmCrypto.string_to_bytes("String not containing Unicode character");
-        ok( bytes, "No exception on non-Unicode string" );
-
-        try {
-            var bytes = asmCrypto.string_to_bytes("String containing Unicode character: Ͼ");
-            ok( false, "No exception on Unicode string")
-        }
-        catch ( e ) {
-            ok( e instanceof Error, "Exception thrown on Unicode string" );
-            ok( e.message.match(/wide character/i), "Exception message is about wide character" );
-        }
-    });
-}
-else {
-    skip("asmCrypto.string_to_bytes()");
-}
-
 testIf( true, "Conditional test should pass", function () {
     ok( true, "Passed!" );
 });
 
 testIf( false, "Conditional test should skip", function () {
     ok( false, "Failed!" );
+});
+
+testIf( asmCrypto.string_to_bytes, "asmCrypto.string_to_bytes", function ( ) {
+    var bytes = asmCrypto.string_to_bytes("String not containing Unicode character");
+    ok( bytes, "No exception on non-Unicode string" );
+
+    try {
+        var bytes = asmCrypto.string_to_bytes("String containing Unicode character: Ͼ");
+        ok( false, "No exception on Unicode string")
+    }
+    catch ( e ) {
+        ok( e instanceof Error, "Exception thrown on Unicode string" );
+        ok( e.message.match(/wide character/i), "Exception message is about wide character" );
+    }
+
+    var bytes = asmCrypto.string_to_bytes( "\ud83d\ude80\u2665\u03ffa", true ); // Unicode ROCKET + BLACK HEART SUIT + GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL + LATIN SMALL LETTER A 
+    equal( asmCrypto.bytes_to_hex(bytes), "f09f9a80e299a5cfbf61", "Encode into UTF8 byte array" );
+});
+
+testIf( asmCrypto.bytes_to_string, "asmCrypto.bytes_to_string", function ( ) {
+    var bytes = asmCrypto.hex_to_bytes("f09f9a80e299a5cfbf61");
+
+    var str = asmCrypto.bytes_to_string( bytes, false );
+    equal( str.length, 10, "Binary string length is ok" );
+    equal( str, "\xf0\x9f\x9a\x80\xe2\x99\xa5\xcf\xbf\x61", "Binary string content is ok" );
+
+    var str = asmCrypto.bytes_to_string( bytes, true );
+    equal( str.length, 5, "Characters string length is ok" );
+    equal( str, "\ud83d\ude80\u2665\u03ffa", "Characters string content is ok" );
+
+    try {
+        var str = asmCrypto.bytes_to_string( bytes.subarray(0,3), true );
+        ok( false, "No exception on malformed UTF8 byte array" );
+    }
+    catch ( e ) {
+        ok( e instanceof Error, "Exception thrown on malformed UTF8 byte array" );
+        ok( e.message.match(/Malformed UTF8 character/i), "Exception message is about malformed UTF8 character" );
+    }
 });
