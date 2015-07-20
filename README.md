@@ -53,9 +53,9 @@ Index
 Download
 --------
 
-* [Minified JS file](http://vibornoff.com/asmcrypto.js) 170KB,
-* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 313KB,
-* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 178KB.
+* [Minified JS file](http://vibornoff.com/asmcrypto.js) 130KB,
+* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 530KB,
+* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 216KB.
 
 Build & Test
 ------------
@@ -94,7 +94,7 @@ See benchmarks:
 * [SHA256](http://jsperf.com/sha256/34),
 * [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
 * [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2),
-* [AES](http://jsperf.com/aes),
+* [AES](http://jsperf.com/aes/19),
 * [Modular exponentiation (used internally in RSA)](http://jsperf.com/jsbn-vs-bigint-js-modular-exponentiation-montgomery/4).
 
 API Reference

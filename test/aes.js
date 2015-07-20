@@ -505,6 +505,7 @@ else
 
 if ( typeof asmCrypto.AES_GCM !== 'undefined' )
 {
+
     var gcm_aes_vectors = [
         [
             // key
@@ -660,6 +661,21 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // encrypted message
             asmCrypto.hex_to_bytes('5a8def2f0c9e53f1f75d7853659e2a20eeb2b22aafde6419a058ab4f6f746bf40fc0c3b780f244452da3ebf1c5d82cdea2418997200ef82e44ae7e3fa44a8266ee1c8eb0c8b5d4cf5ae9f19a')
         ],
+        [ // Test case for issue #70 (https://github.com/vibornoff/asmcrypto.js/issues/70)
+            // key
+            asmCrypto.hex_to_bytes('00000000000000000000000000000000'),
+            // nonce
+            asmCrypto.hex_to_bytes('00'),
+            // adata
+            '',
+            // tagSize
+            16,
+            // input message
+            asmCrypto.hex_to_bytes('00'),
+            // encrypted message
+            asmCrypto.hex_to_bytes('e9d60634580263ebab909efa6623dafc61')
+        ],
+
     ];
 
     test( "asmCrypto.AES_GCM.encrypt", function () {
