@@ -13,7 +13,8 @@ var defaults = [
     'rng',
     'bn',
     'rsa-pkcs1',
-    'rng-globals'
+    'rng-globals',
+    'origin',
 ];
 
 // Map each of the modules and their deps
@@ -27,6 +28,10 @@ var modules = [
         name: 'utils',
         files: [ 'src/utils.js' ],
         implies: [ 'exports' ]
+    },
+    {
+        name: 'origin',
+        files: [ 'src/origin.js' ],
     },
     {
         name: 'exports',
@@ -324,7 +329,7 @@ var modules = [
         name: 'rsa-pss-sha512-exports',
         files: [ 'src/rsa/exports-pss-sha512.js' ],
         depends: [ 'rsa-pkcs1', 'sha512' ]
-    },
+    }
 ];
 
 // Supported browsers
