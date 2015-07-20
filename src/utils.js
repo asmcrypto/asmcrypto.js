@@ -2,118 +2,103 @@
 
 var FloatArray = global.Float64Array || global.Float32Array; // make PhantomJS happy
 
-function string_to_bytes ( str ) {
+function string_to_bytes ( str, utf8 ) {
+    utf8 = !!utf8;
+
     var len = str.length,
-        arr = new Uint8Array( len );
-    for ( var i = 0; i < len; i++ ) {
-        var c = str.charCodeAt(i);
-        if ( c >>> 8 ) throw new Error("Wide characters are not allowed. Use string_to_utf8bytes.");
-        arr[i] = c;
-    }
-    return arr;
-}
+        bytes = new Uint8Array( utf8 ? 4*len : len );
 
-function string_to_utf8bytes ( str ) {
-
-	var len = str.length,
-        bytes = new Uint8Array(4*len);
     for ( var i = 0, j = 0; i < len; i++ ) {
-	
-		var c = str.charCodeAt(i);
-		if ( 0xd800 <= c && c <= 0xdbff ) {
+        var c = str.charCodeAt(i);
+
+        if ( utf8 && 0xd800 <= c && c <= 0xdbff ) {
             if ( ++i >= len ) throw new Error( "Malformed string, low surrogate expected at position " + i );
             c = ( (c ^ 0xd800) << 10 ) | 0x10000 | ( str.charCodeAt(i) ^ 0xdc00 );
         }
-        
-        if (c <= 0x7f) {
+        else if ( !utf8 && c >>> 8 ) {
+            throw new Error("Wide characters are not allowed.");
+        }
+
+        if ( !utf8 || c <= 0x7f ) {
             bytes[j++] = c;
-        } 
-		else if (c <= 0x7ff) {
+        }
+        else if ( c <= 0x7ff ) {
             bytes[j++] = 0xc0 | (c >> 6);
             bytes[j++] = 0x80 | (c & 0x3f);
-        } 
-		else if (c <= 0xffff) {
+        }
+        else if ( c <= 0xffff ) {
             bytes[j++] = 0xe0 | (c >> 12);
-            bytes[j++] = 0x80 | ((c >> 6) & 0x3f);
+            bytes[j++] = 0x80 | (c >> 6 & 0x3f);
             bytes[j++] = 0x80 | (c & 0x3f);
-        } 
-		else {
+        }
+        else {
             bytes[j++] = 0xf0 | (c >> 18);
-            bytes[j++] = 0x80 | ((c >> 12) & 0x3f);
-            bytes[j++] = 0x80 | ((c >> 6) & 0x3f);
+            bytes[j++] = 0x80 | (c >> 12 & 0x3f);
+            bytes[j++] = 0x80 | (c >> 6 & 0x3f);
             bytes[j++] = 0x80 | (c & 0x3f);
         }
     }
-	
+
     return bytes.subarray(0, j);
 }
 
 function hex_to_bytes ( str ) {
-    var arr = [],
-        len = str.length,
-        i;
+    var len = str.length;
     if ( len & 1 ) {
         str = '0'+str;
         len++;
     }
-    for ( i=0; i<len; i+=2 ) {
-        arr.push( parseInt( str.substr( i, 2), 16 ) );
+    var bytes = new Uint8Array(len>>1);
+    for ( var i = 0; i < len; i += 2 ) {
+        bytes[i>>1] = parseInt( str.substr( i, 2), 16 );
     }
-    return new Uint8Array(arr);
+    return bytes;
 }
 
 function base64_to_bytes ( str ) {
     return string_to_bytes( atob( str ) );
 }
 
-function bytes_to_string ( arr ) {
-    var str = '';
-    for ( var i = 0; i < arr.length; i++ ) str += String.fromCharCode( arr[i] );
-    return str;
-}
+function bytes_to_string ( bytes, utf8 ) {
+    utf8 = !!utf8;
 
-function utf8bytes_to_string ( arr ) {
-	var len = arr.length,
-        strBuffer = new Uint16Array(len);
-		
+    var len = bytes.length,
+        chars = new Uint16Array(len);
+
     for ( var i = 0, j = 0; i < len; i++ ) {
-        if (arr[i] < 128) {
-            strBuffer[j++] = arr[i] ;
-        } 
-		else if (arr[i] >= 192 && arr[i] < 224 && (i + 1 < len)) {
-			strBuffer[j++] = ((arr[i] & 0x1f) << 6) | (arr[++i] & 0x3f);
-		} 
-		else if (arr[i] >= 224 && arr[i] < 240 && (i + 2 < len)) {
-            strBuffer[j++] = ((arr[i] & 0xf) << 12) | ((arr[++i] & 0x3f) << 6) | (arr[++i] & 0x3f);
-		} 
-		else if (arr[i] >= 240 && arr[i] < 248 && (i + 3 < len)) {
-			var unicodePoint = ((arr[i] & 7) << 18) | ((arr[++i] & 0x3f) << 12) | ((arr[++i] & 0x3f) << 6) | (arr[++i] & 0x3f);
-			if (unicodePoint <= 0xffff) {
-				strBuffer[j++] = unicodePoint;
-			}
-			else {
-				unicodePoint -= 0x10000;
-				strBuffer[j++] = (unicodePoint >> 10) + 0xd800;
-				strBuffer[j++] = (unicodePoint % 0x400) + 0xdc00;
-			}
-        } 
-		else {
-			throw new Error("Not a UTF8 encoded byte array.");
-		}
+        var b = bytes[i];
+        if ( !utf8 || b < 128 ) {
+            chars[j++] = b;
+        }
+        else if ( b >= 192 && b < 224 && i+1 < len ) {
+            chars[j++] = ( (b & 0x1f) << 6 ) | (bytes[++i] & 0x3f);
+        }
+        else if ( b >= 224 && b < 240 && i+2 < len ) {
+            chars[j++] = ( (b & 0xf) << 12 ) | ( (bytes[++i] & 0x3f) << 6 ) | (bytes[++i] & 0x3f);
+        }
+        else if ( b >= 240 && b < 248 && i+3 < len ) {
+            var c = ( (b & 7) << 18 ) | ( (bytes[++i] & 0x3f) << 12 ) | ( (bytes[++i] & 0x3f) << 6 ) | (bytes[++i] & 0x3f);
+            if ( c <= 0xffff ) {
+                chars[j++] = c;
+            }
+            else {
+                c ^= 0x10000;
+                chars[j++] = 0xd800 | (c >> 10);
+                chars[j++] = 0xdc00 | (c & 0x3ff);
+            }
+        }
+        else {
+            throw new Error("Malformed UTF8 character at byte offset " + i);
+        }
     }
-	
-	var batchSize = 16384;
-	if (j < batchSize) {
-		return String.fromCharCode.apply(null, strBuffer.subarray(0, j));
-	}
 
-	var str = '';
-	for (var i = 0; i < j; i += batchSize) {
-		var batch = strBuffer.subarray(i, i + batchSize > j ? j : i + batchSize);
-		str += String.fromCharCode.apply(null, batch);
-	}
-	
-	return str;
+    var str = '',
+        bs = 16384;
+    for ( var i = 0; i < j; i += bs ) {
+        str += String.fromCharCode.apply( String, chars.subarray( i, i+bs <= j ? i+bs : j ) );
+    }
+
+    return str;
 }
 
 function bytes_to_hex ( arr ) {
