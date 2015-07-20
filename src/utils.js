@@ -61,7 +61,7 @@ function bytes_to_string ( bytes, utf8 ) {
     utf8 = !!utf8;
 
     var len = bytes.length,
-        chars = new Uint16Array(len);
+        chars = new Array(len);
 
     for ( var i = 0, j = 0; i < len; i++ ) {
         var b = bytes[i];
@@ -93,7 +93,7 @@ function bytes_to_string ( bytes, utf8 ) {
     var str = '',
         bs = 16384;
     for ( var i = 0; i < j; i += bs ) {
-        str += String.fromCharCode.apply( String, chars.subarray( i, i+bs <= j ? i+bs : j ) );
+        str += String.fromCharCode.apply( String, chars.slice( i, i+bs <= j ? i+bs : j ) );
     }
 
     return str;
