@@ -3,7 +3,7 @@ function sha256_asm ( stdlib, foreign, buffer ) {
 
     // SHA256 state
     var H0 = 0, H1 = 0, H2 = 0, H3 = 0, H4 = 0, H5 = 0, H6 = 0, H7 = 0,
-        TOTAL = 0;
+        TOTAL0 = 0, TOTAL1 = 0;
 
     // HMAC state
     var I0 = 0, I1 = 0, I2 = 0, I3 = 0, I4 = 0, I5 = 0, I6 = 0, I7 = 0,
@@ -490,10 +490,10 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         H5 = 0x9b05688c;
         H6 = 0x1f83d9ab;
         H7 = 0x5be0cd19;
-        TOTAL = 0;
+        TOTAL0 = TOTAL1 = 0;
     }
 
-    function init ( h0, h1, h2, h3, h4, h5, h6, h7, total ) {
+    function init ( h0, h1, h2, h3, h4, h5, h6, h7, total0, total1 ) {
         h0 = h0|0;
         h1 = h1|0;
         h2 = h2|0;
@@ -502,7 +502,8 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         h5 = h5|0;
         h6 = h6|0;
         h7 = h7|0;
-        total = total|0;
+        total0 = total0|0;
+        total1 = total1|0;
 
         H0 = h0;
         H1 = h1;
@@ -512,7 +513,8 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         H5 = h5;
         H6 = h6;
         H7 = h7;
-        TOTAL = total;
+        TOTAL0 = total0;
+        TOTAL1 = total1;
     }
 
     // offset — multiple of 64
@@ -528,13 +530,14 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         while ( (length|0) >= 64 ) {
             _core_heap(offset);
 
-            offset = ( offset + 64)|0;
-            length = ( length - 64)|0;
+            offset = ( offset + 64 )|0;
+            length = ( length - 64 )|0;
 
-            hashed = ( hashed + 64)|0;
+            hashed = ( hashed + 64 )|0;
         }
 
-        TOTAL = ( TOTAL + hashed )|0;
+        TOTAL0 = ( TOTAL0 + hashed )|0;
+        if ( TOTAL0>>>0 < hashed>>>0 ) TOTAL1 = ( TOTAL1 + 1 )|0;
 
         return hashed|0;
     }
@@ -566,7 +569,8 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         }
 
         hashed = ( hashed + length )|0;
-        TOTAL = ( TOTAL + length )|0;
+        TOTAL0 = ( TOTAL0 + length )|0;
+        if ( TOTAL0>>>0 < length>>>0 ) TOTAL1 = ( TOTAL1 + 1 )|0;
 
         HEAP[offset|length] = 0x80;
 
@@ -584,11 +588,14 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         for ( i = (length+1)|0; (i|0) < 59; i = (i+1)|0 )
             HEAP[offset|i] = 0;
 
-        HEAP[offset|59] = TOTAL>>>29;
-        HEAP[offset|60] = TOTAL>>>21&255;
-        HEAP[offset|61] = TOTAL>>>13&255;
-        HEAP[offset|62] = TOTAL>>>5&255;
-        HEAP[offset|63] = TOTAL<<3&255;
+        HEAP[offset|56] = TOTAL1>>>21&255;
+        HEAP[offset|57] = TOTAL1>>>13&255;
+        HEAP[offset|58] = TOTAL1>>>5&255;
+        HEAP[offset|59] = TOTAL1<<3&255 | TOTAL0>>>29;
+        HEAP[offset|60] = TOTAL0>>>21&255;
+        HEAP[offset|61] = TOTAL0>>>13&255;
+        HEAP[offset|62] = TOTAL0>>>5&255;
+        HEAP[offset|63] = TOTAL0<<3&255;
         _core_heap(offset);
 
         if ( ~output )
@@ -606,7 +613,8 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         H5 = I5;
         H6 = I6;
         H7 = I7;
-        TOTAL = 64;
+        TOTAL0 = 64;
+        TOTAL1 = 0;
     }
 
     function _hmac_opad () {
@@ -618,7 +626,8 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         H5 = O5;
         H6 = O6;
         H7 = O7;
-        TOTAL = 64;
+        TOTAL0 = 64;
+        TOTAL1 = 0;
     }
 
     function hmac_init ( p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15 ) {
@@ -697,7 +706,8 @@ function sha256_asm ( stdlib, foreign, buffer ) {
         I6 = H6;
         I7 = H7;
 
-        TOTAL = 64;
+        TOTAL0 = 64;
+        TOTAL1 = 0;
     }
 
     // offset — multiple of 64

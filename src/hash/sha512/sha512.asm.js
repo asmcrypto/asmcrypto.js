@@ -4,7 +4,7 @@ function sha512_asm ( stdlib, foreign, buffer ) {
     // SHA512 state
     var H0h = 0, H0l = 0, H1h = 0, H1l = 0, H2h = 0, H2l = 0, H3h = 0, H3l = 0,
         H4h = 0, H4l = 0, H5h = 0, H5l = 0, H6h = 0, H6l = 0, H7h = 0, H7l = 0,
-        TOTAL = 0;
+        TOTAL0 = 0, TOTAL1 = 0;
 
     // HMAC state
     var I0h = 0, I0l = 0, I1h = 0, I1l = 0, I2h = 0, I2l = 0, I3h = 0, I3l = 0,
@@ -2646,10 +2646,10 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         H7h = 0x5be0cd19;
         H7l = 0x137e2179;
 
-        TOTAL = 0;
+        TOTAL0 = TOTAL1 = 0;
     }
 
-    function init ( h0h, h0l, h1h, h1l, h2h, h2l, h3h, h3l, h4h, h4l, h5h, h5l, h6h, h6l, h7h, h7l, total ) {
+    function init ( h0h, h0l, h1h, h1l, h2h, h2l, h3h, h3l, h4h, h4l, h5h, h5l, h6h, h6l, h7h, h7l, total0, total1 ) {
         h0h = h0h|0;
         h0l = h0l|0;
         h1h = h1h|0;
@@ -2666,7 +2666,8 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         h6l = h6l|0;
         h7h = h7h|0;
         h7l = h7l|0;
-        total = total|0;
+        total0 = total0|0;
+        total1 = total1|0;
 
         H0h = h0h;
         H0l = h0l;
@@ -2684,7 +2685,8 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         H6l = h6l;
         H7h = h7h;
         H7l = h7l;
-        TOTAL = total;
+        TOTAL0 = total0;
+        TOTAL1 = total1;
     }
 
     // offset — multiple of 128
@@ -2700,13 +2702,14 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         while ( (length|0) >= 128 ) {
             _core_heap(offset);
 
-            offset = ( offset + 128)|0;
-            length = ( length - 128)|0;
+            offset = ( offset + 128 )|0;
+            length = ( length - 128 )|0;
 
-            hashed = ( hashed + 128)|0;
+            hashed = ( hashed + 128 )|0;
         }
 
-        TOTAL = ( TOTAL + hashed )|0;
+        TOTAL0 = ( TOTAL0 + hashed )|0;
+        if ( TOTAL0>>>0 < hashed>>>0 ) TOTAL1 = ( TOTAL1 + 1 )|0;
 
         return hashed|0;
     }
@@ -2738,7 +2741,8 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         }
 
         hashed = ( hashed + length )|0;
-        TOTAL = ( TOTAL + length )|0;
+        TOTAL0 = ( TOTAL0 + length )|0;
+        if ( TOTAL0>>>0 < length>>>0 ) TOTAL1 = ( TOTAL1 + 1 )|0;
 
         HEAP[offset|length] = 0x80;
 
@@ -2756,11 +2760,14 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         for ( i = (length+1)|0; (i|0) < 123; i = (i+1)|0 )
             HEAP[offset|i] = 0;
 
-        HEAP[offset|123] = TOTAL>>>29;
-        HEAP[offset|124] = TOTAL>>>21&255;
-        HEAP[offset|125] = TOTAL>>>13&255;
-        HEAP[offset|126] = TOTAL>>>5&255;
-        HEAP[offset|127] = TOTAL<<3&255;
+        HEAP[offset|120] = TOTAL1>>>21&255;
+        HEAP[offset|121] = TOTAL1>>>13&255;
+        HEAP[offset|122] = TOTAL1>>>5&255;
+        HEAP[offset|123] = TOTAL1<<3&255 | TOTAL0>>>29;
+        HEAP[offset|124] = TOTAL0>>>21&255;
+        HEAP[offset|125] = TOTAL0>>>13&255;
+        HEAP[offset|126] = TOTAL0>>>5&255;
+        HEAP[offset|127] = TOTAL0<<3&255;
         _core_heap(offset);
 
         if ( ~output )
@@ -2786,7 +2793,8 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         H6l = I6l;
         H7h = I7h;
         H7l = I7l;
-        TOTAL = 128;
+        TOTAL0 = 128;
+        TOTAL1 = 0;
     }
 
     function _hmac_opad () {
@@ -2806,7 +2814,8 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         H6l = O6l;
         H7h = O7h;
         H7l = O7l;
-        TOTAL = 128;
+        TOTAL0 = 128;
+        TOTAL1 = 0;
     }
 
     function hmac_init ( p0h, p0l, p1h, p1l, p2h, p2l, p3h, p3l, p4h, p4l, p5h, p5l, p6h, p6l, p7h, p7l, p8h, p8l, p9h, p9l, p10h, p10l, p11h, p11l, p12h, p12l, p13h, p13l, p14h, p14l, p15h, p15l ) {
@@ -2949,7 +2958,8 @@ function sha512_asm ( stdlib, foreign, buffer ) {
         I7h = H7h;
         I7l = H7l;
 
-        TOTAL = 128;
+        TOTAL0 = 128;
+        TOTAL1 = 0;
     }
 
     // offset — multiple of 128
