@@ -224,7 +224,7 @@ in combination with a secret cryptographic key.
 
 ##### HMAC_SHA1.HMAC_SIZE = 20
 
-##### HMAC_SHA1.bytes( password, data )
+##### HMAC_SHA1.bytes( data, password )
 
 Calculates HMAC-SHA1 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -233,7 +233,7 @@ Returns araw message authentication code as an `Uint8Array` object.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-##### HMAC_SHA1.hex( password, data )
+##### HMAC_SHA1.hex( data, password )
 
 Calculates HMAC-SHA1 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -242,7 +242,7 @@ Returns a string containing hex-encoded message authentication code.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-##### HMAC_SHA1.base64( password, data )
+##### HMAC_SHA1.base64( data, password )
 
 Calculates HMAC-SHA1 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -257,7 +257,7 @@ Throws
 
 ##### HMAC_SHA256.HMAC_SIZE = 32
 
-##### HMAC_SHA256.bytes( password, data )
+##### HMAC_SHA256.bytes( data, password )
 
 Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -266,7 +266,7 @@ Returns araw message authentication code as an `Uint8Array` object.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-##### HMAC_SHA256.hex( password, data )
+##### HMAC_SHA256.hex( data, password )
 
 Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -275,7 +275,7 @@ Returns a string containing hex-encoded message authentication code.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-##### HMAC_SHA256.base64( password, data )
+##### HMAC_SHA256.base64( data, password )
 
 Calculates HMAC-SHA256 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -290,7 +290,7 @@ Throws
 
 ##### HMAC_SHA512.HMAC_SIZE = 64
 
-##### HMAC_SHA512.bytes( password, data )
+##### HMAC_SHA512.bytes( data, password )
 
 Calculates HMAC-SHA512 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -299,7 +299,7 @@ Returns araw message authentication code as an `Uint8Array` object.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-##### HMAC_SHA512.hex( password, data )
+##### HMAC_SHA512.hex( data, password )
 
 Calculates HMAC-SHA512 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
@@ -308,7 +308,7 @@ Returns a string containing hex-encoded message authentication code.
 Throws
 * `TypeError` when something ridiculous is supplied as input data.
 
-##### HMAC_SHA512.base64( password, data )
+##### HMAC_SHA512.base64( data, password )
 
 Calculates HMAC-SHA512 of `data` with `password`. Both can be either binary strings or `Uint8Array`/`ArrayBuffer` objects.
 
