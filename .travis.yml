@@ -6,6 +6,7 @@ addons:
     username: vibornoff
     access_key:
       secure: N5jZowSuf5vPTUSgnYIX4sdFV3u0z/b8DMBSbMzst34VahI428jJlTPfMcswVomflwIA5dO0KgvCvRpKnos4gVIG02PUNYsCSuwg5nBOq025r8PX1nI3tYBK0n1SHHFYQs9swqeiKVVE0bG1AwrIAMNqJS5DnxMBw7z/dM6cPf8=
+sudo: false
 before_install:
   export WITH=ALL
 script:
