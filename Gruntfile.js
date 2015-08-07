@@ -474,7 +474,7 @@ module.exports = function ( grunt ) {
         },
 
         umd: {
-            release: {
+            all: {
                 src: 'asmcrypto.js',
                 dest: 'asmcrypto.js',
                 template: 'umd',
@@ -543,7 +543,7 @@ module.exports = function ( grunt ) {
         watch: {
             all: {
                 files: '<%= sources.files %>',
-                tasks: ['sources','concat']
+                tasks: ['sources','concat','umd']
             }
         },
 
@@ -556,7 +556,7 @@ module.exports = function ( grunt ) {
 
     grunt.registerTask('sources', sources);
     grunt.registerTask('default', ['sources','concat','umd','uglify']);
-    grunt.registerTask('devel', ['sources','concat','connect','watch']);
+    grunt.registerTask('devel', ['sources','concat','umd','connect','watch']);
     grunt.registerTask('test', ['connect','qunit']);
     grunt.registerTask('sauce', ['connect','saucelabs-qunit']);
 };
