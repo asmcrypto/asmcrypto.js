@@ -380,7 +380,6 @@ module.exports = function ( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-saucelabs');
     grunt.loadNpmTasks('grunt-jsdoc');
-    grunt.loadNpmTasks('grunt-umd');
 
     function sources () {
         // Get the list of modules split by commas
@@ -461,8 +460,10 @@ module.exports = function ( grunt ) {
         concat: {
             options: {
                 banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2013 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */\n"
-                      + "var exports = (function ( exports, global ) {\n\n",
-                footer: "\n\nreturn exports;\n})( {}, function(){return this}() );",
+                      + "(function ( exports, global ) {\n\n",
+                footer: "\n\n'function'==typeof define&&define.amd?define([],function(){return exports}):"
+                      + "'object'==typeof module&&module.exports?module.exports=exports:global.asmCrypto=exports;"
+                      + "\n\nreturn exports;\n})( {}, function(){return this}() );",
                 sourceMap: true,
                 sourceMapStyle: 'link'
             },
@@ -470,16 +471,6 @@ module.exports = function ( grunt ) {
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
                 }
-            }
-        },
-
-        umd: {
-            all: {
-                src: 'asmcrypto.js',
-                dest: 'asmcrypto.js',
-                template: 'umd',
-                objectToExport: 'exports',
-                globalAlias: 'asmCrypto'
             }
         },
 
@@ -543,7 +534,7 @@ module.exports = function ( grunt ) {
         watch: {
             all: {
                 files: '<%= sources.files %>',
-                tasks: ['sources','concat','umd']
+                tasks: ['sources','concat']
             }
         },
 
@@ -555,8 +546,8 @@ module.exports = function ( grunt ) {
     });
 
     grunt.registerTask('sources', sources);
-    grunt.registerTask('default', ['sources','concat','umd','uglify']);
-    grunt.registerTask('devel', ['sources','concat','umd','connect','watch']);
+    grunt.registerTask('default', ['sources','concat','uglify']);
+    grunt.registerTask('devel', ['sources','concat','connect','watch']);
     grunt.registerTask('test', ['connect','qunit']);
     grunt.registerTask('sauce', ['connect','saucelabs-qunit']);
 };
