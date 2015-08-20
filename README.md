@@ -1,7 +1,5 @@
-asmCrypto [![Build Status](https://travis-ci.org/vibornoff/asmcrypto.js.svg?branch=master)](https://travis-ci.org/vibornoff/asmcrypto.js) [![Selenium Test Status](https://saucelabs.com/buildstatus/vibornoff)](https://saucelabs.com/u/vibornoff)
+asmCrypto [![Build Status](https://travis-ci.org/vibornoff/asmcrypto.js.svg?branch=master)](https://travis-ci.org/vibornoff/asmcrypto.js) [![Selenium Test Status](https://saucelabs.com/buildstatus/vibornoff)](https://saucelabs.com/u/vibornoff) [![Join the chat at https://gitter.im/vibornoff/asmcrypto.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vibornoff/asmcrypto.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 =========
-
-[![Join the chat at https://gitter.im/vibornoff/asmcrypto.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vibornoff/asmcrypto.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 JavaScript implementation of popular cryptographic utilities with performance in mind.
 
