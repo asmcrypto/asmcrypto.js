@@ -345,29 +345,26 @@ var browsers = [
         browserName: 'Internet Explorer',
     },
     {
-        browserName: 'Opera',
-    },
-    {
         browserName: 'Safari',
-        platform: 'OS X 10.9'
+        platform: 'OS X 10.11',
     },
     // Legacy browsers
     {
         browserName: 'Firefox',
-        version: '22'
+        version: '22',
     },
     {
         browserName: 'Internet Explorer',
-        version: '10'
+        version: '10',
+    },
+    {
+        browserName: 'Opera',
+        version: '12',
     },
     {
         browserName: 'Safari',
-        platform: 'OS X 10.8'
+        version: '5.1',
     },
-    {
-        browserName: 'Safari',
-        platform: 'OS X 10.6'
-    }
 ];
 
 // Grunt setup
