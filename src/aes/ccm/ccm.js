@@ -152,7 +152,7 @@ function AES_CCM_reset ( options ) {
         this.counter = counter;
     }
     // Or adata, dataLength
-    else if ( adata !== undefined ) {
+    else if ( adata !== undefined && adata !== null ) {
         if ( is_bytes(adata) || is_buffer(adata) ) {
             adata = new Uint8Array(adata);
         }
@@ -163,7 +163,7 @@ function AES_CCM_reset ( options ) {
             throw new TypeError("unexpected adata type");
         }
 
-        if ( !adata.length || adata.length > _AES_CCM_adata_maxLength )
+        if ( adata.length > _AES_CCM_adata_maxLength )
             throw new IllegalArgumentError("illegal adata length");
 
         if ( !is_number(dataLength) )
@@ -172,15 +172,27 @@ function AES_CCM_reset ( options ) {
         if ( dataLength < 0 || dataLength > _AES_CCM_data_maxLength || dataLength > ( Math.pow( 2, 8*lengthSize ) - 16 ) )
             throw new IllegalArgumentError("illegal dataLength value");
 
-        this.adata = adata;
+        this.adata = adata.length ? adata : null;
         this.dataLength = dataLength;
         this.counter = counter = 1;
 
         AES_CCM_calculate_iv.call(this);
         iv = this.iv;
     }
+    // Assume adata is empty, check dataLength
     else {
-        throw new Error("either iv-counter or adata-dataLength are requried");
+        if ( !is_number(dataLength) )
+            throw new TypeError("dataLength must be a number");
+
+        if ( dataLength < 0 || dataLength > _AES_CCM_data_maxLength || dataLength > ( Math.pow( 2, 8*lengthSize ) - 16 ) )
+            throw new IllegalArgumentError("illegal dataLength value");
+
+        this.adata = null;
+        this.dataLength = dataLength;
+        this.counter = counter = 1;
+
+        AES_CCM_calculate_iv.call(this);
+        iv = this.iv;
     }
 
     AES_set_iv.call( this, iv );
@@ -393,7 +405,7 @@ function AES_CCM_decrypt ( data ) {
 
     result = new Uint8Array( result1.length + result2.length );
     if ( result1.length ) result.set(result1);
-    if ( result1.length ) result.set( result2, result1.length );
+    if ( result2.length ) result.set( result2, result1.length );
     this.result = result;
 
     return this;
