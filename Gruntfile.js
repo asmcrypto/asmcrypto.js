@@ -457,8 +457,10 @@ module.exports = function ( grunt ) {
         concat: {
             options: {
                 banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2013 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */\n"
-                      + "!function ( exports, global ) {\n\n",
-                footer: "\nglobal.asmCrypto=exports;\n}( {}, function(){return this}() );",
+                      + "(function ( exports, global ) {\n\n",
+                footer: "\n\n'function'==typeof define&&define.amd?define([],function(){return exports}):"
+                      + "'object'==typeof module&&module.exports?module.exports=exports:global.asmCrypto=exports;"
+                      + "\n\nreturn exports;\n})( {}, function(){return this}() );",
                 sourceMap: true,
                 sourceMapStyle: 'link'
             },
@@ -473,7 +475,6 @@ module.exports = function ( grunt ) {
             options: {
                 mangle: {},
                 compress: {},
-                wrap: 'asmCrypto',
                 sourceMap: true,
                 sourceMapIncludeSources: true,
                 screwIE8: true,
@@ -481,7 +482,7 @@ module.exports = function ( grunt ) {
             },
             release: {
                 files: {
-                    'asmcrypto.js': '<%= sources.files %>'
+                    'asmcrypto.js': 'asmcrypto.js'
                 }
             }
         },
@@ -542,7 +543,7 @@ module.exports = function ( grunt ) {
     });
 
     grunt.registerTask('sources', sources);
-    grunt.registerTask('default', ['sources','uglify']);
+    grunt.registerTask('default', ['sources','concat','uglify']);
     grunt.registerTask('devel', ['sources','concat','connect','watch']);
     grunt.registerTask('test', ['connect','qunit']);
     grunt.registerTask('sauce', ['connect','saucelabs-qunit']);
