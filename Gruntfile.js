@@ -464,7 +464,7 @@ module.exports = function ( grunt ) {
                 sourceMap: true,
                 sourceMapStyle: 'link'
             },
-            devel: {
+            all: {
                 files: {
                     'asmcrypto.js': '<%= sources.files %>'
                 }
@@ -476,11 +476,12 @@ module.exports = function ( grunt ) {
                 mangle: {},
                 compress: {},
                 sourceMap: true,
+                sourceMapIn: 'asmcrypto.js.map',
                 sourceMapIncludeSources: true,
                 screwIE8: true,
                 banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2013 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */"
             },
-            release: {
+            all: {
                 files: {
                     'asmcrypto.js': 'asmcrypto.js'
                 }
