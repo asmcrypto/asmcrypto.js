@@ -527,6 +527,20 @@ if ( typeof asmCrypto.AES_CCM !== 'undefined' )
             // ciphertext
             asmCrypto.base64_to_bytes('kMrwkAdqy9VuEdkUA75K2hxjjy4kyRfDXMGzg+l4CoHga1/Rh49R'),
         ],
+        [ // Test case for issue #92 (https://github.com/vibornoff/asmcrypto.js/issues/92#issuecomment-158797782)
+            // key
+            asmCrypto.hex_to_bytes('0f0e0d0c0b0a09080706050403020100'),
+            // nonce
+            asmCrypto.hex_to_bytes('000102030405060708090a0b'),
+            // adata
+            undefined,
+            // tagSize
+            16,
+            // plaintext
+            asmCrypto.string_to_bytes('42'),
+            // ciphertext
+            asmCrypto.hex_to_bytes('28be1ac7b43d8868869b9a45d3de436cd0cc'),
+        ],
     ];
 
     test( "asmCrypto.AES_CCM.encrypt / asmCrypto.AES_CCM.decrypt", function () {
