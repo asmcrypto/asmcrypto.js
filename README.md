@@ -343,7 +343,7 @@ The same as above except returning value type.
 
 The same as above except returning value type.
 
-#### PBKDF2_HMAC_SHA526
+#### PBKDF2_HMAC_SHA256
 
 ##### PBKDF2_HMAC_SHA256.bytes( password, salt, iterations, dklen )
 
