@@ -392,7 +392,6 @@ function BigNumber_divide ( that ) {
 
     var pA = _bigint_asm.salloc( alimbcnt<<2 ),
         pB = _bigint_asm.salloc( blimbcnt<<2 ),
-        pR = _bigint_asm.salloc( alimbcnt<<2 ),
         pQ = _bigint_asm.salloc( alimbcnt<<2 );
 
     _bigint_asm.z( pQ-pA+(alimbcnt<<2), 0, pA );
@@ -400,7 +399,7 @@ function BigNumber_divide ( that ) {
     _bigint_heap.set( alimbs, pA>>2 );
     _bigint_heap.set( blimbs, pB>>2 );
 
-    _bigint_asm.div( pA, alimbcnt<<2, pB, blimbcnt<<2, pR, pQ );
+    _bigint_asm.div( pA, alimbcnt<<2, pB, blimbcnt<<2, pQ );
 
     qlimbcnt = _bigint_asm.tst( pQ, alimbcnt<<2 )>>2;
     if ( qlimbcnt ) {
@@ -410,10 +409,10 @@ function BigNumber_divide ( that ) {
         quotient.sign = this.sign * that.sign;
     }
 
-    rlimbcnt = _bigint_asm.tst( pR, blimbcnt<<2 )>>2;
+    rlimbcnt = _bigint_asm.tst( pA, blimbcnt<<2 )>>2;
     if ( rlimbcnt ) {
         remainder = new BigNumber;
-        remainder.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+rlimbcnt ) );;
+        remainder.limbs = new Uint32Array( _bigint_heap.subarray( pA>>2, (pA>>2)+rlimbcnt ) );;
         remainder.bitLength = bbitlen < (rlimbcnt<<5) ? bbitlen : (rlimbcnt<<5);
         remainder.sign = this.sign;
     }
