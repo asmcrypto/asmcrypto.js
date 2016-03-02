@@ -203,6 +203,11 @@ if ( typeof asmCrypto.BigNumber !== 'undefined' )
                 .divide(asmCrypto.hex_to_bytes('4128d116004f1f1bd78528b5deb9b315231298f2443002e7649c932f4cf8bbebc097ebeaef8c262f546768e5673f339252618d8edef6e6cb1b567fa8c9b400efcdef92ac2844b5a6d0575fde44a26d41c2d2c7a3f19ae74a7ea9d58d94c99ae4f1217ec4fe43893608ef9732f7d18fe1be748722a5b957ffaed8b6138ea3b02a011113e3b601ce187f5d0d0dec6b1608dae454f3335bb936218360f427a8e37df2242d141367d65752c6a5291524500b25522efa44ca24114a9fc3004269a59d629bf13d7876cab09ffe5bfbbac195f9d663df7f8a34f6bd1455dffa6df8442ce57e45c53d9d16e0166ffb304afa9c4bd73a696723f2b22753d62c9cc54cdab'));
         equal( result.quotient.toString(16), '1', "q is ok" );
         equal( result.remainder.toString(16), '4128d116004f1f1bd78528b5deb9b315231298f2443002e7649c932f4cf8bbebc097ebeaef8c262f546768e5673f339252618d8edef6e6cb1b567fa8c9b400efcdef92ac2844b5a6d0575fde44a26d41c2d2c7a3f19ae74a7ea9d58d94c99ae4f1217ec4fe43893608ef9732f7d18fe1be748722a5b957ffaed8b6138ea3b02a011113e3b601ce187f5d0d0dec6b1608dae454f3335bb936218360f427a8e37df2242d141367d65752c6a5291524500b25522efa44ca24114a9fc3004269a59d629bf13d7876cab09ffe5bfbbac195f9d663df7f8a34f6bd1455dffa6df8442ce57e45c53d9d16e0166ffb304afa9c4bd73a696723f2b22753d62c9cc54cdaa', "r is ok" );
+
+        result = new asmCrypto.BigNumber(asmCrypto.hex_to_bytes('8000000000000000'))
+                .divide(asmCrypto.hex_to_bytes('80000000ffff'));
+        equal( result.quotient.toString(16), 'ffff', "q is ok" );
+        equal( result.remainder.toString(16), '7fff0001ffff', "r is ok" );
     });
 
     test( "asmCrypto.BigNumber.extGCD", function () {

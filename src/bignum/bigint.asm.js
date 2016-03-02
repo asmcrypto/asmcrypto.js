@@ -1874,22 +1874,22 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
             }
             t1 = ((u1 & 0xffff) - (m & 0xffff)|0) + c|0;
             t2 = ((u1 >>> 16) - (m >>> 16)|0) + (t1 >> 16)|0;
-            HEAP32[(R+j+k)>>2] = u1 = (t2 << 16) | (t1 & 0xffff);
+            u1 = (t2 << 16) | (t1 & 0xffff);
             c = t2 >> 16;
 
             // add `D` back if got carry-out
             if ( c ) {
-                qh = (qh-1)|0, rh = (rh-vh)|0;
+                qh = (qh-1)|0;
                 c = 0;
                 for ( k = 0; (k|0) <= (lD|0); k = (k+4)|0 ) {
                     d = HEAP32[(D+k)>>2]|0;
                     n = HEAP32[(R+j+k)>>2]|0;
-                    t1 = ((n & 0xffff) + (d & 0xffff)|0) + c|0;
-                    t2 = ((n >>> 16) + (d >>> 16)|0) + (t1 >>> 16)|0;
+                    t1 = (n & 0xffff) + c|0;
+                    t2 = (n >>> 16) + d + (t1 >>> 16)|0;
                     HEAP32[(R+j+k)>>2] = (t2 << 16) | (t1 & 0xffff);
                     c = t2 >>> 16;
                 }
-                HEAP32[(R+j+k)>>2] = u1 = (u1+c)|0;
+                u1 = (u1+c)|0;
             }
 
             // estimate low part of the quotient
@@ -1918,12 +1918,11 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
             }
             t1 = ((u1 & 0xffff) - (m & 0xffff)|0) + c|0;
             t2 = ((u1 >>> 16) - (m >>> 16)|0) + (t1 >> 16)|0;
-            HEAP32[(R+j+k)>>2] = u1 = (t2 << 16) | (t1 & 0xffff);
             c = t2 >> 16;
 
             // add `D` back if got carry-out
             if ( c ) {
-                ql = (ql-1)|0, rl = (rl+vh)|0;
+                ql = (ql-1)|0;
                 c = 0;
                 for ( k = 0; (k|0) <= (lD|0); k = (k+4)|0 ) {
                     d = HEAP32[(D+k)>>2]|0;
@@ -1933,7 +1932,6 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
                     c = t2 >>> 16;
                     HEAP32[(R+j+k)>>2] = (t1 & 0xffff) | (t2 << 16);
                 }
-                HEAP32[(R+j+k)>>2] = (u1+c)|0;
             }
 
             // got quotient limb

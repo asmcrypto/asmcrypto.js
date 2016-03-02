@@ -392,7 +392,7 @@ function BigNumber_divide ( that ) {
 
     var pA = _bigint_asm.salloc( alimbcnt<<2 ),
         pB = _bigint_asm.salloc( blimbcnt<<2 ),
-        pR = _bigint_asm.salloc( blimbcnt<<2 ),
+        pR = _bigint_asm.salloc( alimbcnt<<2 ),
         pQ = _bigint_asm.salloc( alimbcnt<<2 );
 
     _bigint_asm.z( pQ-pA+(alimbcnt<<2), 0, pA );
