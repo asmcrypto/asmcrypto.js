@@ -236,7 +236,7 @@ function AES_CCM_Encrypt_process ( data ) {
         wlen = asm.mac( AES_asm.MAC.CBC, AES_asm.HEAP_DATA + pos, len );
         wlen = asm.cipher( AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, wlen );
 
-        result.set( heap.subarray( pos, pos + wlen ), rpos );
+        if ( wlen ) result.set( heap.subarray( pos, pos + wlen ), rpos );
         counter += (wlen>>>4);
         rpos += wlen;
 
@@ -338,7 +338,7 @@ function AES_CCM_Decrypt_process ( data ) {
         wlen = asm.cipher( AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, wlen );
         wlen = asm.mac( AES_asm.MAC.CBC, AES_asm.HEAP_DATA + pos, wlen );
 
-        result.set( heap.subarray( pos, pos+wlen ), rpos );
+        if ( wlen ) result.set( heap.subarray( pos, pos+wlen ), rpos );
         counter += (wlen>>>4);
         rpos += wlen;
 
