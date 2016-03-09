@@ -1776,12 +1776,11 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
      * @param Q offser where to place the quotient to, 32-byte aligned
      */
 
-    function div ( N, lN, D, lD, R, Q ) {
+    function div ( N, lN, D, lD, Q ) {
         N  =  N|0;
         lN = lN|0
         D  =  D|0;
         lD = lD|0
-        R  =  R|0;
         Q  =  Q|0;
 
         var n = 0, d = 0, e = 0,
@@ -1790,9 +1789,6 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
             qh = 0, ql = 0, rh = 0, rl = 0,
             t1 = 0, t2 = 0, m = 0, c = 0,
             i = 0, j = 0, k = 0;
-
-        // copy `N` to `R`
-        cp( lN, N, R );
 
         // number of significant limbs in `N` (multiplied by 4)
         for ( i = (lN-1) & -4; (i|0) >= 0; i = (i-4)|0 ) {
@@ -1820,15 +1816,17 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
             e = e + 1|0;
         }
 
-        // shift `R` for `e` bits left
+        // normalize `N` in place
         u0 = HEAP32[(N+lN)>>2]|0;
-        if ( e ) u1 = u0>>>(32-e|0);
-        for ( i = (lN-4)|0; (i|0) >= 0; i = (i-4)|0 ) {
-            n = HEAP32[(N+i)>>2]|0;
-            HEAP32[(R+i+4)>>2] = (u0 << e) | ( e ? n >>> (32-e|0) : 0 );
-            u0 = n;
+        if ( e ) {
+            u1 = u0>>>(32-e|0);
+            for ( i = (lN-4)|0; (i|0) >= 0; i = (i-4)|0 ) {
+                n = HEAP32[(N+i)>>2]|0;
+                HEAP32[(N+i+4)>>2] = (u0 << e) | ( e ? n >>> (32-e|0) : 0 );
+                u0 = n;
+            }
+            HEAP32[N>>2] = u0 << e;
         }
-        HEAP32[R>>2] = u0 << e;
 
         // normalize `D` in place
         if ( e ) {
@@ -1850,7 +1848,7 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
             j = (i-lD)|0;
 
             // estimate high part of the quotient
-            u0 = HEAP32[(R+i)>>2]|0;
+            u0 = HEAP32[(N+i)>>2]|0;
             qh = ( (u1>>>0) / (vh>>>0) )|0, rh = ( (u1>>>0) % (vh>>>0) )|0, t1 = imul(qh, vl)|0;
             while ( ( (qh|0) == 0x10000 ) | ( (t1>>>0) > (((rh << 16)|(u0 >>> 16))>>>0) ) ) {
                 qh = (qh-1)|0, rh = (rh+vh)|0, t1 = (t1-vl)|0;
@@ -1866,34 +1864,34 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
                 t2 = (imul(qh, d >>> 16)|0) + (t1 >>> 16)|0;
                 d = (m & 0xffff) | (t1 << 16);
                 m = t2;
-                n = HEAP32[(R+j+k)>>2]|0;
+                n = HEAP32[(N+j+k)>>2]|0;
                 t1 = ((n & 0xffff) - (d & 0xffff)|0) + c|0;
                 t2 = ((n >>> 16) - (d >>> 16)|0) + (t1 >> 16)|0;
-                HEAP32[(R+j+k)>>2] = (t2 << 16) | (t1 & 0xffff);
+                HEAP32[(N+j+k)>>2] = (t2 << 16) | (t1 & 0xffff);
                 c = t2 >> 16;
             }
             t1 = ((u1 & 0xffff) - (m & 0xffff)|0) + c|0;
             t2 = ((u1 >>> 16) - (m >>> 16)|0) + (t1 >> 16)|0;
-            HEAP32[(R+j+k)>>2] = u1 = (t2 << 16) | (t1 & 0xffff);
+            u1 = (t2 << 16) | (t1 & 0xffff);
             c = t2 >> 16;
 
             // add `D` back if got carry-out
             if ( c ) {
-                qh = (qh-1)|0, rh = (rh-vh)|0;
+                qh = (qh-1)|0;
                 c = 0;
                 for ( k = 0; (k|0) <= (lD|0); k = (k+4)|0 ) {
                     d = HEAP32[(D+k)>>2]|0;
-                    n = HEAP32[(R+j+k)>>2]|0;
-                    t1 = ((n & 0xffff) + (d & 0xffff)|0) + c|0;
-                    t2 = ((n >>> 16) + (d >>> 16)|0) + (t1 >>> 16)|0;
-                    HEAP32[(R+j+k)>>2] = (t2 << 16) | (t1 & 0xffff);
+                    n = HEAP32[(N+j+k)>>2]|0;
+                    t1 = (n & 0xffff) + c|0;
+                    t2 = (n >>> 16) + d + (t1 >>> 16)|0;
+                    HEAP32[(N+j+k)>>2] = (t2 << 16) | (t1 & 0xffff);
                     c = t2 >>> 16;
                 }
-                HEAP32[(R+j+k)>>2] = u1 = (u1+c)|0;
+                u1 = (u1+c)|0;
             }
 
             // estimate low part of the quotient
-            u0 = HEAP32[(R+i)>>2]|0;
+            u0 = HEAP32[(N+i)>>2]|0;
             n = (u1 << 16) | (u0 >>> 16);
             ql = ( (n>>>0) / (vh>>>0) )|0, rl = ( (n>>>0) % (vh>>>0) )|0, t1 = imul(ql, vl)|0;
             while ( ( (ql|0) == 0x10000 ) | ( (t1>>>0) > (((rl << 16)|(u0 & 0xffff))>>>0) ) ) {
@@ -1910,49 +1908,47 @@ function _bigint_asm ( stdlib, foreign, buffer ) {
                 t2 = ((imul(ql, d >>> 16)|0) + (t1 >>> 16)|0) + (m >>> 16)|0;
                 d = (t1 & 0xffff) | (t2 << 16);
                 m = t2 >>> 16;
-                n = HEAP32[(R+j+k)>>2]|0;
+                n = HEAP32[(N+j+k)>>2]|0;
                 t1 = ((n & 0xffff) - (d & 0xffff)|0) + c|0;
                 t2 = ((n >>> 16) - (d >>> 16)|0) + (t1 >> 16)|0;
                 c = t2 >> 16;
-                HEAP32[(R+j+k)>>2] = (t2 << 16) | (t1 & 0xffff);
+                HEAP32[(N+j+k)>>2] = (t2 << 16) | (t1 & 0xffff);
             }
             t1 = ((u1 & 0xffff) - (m & 0xffff)|0) + c|0;
             t2 = ((u1 >>> 16) - (m >>> 16)|0) + (t1 >> 16)|0;
-            HEAP32[(R+j+k)>>2] = u1 = (t2 << 16) | (t1 & 0xffff);
             c = t2 >> 16;
 
             // add `D` back if got carry-out
             if ( c ) {
-                ql = (ql-1)|0, rl = (rl+vh)|0;
+                ql = (ql-1)|0;
                 c = 0;
                 for ( k = 0; (k|0) <= (lD|0); k = (k+4)|0 ) {
                     d = HEAP32[(D+k)>>2]|0;
-                    n = HEAP32[(R+j+k)>>2]|0;
+                    n = HEAP32[(N+j+k)>>2]|0;
                     t1 = ((n & 0xffff) + (d & 0xffff)|0) + c|0;
                     t2 = ((n >>> 16) + (d >>> 16)|0) + (t1 >>> 16)|0;
                     c = t2 >>> 16;
-                    HEAP32[(R+j+k)>>2] = (t1 & 0xffff) | (t2 << 16);
+                    HEAP32[(N+j+k)>>2] = (t1 & 0xffff) | (t2 << 16);
                 }
-                HEAP32[(R+j+k)>>2] = (u1+c)|0;
             }
 
             // got quotient limb
             HEAP32[(Q+j)>>2] = (qh << 16) | ql;
 
-            u1 = HEAP32[(R+i)>>2]|0;
+            u1 = HEAP32[(N+i)>>2]|0;
         }
 
         if ( e ) {
             // TODO denormalize `D` in place
 
-            // denormalize `R` in place
-            u0 = HEAP32[R>>2]|0;
+            // denormalize `N` in place
+            u0 = HEAP32[N>>2]|0;
             for ( i = 4; (i|0) <= (lD|0); i = (i+4)|0 ) {
-                n = HEAP32[(R+i)>>2]|0;
-                HEAP32[(R+i-4)>>2] = ( n << (32-e|0) ) | (u0 >>> e);
+                n = HEAP32[(N+i)>>2]|0;
+                HEAP32[(N+i-4)>>2] = ( n << (32-e|0) ) | (u0 >>> e);
                 u0 = n;
             }
-            HEAP32[(R+lD)>>2] = u0 >>> e;
+            HEAP32[(N+lD)>>2] = u0 >>> e;
         }
     }
 
