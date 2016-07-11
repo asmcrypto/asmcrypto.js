@@ -1,20 +1,6 @@
 // Default modules to build
 var defaults = [
-    'utils',
-    'globals',
-    'aes-cbc',
-    'aes-gcm',
-    'sha1',
-    'sha256',
-    'hmac-sha1',
-    'hmac-sha256',
-    'pbkdf2-hmac-sha1',
-    'pbkdf2-hmac-sha256',
-    'rng',
-    'bn',
-    'rsa-pkcs1',
-    'rng-globals',
-    'origin',
+    'sha512',
 ];
 
 // Map each of the modules and their deps
