@@ -264,6 +264,9 @@ if ( typeof asmCrypto.BigNumber !== 'undefined' )
 
         var M4 = new asmCrypto.Modulus( asmCrypto.hex_to_bytes('453b5e276054110d94fd7b413ca54e467543c28168730315dae65c6241c847aa7ca16aa99e84e89249addf73bdb326cb7787a667cce65537cd0be7a3564f40fecace8bd6eac901013d5cd5dc28ec9415defff41e30b495bf269472e66e163493403396b14e27c1c9697e90a6274ea8dfda5bcf94d014ed7fa9c64174c78deb2ca1222521f161eafa0752dddecb31c76968929a42669174c9839b97036a2371b5d1466fe5549e53bcc7f30f7ba676950bd7a751e9e916c6525f49bf3046903ff738c5b0514ffe375ba9fe41bb766daf5973ca1d7782d84628e59b3dfa14d7c86fb3d62a219176e84e17d6fae34faa461094ae0ffd9631dd49c9138f6691a1a854') );
         equal( M4.inverse( asmCrypto.hex_to_bytes('145cc156e018b9b8b3599cb8d59a07f69af5cfcbb54f00e84f70edfec80dbab9ac2f79b96adbcbeeca6050c7b043c01db9be7c3ca5ad281f788b07e4bf08404af05addd5cc9578c4211b4df57572c2248ce1de633b806847479512bc3e7f00678b5a779d8f751ae0e2cadf3fed717cf68b846a3ad3c9eb7fe6a3b8e61c93270d2055563728e09067a7cd141459e176e2c4675a8c000ca9e0ea790e4c4c64c7175bab4e16461072fb49de139cd69b59037ba9aeae357f2b456751ecf014c103c12ed0bb6335a51f5731ff7cbeaa5c7ede12ff35d7db308d1b165ad5fe425d954e07b775cda34117260702fe7f176e50d7b34240f03b3bd7ac4a32edf0fda80455') ).toString(16), '11', "M4 inverse OK" );
+
+        var M5 = new asmCrypto.Modulus( asmCrypto.hex_to_bytes('0aabbccddaabbccdd') );
+        equal( M5.reduce( asmCrypto.hex_to_bytes('1aabbccddaabbccdd') ).toString(16), '5544332255443323', "M5 reduce ok" );
     });
 
     test( "asmCrypto.Modulus.power", function () {
