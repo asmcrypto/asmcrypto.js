@@ -5,7 +5,7 @@ function sha256_constructor ( options ) {
     options = options || {};
 
     this.heap = _heap_init( Uint8Array, options );
-    this.asm = options.asm || sha256_asm( global, null, this.heap.buffer );
+    this.asm = options.asm || sha256_asm( { Uint8Array: Uint8Array }, null, this.heap.buffer );
 
     this.BLOCK_SIZE = _sha256_block_size;
     this.HASH_SIZE = _sha256_hash_size;

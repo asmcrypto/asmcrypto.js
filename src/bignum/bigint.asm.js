@@ -1,26 +1,9 @@
-var bigint_asm;
-
-if ( global.Math.imul === undefined ) {
-    function _half_imul ( a, b ) {
-        return a * b | 0;
-    }
-    bigint_asm = function ( stdlib, foreign, buffer ) {
-        global.Math.imul = _half_imul;
-        var m = _bigint_asm( stdlib, foreign, buffer );
-        delete global.Math.imul;
-        return m;
-    };
-}
-else {
-    bigint_asm = _bigint_asm;
-}
-
 /**
  * Integers are represented as little endian array of 32-bit limbs.
  * Limbs number is a power of 2 and a multiple of 8 (256 bits).
  * Negative values use two's complement representation.
  */
-function _bigint_asm ( stdlib, foreign, buffer ) {
+function bigint_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
     var SP = 0;
