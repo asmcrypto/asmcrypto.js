@@ -60,9 +60,17 @@ function Random_weak_seed () {
 
         buffer = new Uint8Array(buffer.buffer);
 
+        var salt = '';
+        if ( global.location !== undefined ) {
+            salt += global.location.href;
+        }
+        else if ( global.process !== undefined ) {
+            salt += global.process.pid + global.process.title;
+        }
+
         var pbkdf2 = get_pbkdf2_hmac_sha256_instance();
         for ( i = 0; i < 100; i++ ) {
-            buffer = pbkdf2.reset( { password: buffer } ).generate( global.location.href, 1000, 32 ).result;
+            buffer = pbkdf2.reset( { password: buffer } ).generate( salt, 1000, 32 ).result;
             t = _hires_now();
             buffer[0] ^= t >>> 24, buffer[1] ^= t >>> 16, buffer[2] ^= t >>> 8, buffer[3] ^= t;
         }
