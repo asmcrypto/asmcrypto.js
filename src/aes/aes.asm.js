@@ -136,11 +136,11 @@ var AES_asm = function () {
      *
      * @alias AES_asm
      * @class
-     * @param {GlobalScope} stdlib - global scope object (e.g. <code>window</code>)
+     * @param {GlobalScope} global - global scope object (e.g. <code>window</code>)
      * @param {Object} foreign - <i>ignored</i>
      * @param {ArrayBuffer} buffer - heap buffer to link with
      */
-    var wrapper = function ( stdlib, foreign, buffer ) {
+    var wrapper = function ( global, foreign, buffer ) {
         // Init AES stuff for the first time
         if ( !aes_init_done ) aes_init();
 
@@ -196,6 +196,9 @@ var AES_asm = function () {
             // Set rounds number
             asm.set_rounds( ks + 5 );
         }
+
+        // create library object with necessary properties
+        var stdlib = { Uint8Array: Uint8Array, Uint32Array: Uint32Array };
 
         var asm = function ( stdlib, foreign, buffer ) {
             "use asm";
