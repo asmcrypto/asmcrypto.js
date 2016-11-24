@@ -4,16 +4,21 @@ function is_big_number ( a ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var _bigint_stdlib = { Uint32Array: Uint32Array, Math: global.Math };
+var _bigint_stdlib = { Uint32Array: Uint32Array, Math: global.Math },
+    _bigint_heap = new Uint32Array(0x100000),
+    _bigint_asm;
 
-if ( _bigint_stdlib .Math.imul === undefined ) {
-    _bigint_stdlib .Math.imul = function _half_imul ( a, b ) {
+if ( _bigint_stdlib.Math.imul === undefined ) {
+    function _half_imul ( a, b ) {
         return a * b | 0;
     }
-}
-
-var _bigint_heap = new Uint32Array(0x100000),
+    _bigint_stdlib.Math.imul = _half_imul;
     _bigint_asm = bigint_asm( _bigint_stdlib, null, _bigint_heap.buffer );
+    delete _bigint_stdlib.Math.imul;
+}
+else {
+    _bigint_asm = bigint_asm( _bigint_stdlib, null, _bigint_heap.buffer );
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
