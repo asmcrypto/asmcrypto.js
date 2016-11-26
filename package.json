@@ -1,6 +1,7 @@
 {
-    "name": "asmcrypto.js",
-    "description": "Asm.js implementation of WebCrypto API",
+    "name": "asmcrypto.js-sha512",
+    "version": "0.0.1",
+    "description": "Asm.js implementation of WebCrypto API with only SHA512",
     "homepage": "https://github.com/vibornoff/asmcrypto.js",
     "main": "asmcrypto.js",
     "license": "MIT",
@@ -9,6 +10,10 @@
         "email": "vybornov@gmail.com",
         "web": "https://github.com/vibornoff"
     },
+    "files": [
+      "asmcrypto.js",
+      "asmcrypto.js.map"
+    ],
     "contributors": [
         {
             "name": "Ádám Lippai",
