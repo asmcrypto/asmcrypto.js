@@ -14,6 +14,7 @@ function sha1_constructor ( options ) {
 }
 
 sha1_constructor.BLOCK_SIZE = _sha1_block_size;
+sha1_constructor.NAME = "sha1";
 sha1_constructor.HASH_SIZE = _sha1_hash_size;
 var sha1_prototype = sha1_constructor.prototype;
 sha1_prototype.reset =   hash_reset;

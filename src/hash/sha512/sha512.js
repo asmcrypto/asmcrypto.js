@@ -15,6 +15,7 @@ function sha512_constructor ( options ) {
 
 sha512_constructor.BLOCK_SIZE = _sha512_block_size;
 sha512_constructor.HASH_SIZE = _sha512_hash_size;
+sha512_constructor.NAME = "sha512";
 var sha512_prototype = sha512_constructor.prototype;
 sha512_prototype.reset =   hash_reset;
 sha512_prototype.process = hash_process;

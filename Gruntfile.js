@@ -288,7 +288,8 @@ var modules = [
         files: [ 'src/rsa/pkcs1.js' ],
         depends: [ 'rsa' ],
         implies: [ 'rsa-keygen-exports', 'rsa-oaep-sha1-exports', 'rsa-oaep-sha256-exports', 'rsa-oaep-sha512-exports',
-                                         'rsa-pss-sha1-exports',  'rsa-pss-sha256-exports',  'rsa-pss-sha512-exports' ]
+                                         'rsa-pss-sha1-exports',  'rsa-pss-sha256-exports',  'rsa-pss-sha512-exports' ,
+                                         'rsa-pkcs1-v1_5-sha1-exports',  'rsa-pkcs1-v1_5-sha256-exports', 'rsa-pkcs1-v1_5-sha512-exports' ]
     },
     {
         name: 'rsa-keygen-exports',
@@ -329,7 +330,22 @@ var modules = [
         name: 'rsa-pss-sha512-exports',
         files: [ 'src/rsa/exports-pss-sha512.js' ],
         depends: [ 'rsa-pkcs1', 'sha512' ]
-    }
+    },
+    {
+        name: 'rsa-pkcs1-v1_5-sha1-exports',
+        files: [ 'src/rsa/exports-pkcs1-v1_5-sha1.js' ],
+        depends: [ 'rsa-pkcs1', 'sha1' ]
+    },
+    {
+        name: 'rsa-pkcs1-v1_5-sha256-exports',
+        files: [ 'src/rsa/exports-pkcs1-v1_5-sha256.js' ],
+        depends: [ 'rsa-pkcs1', 'sha256' ]
+    },
+    // {
+    //     name: 'rsa-pss-sha512-exports',
+    //     files: [ 'src/rsa/exports-pss-sha512.js' ],
+    //     depends: [ 'rsa-pkcs1', 'sha512' ]
+    // }
 ];
 
 // Supported browsers
@@ -483,7 +499,7 @@ module.exports = function ( grunt ) {
             },
             all: {
                 files: {
-                    'asmcrypto.js': 'asmcrypto.js'
+                    'asmcrypto.min.js': 'asmcrypto.js'
                 }
             }
         },

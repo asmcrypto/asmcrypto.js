@@ -1,4 +1,4 @@
-asmcrypto.js
-asmcrypto.js.map
+asmcrypto*.js
+asmcrypto*.map
 doc/
 node_modules/

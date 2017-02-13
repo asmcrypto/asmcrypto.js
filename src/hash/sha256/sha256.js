@@ -15,6 +15,7 @@ function sha256_constructor ( options ) {
 
 sha256_constructor.BLOCK_SIZE = _sha256_block_size;
 sha256_constructor.HASH_SIZE = _sha256_hash_size;
+sha256_constructor.NAME = "sha256";
 var sha256_prototype = sha256_constructor.prototype;
 sha256_prototype.reset =   hash_reset;
 sha256_prototype.process = hash_process;

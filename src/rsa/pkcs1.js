@@ -295,6 +295,127 @@ function RSA_PSS_verify ( signature, data ) {
     return this;
 }
 
+function RSA_PKCS1_v1_5(options) {
+    options = options || {};
+
+    if (!options.hash)
+        throw new SyntaxError("option 'hash' is required");
+
+    if (!options.hash.HASH_SIZE)
+        throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");
+
+    this.hash = options.hash;
+
+    this.reset(options);
+}
+
+function RSA_PKCS1_v1_5_reset(options) {
+    options = options || {};
+
+    RSA_reset.call(this, options);
+}
+
+var HASH_PREFIXES = {
+    "sha1": new Uint8Array([0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14]),
+    "sha256": new Uint8Array([0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20]),
+    "sha384": new Uint8Array([0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30]),
+    "sha512": new Uint8Array([0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40]),
+}
+
+function getHashPrefix(hash) {
+    var hashName = hash.constructor.NAME;
+    var prefix = HASH_PREFIXES[hashName];
+    if (!prefix) {
+        throw new Error("Cannot get hash prefix for hash algorithm '" + hashName + "'");
+    }
+    return prefix;
+}
+
+function RSA_PKCS1_v1_5_sign(data) {
+    if (!this.key) {
+        throw new IllegalStateError("no key is associated with the instance");
+    }
+    var prefix = getHashPrefix(this.hash);
+    var hash_size = this.hash.HASH_SIZE;
+
+    var t_len = prefix.length + hash_size;
+    var k = (this.key[0].bitLength + 7) >> 3;
+    if (k < t_len + 11) {
+        throw new Error("Message too long");
+    }
+
+    var m_hash = new Uint8Array(hash_size);
+    m_hash.set(this.hash.reset().process(data).finish().result);
+
+    // EM = 0x00 || 0x01 || PS || 0x00 || T
+    var em = new Uint8Array(k);
+    var i = 0;
+    em[i++] = 0; // 0x00
+    em[i++] = 1; // 0x01
+    // PS
+    for (i; i < k - t_len - 1; i++) {
+        em[i] = 0xff;
+    }
+    em[i++] = 0;
+    em.set(prefix, i); // 0x00
+    // T
+    em.set(m_hash, em.length - hash_size);
+
+    RSA_decrypt.call(this, em);
+
+    return this;
+}
+
+function RSA_PKCS1_v1_5_verify(signature, data) {
+    if (!this.key) {
+        throw new IllegalStateError("no key is associated with the instance");
+    }
+    var prefix = getHashPrefix(this.hash);
+    var hash_size = this.hash.HASH_SIZE;
+
+    var t_len = prefix.length + hash_size;
+    var k = (this.key[0].bitLength + 7) >> 3;
+    if (k < t_len + 11) {
+        throw new SecurityError("Bad signature");
+    }
+
+    RSA_encrypt.call(this, signature);
+
+    var m_hash = new Uint8Array(hash_size);
+    m_hash.set(this.hash.reset().process(data).finish().result);
+
+    var res = 1;
+    // EM = 0x00 || 0x01 || PS || 0x00 || T
+    var decryptedSignature = this.result;
+    var i = 0;
+    res &= decryptedSignature[i++] === 0; // 0x00
+    res &= decryptedSignature[i++] === 1; // 0x01
+    // PS
+    for (i; i < k - t_len - 1; i++) {
+        res &= decryptedSignature[i] === 0xff;
+    }
+    res &= decryptedSignature[i++] === 0; // 0x00
+    // T
+    var j = 0;
+    var n = i + prefix.length;
+    // prefix
+    for (i; i < n; i++) {
+        res &= decryptedSignature[i] === prefix[j++];
+    }
+    j = 0;
+    n = i + m_hash.length;
+    // hash
+    for (i; i < n; i++) {
+        res &= decryptedSignature[i] === m_hash[j++];
+    }
+
+    if (!res) {
+        throw new SecurityError("Bad signature");
+    }
+
+    return this;
+}
+
 var RSA_OAEP_prototype = RSA_OAEP.prototype;
 RSA_OAEP_prototype.reset = RSA_OAEP_reset;
 RSA_OAEP_prototype.encrypt = RSA_OAEP_encrypt;
@@ -304,3 +425,8 @@ var RSA_PSS_prototype = RSA_PSS.prototype;
 RSA_PSS_prototype.reset = RSA_PSS_reset;
 RSA_PSS_prototype.sign = RSA_PSS_sign;
 RSA_PSS_prototype.verify = RSA_PSS_verify;
+
+var RSA_PKCS1_v1_5_prototype = RSA_PKCS1_v1_5.prototype;
+RSA_PKCS1_v1_5_prototype.reset = RSA_PKCS1_v1_5_reset;
+RSA_PKCS1_v1_5_prototype.sign = RSA_PKCS1_v1_5_sign;
+RSA_PKCS1_v1_5_prototype.verify = RSA_PKCS1_v1_5_verify;
