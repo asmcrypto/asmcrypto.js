@@ -109,10 +109,8 @@ function BigNumber_toString ( radix ) {
             str += h;
         }
 
-        str = str.replace( /^0+/, '' );
-
         if ( !str.length )
-            str = '0';
+            str = '00';
     }
     else {
         throw new IllegalArgumentError("bad radix");
