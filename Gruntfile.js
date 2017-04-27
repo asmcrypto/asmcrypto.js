@@ -2,10 +2,12 @@
 var defaults = [
     'utils',
     'globals',
+    'aes-ecb',
     'aes-cbc',
     'aes-gcm',
     'sha1',
     'sha256',
+    'sha512',
     'hmac-sha1',
     'hmac-sha256',
     'pbkdf2-hmac-sha1',
@@ -341,11 +343,11 @@ var modules = [
         files: [ 'src/rsa/exports-pkcs1-v1_5-sha256.js' ],
         depends: [ 'rsa-pkcs1', 'sha256' ]
     },
-    // {
-    //     name: 'rsa-pss-sha512-exports',
-    //     files: [ 'src/rsa/exports-pss-sha512.js' ],
-    //     depends: [ 'rsa-pkcs1', 'sha512' ]
-    // }
+    {
+        name: 'rsa-pkcs1-v1_5-sha512-exports',
+        files: [ 'src/rsa/exports-pkcs1-v1_5-sha512.js' ],
+        depends: [ 'rsa-pkcs1', 'sha512' ]
+    },
 ];
 
 // Supported browsers
@@ -476,7 +478,7 @@ module.exports = function ( grunt ) {
                       + "(function ( exports, global ) {\n\n",
                 footer: "\n\n'function'==typeof define&&define.amd?define([],function(){return exports}):"
                       + "'object'==typeof module&&module.exports?module.exports=exports:global.asmCrypto=exports;"
-                      + "\n\nreturn exports;\n})( {}, function(){return this}() );",
+                      + "\n\nreturn exports;\n})( {}, this );",
                 sourceMap: true,
                 sourceMapStyle: 'link'
             },
