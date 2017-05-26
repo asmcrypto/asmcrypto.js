@@ -14,7 +14,7 @@ Add `<script src="path/to/asmcrypto.js"></script>` into your page.
 Index
 -----
 
-* [Download] (#download)
+* [Download](#download)
 * [Build & Test](#build--test)
 * [Performance](#performance)
 * [API Reference](#api-reference)
