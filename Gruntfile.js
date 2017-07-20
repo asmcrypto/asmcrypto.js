@@ -10,6 +10,7 @@ var defaults = [
     'hmac-sha256',
     'pbkdf2-hmac-sha1',
     'pbkdf2-hmac-sha256',
+    'pbkdf2-hmac-sha512',
     'rng',
     'bn',
     'rsa-pkcs1',
