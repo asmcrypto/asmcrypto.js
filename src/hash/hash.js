@@ -1,4 +1,5 @@
 import {_heap_write, is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+import {IllegalStateError} from '../errors';
 
 export function hash_reset () {
     this.result = null;

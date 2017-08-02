@@ -16,7 +16,7 @@ function rsa_raw_decrypt_bytes ( data, key ) {
     return (new RSA({ key: key })).decrypt(data).result;
 }
 
-export const RSA_RAW = RSA;
+export var RSA_RAW = RSA;
 
 RSA_RAW.encrypt = rsa_raw_encrypt_bytes;
 RSA_RAW.decrypt = rsa_raw_decrypt_bytes;

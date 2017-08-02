@@ -20,7 +20,7 @@ function sha1_base64 ( data ) {
     return bytes_to_base64(result);
 }
 
-export const SHA1 = sha1_constructor;
+export var SHA1 = sha1_constructor;
 
 SHA1.bytes = sha1_bytes;
 SHA1.hex = sha1_hex;

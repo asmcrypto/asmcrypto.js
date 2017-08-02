@@ -21,13 +21,13 @@ function pbkdf2_hmac_sha1_base64 ( password, salt, iterations, dklen ) {
     return bytes_to_base64(result);
 }
 
-export const PBKDF2 = {
+export var PBKDF2 = {
     bytes: pbkdf2_hmac_sha1_bytes,
     hex: pbkdf2_hmac_sha1_hex,
     base64: pbkdf2_hmac_sha1_base64
 };
 
-export const PBKDF2_HMAC_SHA1 = {
+export var PBKDF2_HMAC_SHA1 = {
   bytes: pbkdf2_hmac_sha1_bytes,
   hex: pbkdf2_hmac_sha1_hex,
   base64: pbkdf2_hmac_sha1_base64

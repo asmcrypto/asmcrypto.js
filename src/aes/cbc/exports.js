@@ -17,7 +17,7 @@ function AES_CBC_decrypt_bytes ( data, key, padding, iv ) {
     return new AES_CBC_constructor( { heap: _AES_heap_instance, asm: _AES_asm_instance, key: key, padding: padding, iv: iv } ).decrypt(data).result;
 }
 
-export const AES_CBC = AES_CBC_constructor;
+export var AES_CBC = AES_CBC_constructor;
 AES_CBC.encrypt = AES_CBC_encrypt_bytes;
 AES_CBC.decrypt = AES_CBC_decrypt_bytes;
 

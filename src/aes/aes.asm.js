@@ -3,7 +3,7 @@
  * @author Artem S Vybornov <vybornov@gmail.com>
  * @license MIT
  */
-export const AES_asm = function () {
+export var AES_asm = function () {
     "use strict";
 
     /**

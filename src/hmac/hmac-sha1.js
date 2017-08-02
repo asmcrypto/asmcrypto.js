@@ -1,6 +1,7 @@
 import {hmac_process, hmac_constructor, _hmac_key, _hmac_init_verify} from './hmac';
 import {_sha1_hash_size, get_sha1_instance, sha1_constructor} from '../hash/sha1/sha1';
 import {is_string, string_to_bytes} from '../utils';
+import {IllegalStateError} from '../errors';
 
 export function hmac_sha1_constructor (options ) {
     options = options || {};

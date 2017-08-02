@@ -2,8 +2,8 @@ import {hash_finish, hash_process, hash_reset} from '../hash';
 import {sha512_asm} from './sha512.asm';
 import {_heap_init} from '../../utils';
 
-export const _sha512_block_size = 128;
-export const _sha512_hash_size = 64;
+export var _sha512_block_size = 128;
+export var _sha512_hash_size = 64;
 
 export function sha512_constructor ( options ) {
     options = options || {};

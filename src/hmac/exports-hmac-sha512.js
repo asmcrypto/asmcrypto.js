@@ -21,7 +21,7 @@ function hmac_sha512_base64 ( data, password ) {
     return bytes_to_base64(result);
 }
 
-export const HMAC_SHA512 = hmac_sha512_constructor;
+export var HMAC_SHA512 = hmac_sha512_constructor;
 
 HMAC_SHA512.bytes = hmac_sha512_bytes;
 HMAC_SHA512.hex = hmac_sha512_hex;

@@ -2,8 +2,8 @@ import {sha1_asm} from './sha1.asm';
 import {hash_finish, hash_process, hash_reset} from '../hash';
 import {_heap_init} from '../../utils';
 
-export const _sha1_block_size = 64;
-export const _sha1_hash_size = 20;
+export var _sha1_block_size = 64;
+export var _sha1_hash_size = 20;
 
 export function sha1_constructor ( options ) {
     options = options || {};

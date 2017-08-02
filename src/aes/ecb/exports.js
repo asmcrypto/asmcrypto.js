@@ -17,7 +17,7 @@ function AES_ECB_decrypt_bytes ( data, key, padding ) {
     return new AES_ECB_constructor( { heap: _AES_heap_instance, asm: _AES_asm_instance, key: key, padding: padding } ).decrypt(data).result;
 }
 
-export const AES_ECB = AES_ECB_constructor;
+export var AES_ECB = AES_ECB_constructor;
 
 AES_ECB.encrypt = AES_ECB_encrypt_bytes;
 AES_ECB.decrypt = AES_ECB_decrypt_bytes;

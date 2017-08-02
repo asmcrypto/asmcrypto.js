@@ -20,7 +20,7 @@ function sha512_base64 ( data ) {
     return bytes_to_base64(result);
 }
 
-export const SHA512 = sha512_constructor;
+export var SHA512 = sha512_constructor;
 
 SHA512.bytes = sha512_bytes;
 SHA512.hex = sha512_hex;

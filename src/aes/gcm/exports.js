@@ -20,7 +20,7 @@ function AES_GCM_decrypt_bytes ( data, key, nonce, adata, tagSize ) {
     return new AES_GCM_constructor( { heap: _AES_heap_instance, asm: _AES_asm_instance, key: key, nonce: nonce, adata: adata, tagSize: tagSize } ).decrypt(data).result;
 }
 
-export const AES_GCM = AES_GCM_constructor;
+export var AES_GCM = AES_GCM_constructor;
 
 AES_GCM.encrypt = AES_GCM_encrypt_bytes;
 AES_GCM.decrypt = AES_GCM_decrypt_bytes;

@@ -1,5 +1,6 @@
 import {bigint_asm} from './bigint.asm';
 import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../utils';
+import {IllegalArgumentError} from '../errors';
 
 export function is_big_number ( a ) {
     return ( a instanceof BigNumber );
@@ -462,8 +463,8 @@ BigNumberPrototype.divide = BigNumber_divide;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export const BigNumber_ZERO = new BigNumber(0);
-export const BigNumber_ONE  = new BigNumber(1);
+export var BigNumber_ZERO = new BigNumber(0);
+export var BigNumber_ONE  = new BigNumber(1);
 
 Object.freeze(BigNumber_ZERO);
 Object.freeze(BigNumber_ONE);

@@ -2,7 +2,7 @@ import {BigNumber as BigNumber_constructor, BigNumber_ONE, BigNumber_ZERO} from 
 import {BigNumber_extGCD} from './extgcd';
 import "./prime";
 
-export const BigNumber = BigNumber_constructor;
+export var BigNumber = BigNumber_constructor;
 BigNumber.ZERO = BigNumber_ZERO;
 BigNumber.ONE  = BigNumber_ONE;
 

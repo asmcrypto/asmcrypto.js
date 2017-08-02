@@ -20,7 +20,7 @@ function sha256_base64 ( data ) {
     return bytes_to_base64(result);
 }
 
-export const SHA256 = sha256_constructor;
+export var SHA256 = sha256_constructor;
 SHA256.bytes = sha256_bytes;
 SHA256.hex = sha256_hex;
 SHA256.base64 = sha256_base64;

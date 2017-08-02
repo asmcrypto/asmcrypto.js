@@ -2,8 +2,8 @@ import {sha256_asm} from './sha256.asm';
 import {hash_finish, hash_process, hash_reset} from '../hash';
 import {_heap_init} from '../../utils';
 
-export const _sha256_block_size = 64;
-export const _sha256_hash_size = 32;
+export var _sha256_block_size = 64;
+export var _sha256_hash_size = 32;
 
 export function sha256_constructor ( options ) {
     options = options || {};

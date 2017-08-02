@@ -1,6 +1,7 @@
 import {pbkdf2_constructor, pbkdf2_reset} from './pbkdf2';
 import {get_hmac_sha512_instance, hmac_sha512_constructor} from '../hmac/hmac-sha512';
 import {is_string} from '../utils';
+import {IllegalArgumentError, IllegalStateError} from '../errors';
 
 export function pbkdf2_hmac_sha512_constructor ( options ) {
     options = options || {};

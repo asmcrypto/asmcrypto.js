@@ -4,6 +4,7 @@
 
 import {get_sha256_instance} from '../hash/sha256/sha256';
 import {RSA_PSS} from './pkcs1';
+import {SecurityError} from '../errors';
 
 function rsa_pss_sha256_sign_bytes (data, key, slen ) {
     if ( data === undefined ) throw new SyntaxError("data required");
@@ -26,7 +27,7 @@ function rsa_pss_sha256_verify_bytes ( signature, data, key, slen ) {
     return false;
 }
 
-export const RSA_PSS_SHA256 = {
+export var RSA_PSS_SHA256 = {
     sign: rsa_pss_sha256_sign_bytes,
     verify: rsa_pss_sha256_verify_bytes
 };

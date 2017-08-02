@@ -17,7 +17,7 @@ function AES_CFB_decrypt_bytes ( data, key, iv ) {
     return new AES_CFB_constructor( { heap: _AES_heap_instance, asm: _AES_asm_instance, key: key, iv: iv } ).decrypt(data).result;
 }
 
-export const AES_CFB = AES_CFB_constructor;
+export var AES_CFB = AES_CFB_constructor;
 
 AES_CFB.encrypt = AES_CFB_encrypt_bytes;
 AES_CFB.decrypt = AES_CFB_decrypt_bytes;

@@ -1,4 +1,5 @@
 import {is_string} from '../utils';
+import {IllegalArgumentError, IllegalStateError} from '../errors';
 
 export function pbkdf2_constructor (options ) {
     options = options || {};

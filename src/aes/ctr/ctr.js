@@ -4,6 +4,7 @@
 
 import {AES, AES_Encrypt_finish, AES_Encrypt_process, AES_reset} from '../aes';
 import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../../utils';
+import {IllegalArgumentError} from '../../errors';
 
 export function AES_CTR_constructor (options ) {
     this.nonce = null,

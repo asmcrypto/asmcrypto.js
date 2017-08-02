@@ -12,7 +12,7 @@ function AES_CTR_crypt_bytes ( data, key, nonce ) {
     return new AES_CTR_constructor( { heap: _AES_heap_instance, asm: _AES_asm_instance, key: key, nonce: nonce } ).encrypt(data).result;
 }
 
-export const AES_CTR = AES_CTR_constructor;
+export var AES_CTR = AES_CTR_constructor;
 
 AES_CTR.encrypt = AES_CTR_crypt_bytes;
 AES_CTR.decrypt = AES_CTR_crypt_bytes;

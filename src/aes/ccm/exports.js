@@ -22,7 +22,7 @@ function AES_CCM_decrypt_bytes ( data, key, nonce, adata, tagSize ) {
     return new AES_CCM_constructor( { heap: _AES_heap_instance, asm: _AES_asm_instance, key: key, nonce: nonce, adata: adata, tagSize: tagSize, dataLength: dataLength-tagSize } ).decrypt(data).result;
 }
 
-export const AES_CCM = AES_CCM_constructor;
+export var AES_CCM = AES_CCM_constructor;
 AES_CCM.encrypt = AES_CCM_encrypt_bytes;
 AES_CCM.decrypt = AES_CCM_decrypt_bytes;
 

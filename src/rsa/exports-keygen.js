@@ -15,6 +15,6 @@ function rsa_generate_key (bitlen, e ) {
     return key;
 }
 
-export const RSA = {
+export var RSA = {
     generateKey: rsa_generate_key
 };

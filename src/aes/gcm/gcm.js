@@ -5,6 +5,7 @@
 import {AES_asm} from '../aes.asm'
 import {AES, AES_reset, AES_set_iv} from '../aes';
 import {_heap_write, is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../../utils';
+import {IllegalArgumentError, IllegalStateError, SecurityError} from '../../errors';
 
 var _AES_GCM_data_maxLength = 68719476704;  // 2^36 - 2^5
 

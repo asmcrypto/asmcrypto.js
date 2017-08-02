@@ -1,4 +1,5 @@
 import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+import {IllegalArgumentError, IllegalStateError} from '../errors';
 
 export function hmac_constructor (options ) {
     options = options || {};

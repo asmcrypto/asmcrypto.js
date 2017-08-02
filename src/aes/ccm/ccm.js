@@ -17,6 +17,7 @@ import { AES_asm} from '../aes.asm'
 import { AES, AES_reset, AES_set_iv } from '../aes'
 import {_heap_write, is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../../utils';
 import {AES_CTR_set_options} from '../ctr/ctr';
+import {IllegalArgumentError, IllegalStateError, SecurityError} from '../../errors';
 
 function _cbc_mac_process ( data ) {
     var heap = this.heap,

@@ -1,6 +1,7 @@
 import { ISAAC } from './isaac';
-import {is_buffer, is_typed_array} from '../utils';
+import {FloatArray, is_buffer, is_typed_array} from '../utils';
 import {get_pbkdf2_hmac_sha256_instance} from '../pbkdf2/pbkdf2-hmac-sha256';
+import {SecurityError} from '../errors';
 
 var _global_console = typeof console !== "undefined" ? console : undefined,
     _global_date_now = Date.now,

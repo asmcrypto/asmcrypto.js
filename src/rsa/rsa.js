@@ -1,6 +1,7 @@
 import {Modulus} from '../bignum/modulus';
 import {BigNumber, is_big_number} from '../bignum/bignum';
 import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+import {IllegalStateError} from '../errors';
 
 export function RSA (options ) {
     options = options || {};

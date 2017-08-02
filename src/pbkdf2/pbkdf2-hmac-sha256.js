@@ -1,6 +1,7 @@
 import {pbkdf2_constructor, pbkdf2_reset} from './pbkdf2';
 import {get_hmac_sha256_instance, hmac_sha256_constructor} from '../hmac/hmac-sha256';
 import {is_string} from '../utils';
+import {IllegalArgumentError, IllegalStateError} from '../errors';
 
 export function pbkdf2_hmac_sha256_constructor ( options ) {
     options = options || {};

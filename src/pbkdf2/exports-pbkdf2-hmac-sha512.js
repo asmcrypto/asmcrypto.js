@@ -21,7 +21,7 @@ function pbkdf2_hmac_sha512_base64 ( password, salt, iterations, dklen ) {
     return bytes_to_base64(result);
 }
 
-export const PBKDF2_HMAC_SHA512 = {
+export var PBKDF2_HMAC_SHA512 = {
     bytes: pbkdf2_hmac_sha512_bytes,
     hex: pbkdf2_hmac_sha512_hex,
     base64: pbkdf2_hmac_sha512_base64

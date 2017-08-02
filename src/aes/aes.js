@@ -1,5 +1,6 @@
 import {AES_asm} from './aes.asm';
 import {_heap_init, _heap_write, is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+import {IllegalArgumentError, SecurityError} from '../errors';
 
 export function AES ( options ) {
     options = options || {};

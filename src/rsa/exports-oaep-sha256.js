@@ -17,7 +17,7 @@ function rsa_oaep_sha256_decrypt_bytes ( data, key, label ) {
     return (new RSA_OAEP({ hash: get_sha256_instance(), key: key, label: label })).decrypt(data).result;
 }
 
-export const RSA_OAEP_SHA256 = {
+export var RSA_OAEP_SHA256 = {
     encrypt: rsa_oaep_sha256_encrypt_bytes,
     decrypt: rsa_oaep_sha256_decrypt_bytes
 };
