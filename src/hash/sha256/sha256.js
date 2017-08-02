@@ -1,7 +1,11 @@
-var _sha256_block_size = 64,
-    _sha256_hash_size = 32;
+import {sha256_asm} from './sha256.asm';
+import {hash_finish, hash_process, hash_reset} from '../hash';
+import {_heap_init} from '../../utils';
 
-function sha256_constructor ( options ) {
+export const _sha256_block_size = 64;
+export const _sha256_hash_size = 32;
+
+export function sha256_constructor ( options ) {
     options = options || {};
 
     this.heap = _heap_init( Uint8Array, options );
@@ -24,7 +28,7 @@ sha256_prototype.finish =  hash_finish;
 
 var sha256_instance = null;
 
-function get_sha256_instance () {
+export function get_sha256_instance () {
     if ( sha256_instance === null ) sha256_instance = new sha256_constructor( { heapSize: 0x100000 } );
     return sha256_instance;
 }

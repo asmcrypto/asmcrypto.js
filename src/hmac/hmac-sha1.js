@@ -1,4 +1,8 @@
-function hmac_sha1_constructor ( options ) {
+import {hmac_process, hmac_constructor, _hmac_key, _hmac_init_verify} from './hmac';
+import {_sha1_hash_size, get_sha1_instance, sha1_constructor} from '../hash/sha1/sha1';
+import {is_string, string_to_bytes} from '../utils';
+
+export function hmac_sha1_constructor (options ) {
     options = options || {};
 
     if ( !( options.hash instanceof sha1_constructor ) )
@@ -100,7 +104,7 @@ hmac_sha1_prototype.finish = hmac_sha1_finish;
 
 var hmac_sha1_instance = null;
 
-function get_hmac_sha1_instance () {
+export function get_hmac_sha1_instance () {
     if ( hmac_sha1_instance === null ) hmac_sha1_instance = new hmac_sha1_constructor();
     return hmac_sha1_instance;
 }

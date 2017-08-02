@@ -1,12 +1,15 @@
-function is_big_number ( a ) {
+import {bigint_asm} from './bigint.asm';
+import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../utils';
+
+export function is_big_number ( a ) {
     return ( a instanceof BigNumber );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var _bigint_stdlib = { Uint32Array: Uint32Array, Math: global.Math },
-    _bigint_heap = new Uint32Array(0x100000),
-    _bigint_asm;
+export var _bigint_stdlib = { Uint32Array: Uint32Array, Math: Math };
+export var _bigint_heap = new Uint32Array(0x100000);
+export var _bigint_asm;
 
 if ( _bigint_stdlib.Math.imul === undefined ) {
     function _half_imul ( a, b ) {
@@ -24,7 +27,7 @@ else {
 
 var _BigNumber_ZERO_limbs = new Uint32Array(0);
 
-function BigNumber ( num ) {
+export function BigNumber ( num ) {
     var limbs = _BigNumber_ZERO_limbs,
         bitlen = 0,
         sign = 0;
@@ -459,8 +462,8 @@ BigNumberPrototype.divide = BigNumber_divide;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var BigNumber_ZERO = new BigNumber(0),
-    BigNumber_ONE  = new BigNumber(1);
+export const BigNumber_ZERO = new BigNumber(0);
+export const BigNumber_ONE  = new BigNumber(1);
 
 Object.freeze(BigNumber_ZERO);
 Object.freeze(BigNumber_ONE);

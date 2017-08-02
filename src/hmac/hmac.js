@@ -1,4 +1,6 @@
-function hmac_constructor ( options ) {
+import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+
+export function hmac_constructor (options ) {
     options = options || {};
 
     if ( !options.hash )
@@ -21,7 +23,7 @@ function hmac_constructor ( options ) {
     return this;
 }
 
-function _hmac_key ( hash, password ) {
+export function _hmac_key ( hash, password ) {
     if ( is_buffer(password) )
         password = new Uint8Array(password);
 
@@ -43,7 +45,7 @@ function _hmac_key ( hash, password ) {
     return key;
 }
 
-function _hmac_init_verify ( verify ) {
+export function _hmac_init_verify ( verify ) {
     if ( is_buffer(verify) || is_bytes(verify) ) {
         verify = new Uint8Array(verify);
     }
@@ -90,7 +92,7 @@ function hmac_reset ( options ) {
     return this;
 }
 
-function hmac_process ( data ) {
+export function hmac_process ( data ) {
     if ( this.key === null )
         throw new IllegalStateError("no key is associated with the instance");
 

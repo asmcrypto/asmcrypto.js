@@ -1,4 +1,4 @@
-function sha256_asm ( stdlib, foreign, buffer ) {
+export function sha256_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
     // SHA256 state

@@ -1,4 +1,6 @@
-function hash_reset () {
+import {_heap_write, is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+
+export function hash_reset () {
     this.result = null;
     this.pos = 0;
     this.len = 0;
@@ -8,7 +10,7 @@ function hash_reset () {
     return this;
 }
 
-function hash_process ( data ) {
+export function hash_process ( data ) {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 
@@ -49,7 +51,7 @@ function hash_process ( data ) {
     return this;
 }
 
-function hash_finish () {
+export function hash_finish () {
     if ( this.result !== null )
         throw new IllegalStateError("state must be reset before processing new data");
 

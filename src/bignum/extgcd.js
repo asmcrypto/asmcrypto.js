@@ -1,4 +1,6 @@
-function Number_extGCD ( a, b ) {
+import {BigNumber, BigNumber_ONE, BigNumber_ZERO, is_big_number} from './bignum';
+
+export function Number_extGCD (a, b ) {
     var sa = ( a < 0 ) ? -1 : 1,
         sb = ( b < 0 ) ? -1 : 1,
         xi = 1, xj = 0,
@@ -37,7 +39,7 @@ function Number_extGCD ( a, b ) {
     };
 }
 
-function BigNumber_extGCD ( a, b ) {
+export function BigNumber_extGCD ( a, b ) {
     if ( !is_big_number(a) )
         a = new BigNumber(a);
 

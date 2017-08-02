@@ -1,7 +1,11 @@
+import {BigNumber as BigNumber_constructor, BigNumber_ONE, BigNumber_ZERO} from './bignum';
+import {BigNumber_extGCD} from './extgcd';
+import "./prime";
+
+export const BigNumber = BigNumber_constructor;
 BigNumber.ZERO = BigNumber_ZERO;
 BigNumber.ONE  = BigNumber_ONE;
 
 BigNumber.extGCD = BigNumber_extGCD;
 
-exports.BigNumber = BigNumber;
-exports.Modulus = Modulus;
+export { Modulus } from "./modulus";

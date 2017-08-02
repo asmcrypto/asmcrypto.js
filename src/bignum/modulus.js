@@ -1,7 +1,11 @@
+import {BigNumber, is_big_number} from './bignum';
+import {BigNumber_extGCD, Number_extGCD} from './extgcd';
+import {_bigint_asm, _bigint_heap} from './bignum'
+
 /**
  * Modulus
  */
-function Modulus () {
+export function Modulus () {
     BigNumber.apply( this, arguments );
 
     if ( this.valueOf() < 1 )

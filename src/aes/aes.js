@@ -1,15 +1,18 @@
-function AES ( options ) {
+import {AES_asm} from './aes.asm';
+import {_heap_init, _heap_write, is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+
+export function AES ( options ) {
     options = options || {};
 
     this.heap = _heap_init( Uint8Array, options ).subarray( AES_asm.HEAP_DATA );
-    this.asm = options.asm || AES_asm( global, null, this.heap.buffer );
+    this.asm = options.asm || AES_asm( null, this.heap.buffer );
     this.mode = null;
     this.key = null;
 
     this.reset( options );
 }
 
-function AES_set_key ( key ) {
+export function AES_set_key ( key ) {
     if ( key !== undefined ) {
         if ( is_buffer(key) || is_bytes(key) ) {
             key = new Uint8Array(key);
@@ -45,7 +48,7 @@ function AES_set_key ( key ) {
     }
 }
 
-function AES_set_iv ( iv ) {
+export function AES_set_iv ( iv ) {
     if ( iv !== undefined ) {
         if ( is_buffer(iv) || is_bytes(iv) ) {
             iv = new Uint8Array(iv);
@@ -80,7 +83,7 @@ function AES_set_padding ( padding ) {
     }
 }
 
-function AES_reset ( options ) {
+export function AES_reset ( options ) {
     options = options || {};
 
     this.result = null;
@@ -94,7 +97,7 @@ function AES_reset ( options ) {
     return this;
 }
 
-function AES_Encrypt_process ( data ) {
+export function AES_Encrypt_process ( data ) {
     if ( is_string(data) )
         data = string_to_bytes(data);
 
@@ -145,7 +148,7 @@ function AES_Encrypt_process ( data ) {
     return this;
 }
 
-function AES_Encrypt_finish ( data ) {
+export function AES_Encrypt_finish ( data ) {
     var presult = null,
         prlen = 0;
 
@@ -192,7 +195,7 @@ function AES_Encrypt_finish ( data ) {
     return this;
 }
 
-function AES_Decrypt_process ( data ) {
+export function AES_Decrypt_process ( data ) {
     if ( is_string(data) )
         data = string_to_bytes(data);
 
@@ -249,7 +252,7 @@ function AES_Decrypt_process ( data ) {
     return this;
 }
 
-function AES_Decrypt_finish ( data ) {
+export function AES_Decrypt_finish ( data ) {
     var presult = null,
         prlen = 0;
 

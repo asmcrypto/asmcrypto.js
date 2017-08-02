@@ -1,5 +1,10 @@
 // Tests if the number supplied is a Miller-Rabin strong probable prime
-function _BigNumber_isMillerRabinProbablePrime ( rounds ) {
+import {BigNumber} from './bignum';
+import {pow2_ceil} from '../utils';
+import {Random_getValues} from '../random/random';
+import {Modulus} from './modulus';
+
+function _BigNumber_isMillerRabinProbablePrime (rounds ) {
     var t = new BigNumber(this),
         s = 0;
     t.limbs[0] -= 1;
@@ -8,7 +13,7 @@ function _BigNumber_isMillerRabinProbablePrime ( rounds ) {
     t = t.slice(s);
 
     var m = new Modulus(this),
-        m1 = this.subtract(BigNumber_ONE),
+        m1 = this.subtract(BigNumber.ONE),
         a = new BigNumber(this),
         l = this.limbs.length-1;
     while ( a.limbs[l] === 0 ) l--;
@@ -19,13 +24,13 @@ function _BigNumber_isMillerRabinProbablePrime ( rounds ) {
         while ( a.compare(m1) >= 0 ) a.limbs[l] >>>= 1;
 
         var x = m.power( a, t );
-        if ( x.compare(BigNumber_ONE) === 0 ) continue;
+        if ( x.compare(BigNumber.ONE) === 0 ) continue;
         if ( x.compare(m1) === 0 ) continue;
 
         var c = s;
         while ( --c > 0 ) {
             x = x.square().divide(m).remainder;
-            if ( x.compare(BigNumber_ONE) === 0 ) return false;
+            if ( x.compare(BigNumber.ONE) === 0 ) return false;
             if ( x.compare(m1) === 0 ) break;
         }
 
@@ -99,7 +104,7 @@ function _small_primes ( n ) {
 }
 
 // Returns strong pseudoprime of a specified bit length
-function BigNumber_randomProbablePrime ( bitlen, filter ) {
+export function BigNumber_randomProbablePrime ( bitlen, filter ) {
     var limbcnt = (bitlen + 31) >> 5,
         prime = new BigNumber({ sign: 1, bitLength: bitlen, limbs: limbcnt }),
         limbs = prime.limbs;
@@ -115,7 +120,7 @@ function BigNumber_randomProbablePrime ( bitlen, filter ) {
 
     // Number of Miller-Rabin iterations for an error rate  of less than 2^-80
     // Damgaard, Landrock, Pomerance: Average case error estimates for the strong probable prime test.
-    var s = (bitlen * global.Math.LN2) | 0,
+    var s = (bitlen * Math.LN2) | 0,
         r = 27;
     if ( bitlen >= 250 ) r = 12;
     if ( bitlen >= 450 ) r = 6;
@@ -152,6 +157,6 @@ function BigNumber_randomProbablePrime ( bitlen, filter ) {
     }
 }
 
-BigNumberPrototype.isProbablePrime = BigNumber_isProbablePrime;
+BigNumber.prototype.isProbablePrime = BigNumber_isProbablePrime;
 
 BigNumber.randomProbablePrime = BigNumber_randomProbablePrime;

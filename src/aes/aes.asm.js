@@ -3,7 +3,7 @@
  * @author Artem S Vybornov <vybornov@gmail.com>
  * @license MIT
  */
-var AES_asm = function () {
+export const AES_asm = function () {
     "use strict";
 
     /**
@@ -136,11 +136,10 @@ var AES_asm = function () {
      *
      * @alias AES_asm
      * @class
-     * @param {GlobalScope} global - global scope object (e.g. <code>window</code>)
      * @param {Object} foreign - <i>ignored</i>
      * @param {ArrayBuffer} buffer - heap buffer to link with
      */
-    var wrapper = function ( global, foreign, buffer ) {
+    var wrapper = function ( foreign, buffer ) {
         // Init AES stuff for the first time
         if ( !aes_init_done ) aes_init();
 

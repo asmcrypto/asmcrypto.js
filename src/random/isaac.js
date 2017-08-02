@@ -36,7 +36,9 @@
  * ISAAC succesfully passed TestU01
  */
 
-var ISAAC = ( function () {
+import {FloatArray, is_buffer, is_number, is_string, is_typed_array, string_to_bytes} from '../utils';
+
+export const ISAAC =  ( function () {
     var m = new Uint32Array(256), // internal memory
         r = new Uint32Array(256), // result array
         acc = 0,              // accumulator

@@ -4,7 +4,14 @@
  * @param bitlen desired modulus length, default is 2048
  * @param e public exponent, default is 65537
  */
-function RSA_generateKey ( bitlen, e ) {
+import {RSA} from './rsa';
+import {BigNumber_randomProbablePrime} from '../bignum/prime';
+import {BigNumber_extGCD} from '../bignum/extgcd';
+import {BigNumber, is_big_number} from '../bignum/bignum';
+import {Modulus} from '../bignum/modulus';
+import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../utils';
+
+export function RSA_generateKey (bitlen, e ) {
     bitlen = bitlen || 2048;
     e      = e      || 65537;
 
@@ -61,3 +68,5 @@ function RSA_generateKey ( bitlen, e ) {
 }
 
 RSA.generateKey = RSA_generateKey;
+
+export default RSA;

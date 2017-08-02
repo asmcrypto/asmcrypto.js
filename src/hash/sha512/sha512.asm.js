@@ -1,4 +1,4 @@
-function sha512_asm ( stdlib, foreign, buffer ) {
+export function sha512_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
     // SHA512 state

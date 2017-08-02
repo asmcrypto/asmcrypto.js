@@ -2,7 +2,10 @@
  * SHA512 exports
  */
 
-function sha512_bytes ( data ) {
+import {get_sha512_instance, sha512_constructor} from './sha512';
+import {bytes_to_base64, bytes_to_hex} from '../../utils';
+
+function sha512_bytes (data ) {
     if ( data === undefined ) throw new SyntaxError("data required");
     return get_sha512_instance().reset().process(data).finish().result;
 }
@@ -17,8 +20,8 @@ function sha512_base64 ( data ) {
     return bytes_to_base64(result);
 }
 
-sha512_constructor.bytes = sha512_bytes;
-sha512_constructor.hex = sha512_hex;
-sha512_constructor.base64 = sha512_base64;
+export const SHA512 = sha512_constructor;
 
-exports.SHA512 = sha512_constructor;
+SHA512.bytes = sha512_bytes;
+SHA512.hex = sha512_hex;
+SHA512.base64 = sha512_base64;

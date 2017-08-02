@@ -1,2 +1,3 @@
+import {RSA} from './rsa';
 
-var RSA_RAW = RSA;
+export default RSA;

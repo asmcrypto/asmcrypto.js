@@ -1,4 +1,8 @@
-function RSA ( options ) {
+import {Modulus} from '../bignum/modulus';
+import {BigNumber, is_big_number} from '../bignum/bignum';
+import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+
+export function RSA (options ) {
     options = options || {};
 
     this.key = null;
@@ -7,7 +11,7 @@ function RSA ( options ) {
     this.reset(options);
 }
 
-function RSA_reset ( options ) {
+export function RSA_reset ( options ) {
     options = options || {};
 
     this.result = null;
@@ -43,7 +47,7 @@ function RSA_reset ( options ) {
     return this;
 }
 
-function RSA_encrypt ( data ) {
+export function RSA_encrypt ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
@@ -84,7 +88,7 @@ function RSA_encrypt ( data ) {
     return this;
 }
 
-function RSA_decrypt ( data ) {
+export function RSA_decrypt ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
