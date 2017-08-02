@@ -1,4 +1,4 @@
-import {BigNumber, BigNumber_ONE, BigNumber_ZERO, is_big_number} from './bignum';
+import {BigNumber_constructor, BigNumber_ONE, BigNumber_ZERO, is_big_number} from './bignum';
 
 export function Number_extGCD (a, b ) {
     var sa = ( a < 0 ) ? -1 : 1,
@@ -41,10 +41,10 @@ export function Number_extGCD (a, b ) {
 
 export function BigNumber_extGCD ( a, b ) {
     if ( !is_big_number(a) )
-        a = new BigNumber(a);
+        a = new BigNumber_constructor(a);
 
     if ( !is_big_number(b) )
-        b = new BigNumber(b);
+        b = new BigNumber_constructor(b);
 
     var sa = a.sign, sb = b.sign;
 

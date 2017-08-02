@@ -1,4 +1,4 @@
-import {BigNumber as BigNumber_constructor, BigNumber_ONE, BigNumber_ZERO} from './bignum';
+import {BigNumber_constructor, BigNumber_ONE, BigNumber_ZERO} from './bignum';
 import {BigNumber_extGCD} from './extgcd';
 import "./prime";
 

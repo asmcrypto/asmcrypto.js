@@ -1,4 +1,4 @@
-export var FloatArray = typeof Float64Array === "undefined" ? Float64Array : Float32Array; // make PhantomJS happy
+export var FloatArray = typeof Float64Array !== "undefined" ? Float64Array : Float32Array; // make PhantomJS happy
 
 export function string_to_bytes ( str, utf8 ) {
     utf8 = !!utf8;

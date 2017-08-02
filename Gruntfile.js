@@ -129,7 +129,7 @@ module.exports = function (grunt) {
         qunit: {
             all: {
                 options: {
-                    timeout: 60000,
+                    timeout: 120000,
                     urls: ['http://localhost:9999/index.html']
                 }
             }

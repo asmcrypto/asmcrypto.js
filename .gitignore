@@ -1,4 +1,6 @@
 asmcrypto*.js
 asmcrypto*.map
+test/aes.asm.js
+test/aes.asm.js.map
 doc/
 node_modules/
