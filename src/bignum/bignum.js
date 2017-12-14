@@ -4,8 +4,21 @@ function is_big_number ( a ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var _bigint_heap = new Uint32Array(0x100000),
-    _bigint_asm = bigint_asm( global, null, _bigint_heap.buffer );
+var _bigint_stdlib = { Uint32Array: Uint32Array, Math: global.Math },
+    _bigint_heap = new Uint32Array(0x100000),
+    _bigint_asm;
+
+if ( _bigint_stdlib.Math.imul === undefined ) {
+    function _half_imul ( a, b ) {
+        return a * b | 0;
+    }
+    _bigint_stdlib.Math.imul = _half_imul;
+    _bigint_asm = bigint_asm( _bigint_stdlib, null, _bigint_heap.buffer );
+    delete _bigint_stdlib.Math.imul;
+}
+else {
+    _bigint_asm = bigint_asm( _bigint_stdlib, null, _bigint_heap.buffer );
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,22 +58,24 @@ function BigNumber ( num ) {
         sign = num < 0 ? -1 : 1;
     }
     else if ( is_bytes(num) ) {
-        bitlen = num.length * 8;
+        for ( var i = 0; !num[i]; i++ );
+
+        bitlen = ( num.length - i ) * 8;
         if ( !bitlen )
             return BigNumber_ZERO;
 
         limbs = new Uint32Array( (bitlen + 31) >> 5 );
-        for ( var i = num.length-4; i >= 0 ; i -= 4 ) {
-            limbs[(num.length-4-i)>>2] = (num[i] << 24) | (num[i+1] << 16) | (num[i+2] << 8) | num[i+3];
+        for ( var j = num.length-4; j >= i ; j -= 4 ) {
+            limbs[(num.length-4-j)>>2] = (num[j] << 24) | (num[j+1] << 16) | (num[j+2] << 8) | num[j+3];
         }
-        if ( i === -3 ) {
-            limbs[limbs.length-1] = num[0];
+        if ( i-j === 3 ) {
+            limbs[limbs.length-1] = num[i];
         }
-        else if ( i === -2 ) {
-            limbs[limbs.length-1] = (num[0] << 8) | num[1];
+        else if ( i-j === 2 ) {
+            limbs[limbs.length-1] = (num[i] << 8) | num[i+1];
         }
-        else if ( i === -1 ) {
-            limbs[limbs.length-1] = (num[0] << 16) | (num[1] << 8) | num[2];
+        else if ( i-j === 1 ) {
+            limbs[limbs.length-1] = (num[i] << 16) | (num[i+1] << 8) | num[i+2];
         }
 
         sign = 1;

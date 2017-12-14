@@ -5,7 +5,7 @@ function sha512_constructor ( options ) {
     options = options || {};
 
     this.heap = _heap_init( Uint8Array, options );
-    this.asm = options.asm || sha512_asm( global, null, this.heap.buffer );
+    this.asm = options.asm || sha512_asm( { Uint8Array: Uint8Array }, null, this.heap.buffer );
 
     this.BLOCK_SIZE = _sha512_block_size;
     this.HASH_SIZE = _sha512_hash_size;
