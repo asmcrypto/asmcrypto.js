@@ -1,4 +1,9 @@
-function hmac_sha512_constructor ( options ) {
+import {_sha512_hash_size, get_sha512_instance, sha512_constructor} from '../hash/sha512/sha512';
+import {hmac_constructor, _hmac_init_verify, _hmac_key, hmac_process} from './hmac';
+import {is_string, string_to_bytes} from '../utils';
+import {IllegalStateError} from '../errors';
+
+export function hmac_sha512_constructor (options ) {
     options = options || {};
 
     if ( !( options.hash instanceof sha512_constructor ) )
@@ -116,7 +121,7 @@ hmac_sha512_prototype.finish = hmac_sha512_finish;
 
 var hmac_sha512_instance = null;
 
-function get_hmac_sha512_instance () {
+export function get_hmac_sha512_instance () {
     if ( hmac_sha512_instance === null ) hmac_sha512_instance = new hmac_sha512_constructor();
     return hmac_sha512_instance;
 }

@@ -4,7 +4,15 @@
  * @param bitlen desired modulus length, default is 2048
  * @param e public exponent, default is 65537
  */
-function RSA_generateKey ( bitlen, e ) {
+import {RSA} from './rsa';
+import {BigNumber_randomProbablePrime} from '../bignum/prime';
+import {BigNumber_extGCD} from '../bignum/extgcd';
+import {BigNumber_constructor, is_big_number} from '../bignum/bignum';
+import {Modulus} from '../bignum/modulus';
+import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../utils';
+import {IllegalArgumentError} from '../errors';
+
+export function RSA_generateKey (bitlen, e ) {
     bitlen = bitlen || 2048;
     e      = e      || 65537;
 
@@ -18,7 +26,7 @@ function RSA_generateKey ( bitlen, e ) {
         e = new Uint8Array(e);
 
     if ( is_bytes(e) || is_number(e) || is_big_number(e) ) {
-        e = new BigNumber(e);
+        e = new BigNumber_constructor(e);
     }
     else {
         throw new TypeError("unexpected exponent type");
@@ -32,7 +40,7 @@ function RSA_generateKey ( bitlen, e ) {
     p = BigNumber_randomProbablePrime(
         bitlen >> 1,
         function ( p ) {
-            p1 = new BigNumber(p); p1.limbs[0] -= 1;
+            p1 = new BigNumber_constructor(p); p1.limbs[0] -= 1;
             return BigNumber_extGCD( p1, e ).gcd.valueOf() == 1;
         }
     );
@@ -42,7 +50,7 @@ function RSA_generateKey ( bitlen, e ) {
         function ( q ) {
             m = new Modulus( p.multiply(q) );
             if ( !( m.limbs[ ( (bitlen + 31) >> 5 ) - 1 ] >>> ( (bitlen - 1) & 31) ) ) return false;
-            q1 = new BigNumber(q); q1.limbs[0] -= 1;
+            q1 = new BigNumber_constructor(q); q1.limbs[0] -= 1;
             return BigNumber_extGCD( q1, e ).gcd.valueOf() == 1;
         }
     );
@@ -61,3 +69,5 @@ function RSA_generateKey ( bitlen, e ) {
 }
 
 RSA.generateKey = RSA_generateKey;
+
+export default RSA;

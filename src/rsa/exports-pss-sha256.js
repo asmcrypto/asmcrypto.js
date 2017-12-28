@@ -2,7 +2,11 @@
  * RSA-PSS-SHA256 exports
  */
 
-function rsa_pss_sha256_sign_bytes ( data, key, slen ) {
+import {get_sha256_instance} from '../hash/sha256/sha256';
+import {RSA_PSS} from './pkcs1';
+import {SecurityError} from '../errors';
+
+function rsa_pss_sha256_sign_bytes (data, key, slen ) {
     if ( data === undefined ) throw new SyntaxError("data required");
     if ( key === undefined ) throw new SyntaxError("key required");
     return (new RSA_PSS({ hash: get_sha256_instance(), key: key, saltLength: slen })).sign(data).result;
@@ -23,9 +27,7 @@ function rsa_pss_sha256_verify_bytes ( signature, data, key, slen ) {
     return false;
 }
 
-exports.RSA_PSS = RSA_PSS;
-
-exports.RSA_PSS_SHA256 = {
+export var RSA_PSS_SHA256 = {
     sign: rsa_pss_sha256_sign_bytes,
     verify: rsa_pss_sha256_verify_bytes
 };

@@ -1,4 +1,9 @@
-function hmac_sha256_constructor ( options ) {
+import {hmac_constructor, hmac_process, _hmac_init_verify, _hmac_key} from './hmac';
+import {_sha256_hash_size, get_sha256_instance, sha256_constructor} from '../hash/sha256/sha256';
+import {is_string, string_to_bytes} from '../utils';
+import {IllegalStateError} from '../errors';
+
+export function hmac_sha256_constructor (options ) {
     options = options || {};
 
     if ( !( options.hash instanceof sha256_constructor ) )
@@ -100,7 +105,7 @@ hmac_sha256_prototype.finish = hmac_sha256_finish;
 
 var hmac_sha256_instance = null;
 
-function get_hmac_sha256_instance () {
+export function get_hmac_sha256_instance () {
     if ( hmac_sha256_instance === null ) hmac_sha256_instance = new hmac_sha256_constructor();
     return hmac_sha256_instance;
 }

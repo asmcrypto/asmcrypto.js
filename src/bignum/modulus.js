@@ -1,8 +1,12 @@
+import {BigNumber_constructor, is_big_number} from './bignum';
+import {BigNumber_extGCD, Number_extGCD} from './extgcd';
+import {_bigint_asm, _bigint_heap} from './bignum'
+
 /**
  * Modulus
  */
-function Modulus () {
-    BigNumber.apply( this, arguments );
+export function Modulus () {
+    BigNumber_constructor.apply( this, arguments );
 
     if ( this.valueOf() < 1 )
         throw new RangeError();
@@ -15,7 +19,7 @@ function Modulus () {
     if ( this.limbs[0] & 1 ) {
         var bitlen = ( (this.bitLength+31) & -32 ) + 1, limbs = new Uint32Array( (bitlen+31) >> 5 );
         limbs[limbs.length-1] = 1;
-        comodulus = new BigNumber();
+        comodulus = new BigNumber_constructor();
         comodulus.sign = 1;
         comodulus.bitLength = bitlen;
         comodulus.limbs = limbs;
@@ -44,10 +48,10 @@ function Modulus () {
  */
 function Modulus_reduce ( a ) {
     if ( !is_big_number(a) )
-        a = new BigNumber(a);
+        a = new BigNumber_constructor(a);
 
     if ( a.bitLength <= 32 && this.bitLength <= 32 )
-        return new BigNumber( a.valueOf() % this.valueOf() );
+        return new BigNumber_constructor( a.valueOf() % this.valueOf() );
 
     if ( a.compare(this) < 0 )
         return a;
@@ -75,10 +79,10 @@ function Modulus_inverse ( a ) {
  */
 function Modulus_power ( g, e ) {
     if ( !is_big_number(g) )
-        g = new BigNumber(g);
+        g = new BigNumber_constructor(g);
 
     if ( !is_big_number(e) )
-        e = new BigNumber(e);
+        e = new BigNumber_constructor(e);
 
     // count exponent set bits
     var c = 0;
@@ -157,7 +161,7 @@ function _Montgomery_reduce ( a, n ) {
 
     _bigint_asm.mredc( pA, alimbcnt<<2, pN, nlimbcnt<<2, y, pR );
 
-    var result = new BigNumber();
+    var result = new BigNumber_constructor();
     result.limbs = new Uint32Array( _bigint_heap.subarray( pR>>2, (pR>>2)+nlimbcnt ) );
     result.bitLength = n.bitLength;
     result.sign = 1;
@@ -165,7 +169,7 @@ function _Montgomery_reduce ( a, n ) {
     return result;
 }
 
-var ModulusPrototype = Modulus.prototype = new BigNumber;
+var ModulusPrototype = Modulus.prototype = new BigNumber_constructor;
 ModulusPrototype.reduce = Modulus_reduce;
 ModulusPrototype.inverse = Modulus_inverse;
 ModulusPrototype.power = Modulus_power;

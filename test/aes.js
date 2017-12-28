@@ -9,9 +9,10 @@ Uint32Array.prototype.map = Array.prototype.map;
 //
 
 testIf( typeof AES_asm !== 'undefined', "Asm.js module", function () {
+    AES_asm = AES_asm.AES_asm;
     var heap = new Uint8Array(65536);
     var keys = new Uint32Array(heap.buffer);
-    var aes = AES_asm( window, null, heap.buffer );
+    var aes = AES_asm( null, heap.buffer );
 
     // data block
     heap.set( asmCrypto.hex_to_bytes('00112233445566778899aabbccddeeff'), AES_asm.HEAP_DATA );

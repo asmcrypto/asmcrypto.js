@@ -1,17 +1,22 @@
-function is_big_number ( a ) {
-    return ( a instanceof BigNumber );
+import {bigint_asm} from './bigint.asm';
+import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../utils';
+import {IllegalArgumentError} from '../errors';
+
+export function is_big_number ( a ) {
+    return ( a instanceof BigNumber_constructor );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var _bigint_stdlib = { Uint32Array: Uint32Array, Math: global.Math },
-    _bigint_heap = new Uint32Array(0x100000),
-    _bigint_asm;
+export var _bigint_stdlib = { Uint32Array: Uint32Array, Math: Math };
+export var _bigint_heap = new Uint32Array(0x100000);
+export var _bigint_asm;
+
+function _half_imul ( a, b ) {
+    return a * b | 0;
+}
 
 if ( _bigint_stdlib.Math.imul === undefined ) {
-    function _half_imul ( a, b ) {
-        return a * b | 0;
-    }
     _bigint_stdlib.Math.imul = _half_imul;
     _bigint_asm = bigint_asm( _bigint_stdlib, null, _bigint_heap.buffer );
     delete _bigint_stdlib.Math.imul;
@@ -24,7 +29,7 @@ else {
 
 var _BigNumber_ZERO_limbs = new Uint32Array(0);
 
-function BigNumber ( num ) {
+export function BigNumber_constructor (num ) {
     var limbs = _BigNumber_ZERO_limbs,
         bitlen = 0,
         sign = 0;
@@ -181,7 +186,7 @@ function BigNumber_clamp ( b ) {
     if ( b >= bitlen )
         return this;
 
-    var clamped = new BigNumber,
+    var clamped = new BigNumber_constructor,
         n = (b + 31) >> 5,
         k = b % 32;
 
@@ -213,7 +218,7 @@ function BigNumber_slice ( f, b ) {
     if ( b === undefined || b > bitlen - f )
         b = bitlen - f;
 
-    var sliced = new BigNumber, slimbs,
+    var sliced = new BigNumber_constructor, slimbs,
         n = f >> 5, m = (f + b + 31) >> 5, l = (b + 31) >> 5,
         t = f % 32, k = b % 32;
 
@@ -242,7 +247,7 @@ function BigNumber_slice ( f, b ) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function BigNumber_negate () {
-    var negative = new BigNumber;
+    var negative = new BigNumber_constructor;
 
     negative.limbs = this.limbs;
     negative.bitLength = this.bitLength;
@@ -253,7 +258,7 @@ function BigNumber_negate () {
 
 function BigNumber_compare ( that ) {
     if ( !is_big_number(that) )
-        that = new BigNumber(that);
+        that = new BigNumber_constructor(that);
 
     var alimbs = this.limbs, alimbcnt = alimbs.length,
         blimbs = that.limbs, blimbcnt = blimbs.length,
@@ -274,7 +279,7 @@ function BigNumber_compare ( that ) {
 
 function BigNumber_add ( that ) {
     if ( !is_big_number(that) )
-        that = new BigNumber(that);
+        that = new BigNumber_constructor(that);
 
     if ( !this.sign )
         return that;
@@ -284,7 +289,7 @@ function BigNumber_add ( that ) {
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length, asign = this.sign,
         bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length, bsign = that.sign,
-        rbitlen, rlimbcnt, rsign, rof, result = new BigNumber;
+        rbitlen, rlimbcnt, rsign, rof, result = new BigNumber_constructor;
 
     rbitlen = ( abitlen > bbitlen ? abitlen : bbitlen ) + ( asign * bsign > 0 ? 1 : 0 );
     rlimbcnt = ( rbitlen + 31 ) >> 5;
@@ -328,21 +333,21 @@ function BigNumber_add ( that ) {
 
 function BigNumber_subtract ( that ) {
     if ( !is_big_number(that) )
-        that = new BigNumber(that);
+        that = new BigNumber_constructor(that);
 
     return this.add( that.negate() );
 }
 
 function BigNumber_multiply ( that ) {
     if ( !is_big_number(that) )
-        that = new BigNumber(that);
+        that = new BigNumber_constructor(that);
 
     if ( !this.sign || !that.sign )
         return BigNumber_ZERO;
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
         bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
-        rbitlen, rlimbcnt, result = new BigNumber;
+        rbitlen, rlimbcnt, result = new BigNumber_constructor;
 
     rbitlen = abitlen + bbitlen;
     rlimbcnt = ( rbitlen + 31 ) >> 5;
@@ -372,7 +377,7 @@ function BigNumber_square () {
         return BigNumber_ZERO;
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
-        rbitlen, rlimbcnt, result = new BigNumber;
+        rbitlen, rlimbcnt, result = new BigNumber_constructor;
 
     rbitlen = abitlen << 1;
     rlimbcnt = ( rbitlen + 31 ) >> 5;
@@ -397,7 +402,7 @@ function BigNumber_square () {
 
 function BigNumber_divide ( that ) {
     if ( !is_big_number(that) )
-        that = new BigNumber(that);
+        that = new BigNumber_constructor(that);
 
     var abitlen = this.bitLength, alimbs = this.limbs, alimbcnt = alimbs.length,
         bbitlen = that.bitLength, blimbs = that.limbs, blimbcnt = blimbs.length,
@@ -418,7 +423,7 @@ function BigNumber_divide ( that ) {
 
     qlimbcnt = _bigint_asm.tst( pQ, alimbcnt<<2 )>>2;
     if ( qlimbcnt ) {
-        quotient = new BigNumber;
+        quotient = new BigNumber_constructor;
         quotient.limbs = new Uint32Array( _bigint_heap.subarray( pQ>>2, (pQ>>2)+qlimbcnt ) );
         quotient.bitLength = abitlen < (qlimbcnt<<5) ? abitlen : (qlimbcnt<<5);
         quotient.sign = this.sign * that.sign;
@@ -426,7 +431,7 @@ function BigNumber_divide ( that ) {
 
     rlimbcnt = _bigint_asm.tst( pA, blimbcnt<<2 )>>2;
     if ( rlimbcnt ) {
-        remainder = new BigNumber;
+        remainder = new BigNumber_constructor;
         remainder.limbs = new Uint32Array( _bigint_heap.subarray( pA>>2, (pA>>2)+rlimbcnt ) );;
         remainder.bitLength = bbitlen < (rlimbcnt<<5) ? bbitlen : (rlimbcnt<<5);
         remainder.sign = this.sign;
@@ -440,7 +445,7 @@ function BigNumber_divide ( that ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var BigNumberPrototype = BigNumber.prototype = new Number;
+var BigNumberPrototype = BigNumber_constructor.prototype = new Number;
 BigNumberPrototype.toString = BigNumber_toString;
 BigNumberPrototype.toBytes = BigNumber_toBytes;
 BigNumberPrototype.valueOf = BigNumber_valueOf;
@@ -459,8 +464,8 @@ BigNumberPrototype.divide = BigNumber_divide;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var BigNumber_ZERO = new BigNumber(0),
-    BigNumber_ONE  = new BigNumber(1);
+export var BigNumber_ZERO = new BigNumber_constructor(0);
+export var BigNumber_ONE  = new BigNumber_constructor(1);
 
 Object.freeze(BigNumber_ZERO);
 Object.freeze(BigNumber_ONE);

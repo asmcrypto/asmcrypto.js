@@ -3,7 +3,7 @@
  * Limbs number is a power of 2 and a multiple of 8 (256 bits).
  * Negative values use two's complement representation.
  */
-function bigint_asm ( stdlib, foreign, buffer ) {
+export function bigint_asm ( stdlib, foreign, buffer ) {
     "use asm";
 
     var SP = 0;

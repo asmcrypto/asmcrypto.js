@@ -1,4 +1,6 @@
-global.Math.random = Random_getNumber;
+import {Random_getNumber, Random_getValues} from './random';
 
-if ( global.crypto === undefined ) global.crypto = {};
-global.crypto.getRandomValues = Random_getValues;
+Math.random = Random_getNumber;
+
+if ( typeof 'crypto' === 'undefined' ) var crypto = {};
+crypto.getRandomValues = Random_getValues;

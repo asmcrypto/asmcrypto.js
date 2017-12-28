@@ -1,4 +1,9 @@
-function pbkdf2_hmac_sha256_constructor ( options ) {
+import {pbkdf2_constructor, pbkdf2_reset} from './pbkdf2';
+import {get_hmac_sha256_instance, hmac_sha256_constructor} from '../hmac/hmac-sha256';
+import {is_string} from '../utils';
+import {IllegalArgumentError, IllegalStateError} from '../errors';
+
+export function pbkdf2_hmac_sha256_constructor ( options ) {
     options = options || {};
 
     if ( !( options.hmac instanceof hmac_sha256_constructor ) )
@@ -42,7 +47,7 @@ pbkdf2_hmac_sha256_prototype.generate = pbkdf2_hmac_sha256_generate;
 
 var pbkdf2_hmac_sha256_instance = null;
 
-function get_pbkdf2_hmac_sha256_instance () {
+export function get_pbkdf2_hmac_sha256_instance () {
     if ( pbkdf2_hmac_sha256_instance === null ) pbkdf2_hmac_sha256_instance = new pbkdf2_hmac_sha256_constructor();
     return pbkdf2_hmac_sha256_instance;
 }

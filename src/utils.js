@@ -1,6 +1,6 @@
-var FloatArray = global.Float64Array || global.Float32Array; // make PhantomJS happy
+export var FloatArray = typeof Float64Array !== "undefined" ? Float64Array : Float32Array; // make PhantomJS happy
 
-function string_to_bytes ( str, utf8 ) {
+export function string_to_bytes ( str, utf8 ) {
     utf8 = !!utf8;
 
     var len = str.length,
@@ -40,7 +40,7 @@ function string_to_bytes ( str, utf8 ) {
     return bytes.subarray(0, j);
 }
 
-function hex_to_bytes ( str ) {
+export function hex_to_bytes ( str ) {
     var len = str.length;
     if ( len & 1 ) {
         str = '0'+str;
@@ -53,11 +53,11 @@ function hex_to_bytes ( str ) {
     return bytes;
 }
 
-function base64_to_bytes ( str ) {
+export function base64_to_bytes ( str ) {
     return string_to_bytes( atob( str ) );
 }
 
-function bytes_to_string ( bytes, utf8 ) {
+export function bytes_to_string ( bytes, utf8 ) {
     utf8 = !!utf8;
 
     var len = bytes.length,
@@ -99,7 +99,7 @@ function bytes_to_string ( bytes, utf8 ) {
     return str;
 }
 
-function bytes_to_hex ( arr ) {
+export function bytes_to_hex ( arr ) {
     var str = '';
     for ( var i = 0; i < arr.length; i++ ) {
         var h = ( arr[i] & 0xff ).toString(16);
@@ -109,11 +109,11 @@ function bytes_to_hex ( arr ) {
     return str;
 }
 
-function bytes_to_base64 ( arr ) {
+export function bytes_to_base64 ( arr ) {
     return btoa( bytes_to_string(arr) );
 }
 
-function pow2_ceil ( a ) {
+export function pow2_ceil ( a ) {
     a -= 1;
     a |= a >>> 1;
     a |= a >>> 2;
@@ -124,23 +124,23 @@ function pow2_ceil ( a ) {
     return a;
 }
 
-function is_number ( a ) {
+export function is_number ( a ) {
     return ( typeof a === 'number' );
 }
 
-function is_string ( a ) {
+export function is_string ( a ) {
     return ( typeof a === 'string' );
 }
 
-function is_buffer ( a ) {
+export function is_buffer ( a ) {
     return ( a instanceof ArrayBuffer );
 }
 
-function is_bytes ( a ) {
+export function is_bytes ( a ) {
     return ( a instanceof Uint8Array );
 }
 
-function is_typed_array ( a ) {
+export function is_typed_array ( a ) {
     return ( a instanceof Int8Array ) || ( a instanceof Uint8Array )
         || ( a instanceof Int16Array ) || ( a instanceof Uint16Array )
         || ( a instanceof Int32Array ) || ( a instanceof Uint32Array )
@@ -148,7 +148,7 @@ function is_typed_array ( a ) {
         || ( a instanceof Float64Array );
 }
 
-function _heap_init ( constructor, options ) {
+export function _heap_init ( constructor, options ) {
     var heap = options.heap,
         size = heap ? heap.byteLength : options.heapSize || 65536;
 
@@ -160,7 +160,7 @@ function _heap_init ( constructor, options ) {
     return heap;
 }
 
-function _heap_write ( heap, hpos, data, dpos, dlen ) {
+export function _heap_write ( heap, hpos, data, dpos, dlen ) {
     var hlen = heap.length - hpos,
         wlen = ( hlen < dlen ) ? hlen : dlen;
 

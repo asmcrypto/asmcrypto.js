@@ -1,4 +1,9 @@
-function RSA_OAEP ( options ) {
+import {RSA_reset, RSA_encrypt, RSA_decrypt} from './rsa'
+import {Random_getValues} from '../random/random';
+import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../utils';
+import {IllegalArgumentError, IllegalStateError, SecurityError} from '../errors';
+
+export function RSA_OAEP ( options ) {
     options = options || {};
 
     if ( !options.hash )
@@ -163,7 +168,7 @@ function RSA_MGF1_generate( seed, length ) {
     return mask;
 }
 
-function RSA_PSS ( options ) {
+export function RSA_PSS ( options ) {
     options = options || {};
 
     if ( !options.hash )

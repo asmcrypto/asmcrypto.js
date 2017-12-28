@@ -2,7 +2,11 @@
  * Counter Mode (CTR)
  */
 
-function AES_CTR ( options ) {
+import {AES, AES_Encrypt_finish, AES_Encrypt_process, AES_reset} from '../aes';
+import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../../utils';
+import {IllegalArgumentError} from '../../errors';
+
+export function AES_CTR_constructor (options ) {
     this.nonce = null,
     this.counter = 0,
     this.counterSize = 0;
@@ -12,11 +16,11 @@ function AES_CTR ( options ) {
     this.mode = 'CTR';
 }
 
-function AES_CTR_Crypt ( options ) {
-    AES_CTR.call( this, options );
+export function AES_CTR_Crypt ( options ) {
+    AES_CTR_constructor.call( this, options );
 }
 
-function AES_CTR_set_options ( nonce, counter, size ) {
+export function AES_CTR_set_options ( nonce, counter, size ) {
     if ( size !== undefined ) {
         if ( size < 8 || size > 48 )
             throw new IllegalArgumentError("illegal counter size");
@@ -83,7 +87,7 @@ function AES_CTR_reset ( options ) {
     return this;
 }
 
-var AES_CTR_prototype = AES_CTR.prototype;
+var AES_CTR_prototype = AES_CTR_constructor.prototype;
 AES_CTR_prototype.BLOCK_SIZE = 16;
 AES_CTR_prototype.reset = AES_CTR_reset;
 AES_CTR_prototype.encrypt = AES_Encrypt_finish;

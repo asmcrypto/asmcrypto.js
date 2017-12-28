@@ -1,4 +1,7 @@
-function pbkdf2_constructor ( options ) {
+import {is_string} from '../utils';
+import {IllegalArgumentError, IllegalStateError} from '../errors';
+
+export function pbkdf2_constructor (options ) {
     options = options || {};
 
     if ( !options.hmac )
@@ -20,7 +23,7 @@ function pbkdf2_constructor ( options ) {
     return this;
 }
 
-function pbkdf2_reset ( options ) {
+export function pbkdf2_reset ( options ) {
     this.result = null;
 
     this.hmac.reset(options);

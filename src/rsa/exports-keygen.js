@@ -1,7 +1,10 @@
 /**
  * RSA keygen exports
  */
-function rsa_generate_key ( bitlen, e ) {
+import {is_big_number} from '../bignum/bignum';
+import {RSA_generateKey} from './genkey';
+
+function rsa_generate_key (bitlen, e ) {
     if ( bitlen === undefined ) throw new SyntaxError("bitlen required");
     if ( e === undefined ) throw new SyntaxError("e required");
     var key = RSA_generateKey( bitlen, e );
@@ -12,6 +15,6 @@ function rsa_generate_key ( bitlen, e ) {
     return key;
 }
 
-exports.RSA = {
+export var RSA = {
     generateKey: rsa_generate_key
 };

@@ -2,6 +2,11 @@
  * Galois/Counter mode
  */
 
+import {AES_asm} from '../aes.asm'
+import {AES, AES_reset, AES_set_iv} from '../aes';
+import {_heap_write, is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../../utils';
+import {IllegalArgumentError, IllegalStateError, SecurityError} from '../../errors';
+
 var _AES_GCM_data_maxLength = 68719476704;  // 2^36 - 2^5
 
 function _gcm_mac_process ( data ) {
@@ -22,7 +27,7 @@ function _gcm_mac_process ( data ) {
     }
 }
 
-function AES_GCM ( options ) {
+export function AES_GCM_constructor (options ) {
     this.nonce      = null;
     this.adata      = null;
     this.iv         = null;
@@ -34,12 +39,12 @@ function AES_GCM ( options ) {
     this.mode       = 'GCM';
 }
 
-function AES_GCM_Encrypt ( options ) {
-    AES_GCM.call( this, options );
+export function AES_GCM_Encrypt ( options ) {
+    AES_GCM_constructor.call( this, options );
 }
 
-function AES_GCM_Decrypt ( options ) {
-    AES_GCM.call( this, options );
+export function AES_GCM_Decrypt ( options ) {
+    AES_GCM_constructor.call( this, options );
 }
 
 function AES_GCM_reset ( options ) {
@@ -408,7 +413,7 @@ function AES_GCM_decrypt ( data ) {
     return this;
 }
 
-var AES_GCM_prototype = AES_GCM.prototype;
+var AES_GCM_prototype = AES_GCM_constructor.prototype;
 AES_GCM_prototype.BLOCK_SIZE = 16;
 AES_GCM_prototype.reset = AES_GCM_reset;
 AES_GCM_prototype.encrypt = AES_GCM_encrypt;

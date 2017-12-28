@@ -1,8 +1,13 @@
-var _global_console = global.console,
-    _global_date_now = global.Date.now,
-    _global_math_random = global.Math.random,
-    _global_performance = global.performance,
-    _global_crypto = global.crypto || global.msCrypto,
+import { ISAAC } from './isaac';
+import {FloatArray, is_buffer, is_typed_array} from '../utils';
+import {get_pbkdf2_hmac_sha256_instance} from '../pbkdf2/pbkdf2-hmac-sha256';
+import {SecurityError} from '../errors';
+
+var _global_console = typeof console !== "undefined" ? console : undefined,
+    _global_date_now = Date.now,
+    _global_math_random = Math.random,
+    _global_performance = typeof performance !== "undefined" ? performance : undefined,
+    _global_crypto = typeof crypto !== "undefined" ? crypto : (typeof msCrypto !== "undefined" ? msCrypto : undefined),
     _global_crypto_getRandomValues;
 
 if ( _global_crypto !== undefined )
@@ -16,9 +21,10 @@ var _isaac_rand = ISAAC.rand,
 
 var _random_estimated_entropy = 0,
     _random_required_entropy = 256,
-    _random_allow_weak = false,
-    _random_skip_system_rng_warning = false,
     _random_warn_callstacks = {};
+
+export var _random_skip_system_rng_warning = false;
+export var _random_allow_weak = false;
 
 var _hires_now;
 if ( _global_performance !== undefined ) {
@@ -61,11 +67,11 @@ function Random_weak_seed () {
         buffer = new Uint8Array(buffer.buffer);
 
         var salt = '';
-        if ( global.location !== undefined ) {
-            salt += global.location.href;
+        if ( typeof location !== "undefined" ) {
+            salt += location.href;
         }
-        else if ( global.process !== undefined ) {
-            salt += global.process.pid + global.process.title;
+        else if ( typeof process !== "undefined" ) {
+            salt += process.pid + process.title;
         }
 
         var pbkdf2 = get_pbkdf2_hmac_sha256_instance();
@@ -99,7 +105,7 @@ function Random_weak_seed () {
  * do not seed until you're know what entropy is and how to obtail high-quality random values,
  * **DO NOT SEED WITH CONSTANT VALUE! YOU'LL GET NO RANDOMNESS FROM CONSTANT!**
  */
-function Random_seed ( seed ) {
+export function Random_seed ( seed ) {
     if ( !is_buffer(seed) && !is_typed_array(seed) )
         throw new TypeError("bad seed type");
 
@@ -150,7 +156,7 @@ function Random_seed ( seed ) {
  * such as high-resolution time and one single value from the insecure
  * Math.random(); however this is not reliable as a strong security measure.
  */
-function Random_getValues ( buffer ) {
+export function Random_getValues ( buffer ) {
     // opportunistically seed ISAAC with a weak seed; this hopefully makes an
     // attack harder in the case where the system RNG is weak *and* we haven't
     // seeded ISAAC. but don't make any guarantees to the user about this.
@@ -208,7 +214,7 @@ function Random_getValues ( buffer ) {
  * A drop-in `Math.random` replacement.
  * Intended for prevention of random material leakage out of the user's host.
  */
-function Random_getNumber () {
+export function Random_getNumber () {
     if ( !_isaac_weak_seeded || _isaac_counter >= 0x10000000000 )
         Random_weak_seed();
 
@@ -217,3 +223,27 @@ function Random_getNumber () {
 
     return n;
 }
+
+Object.defineProperty( Random_getNumber, 'allowWeak', {
+  get: function () { return _random_allow_weak; },
+  set: function ( a ) { _random_allow_weak = a; }
+});
+
+Object.defineProperty( Random_getNumber, 'skipSystemRNGWarning', {
+  get: function () { return _random_skip_system_rng_warning; },
+  set: function ( w ) { _random_skip_system_rng_warning = w; }
+});
+
+
+Object.defineProperty( Random_getValues, 'allowWeak', {
+  get: function () { return _random_allow_weak; },
+  set: function ( a ) { _random_allow_weak = a; }
+});
+
+Object.defineProperty( Random_getValues, 'skipSystemRNGWarning', {
+  get: function () { return _random_skip_system_rng_warning; },
+  set: function ( w ) { _random_skip_system_rng_warning = w; }
+});
+
+Random_getNumber.seed = Random_seed;
+Random_getValues.seed = Random_seed;

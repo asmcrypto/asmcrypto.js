@@ -1,4 +1,9 @@
-function RSA ( options ) {
+import {Modulus} from '../bignum/modulus';
+import {BigNumber_constructor, is_big_number} from '../bignum/bignum';
+import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
+import {IllegalStateError} from '../errors';
+
+export function RSA (options ) {
     options = options || {};
 
     this.key = null;
@@ -7,7 +12,7 @@ function RSA ( options ) {
     this.reset(options);
 }
 
-function RSA_reset ( options ) {
+export function RSA_reset ( options ) {
     options = options || {};
 
     this.result = null;
@@ -21,16 +26,16 @@ function RSA_reset ( options ) {
 
             var k = [];
             k[0] = new Modulus( key[0] );
-            k[1] = new BigNumber( key[1] );
+            k[1] = new BigNumber_constructor( key[1] );
             if ( l > 2 ) {
-                k[2] = new BigNumber( key[2] );
+                k[2] = new BigNumber_constructor( key[2] );
             }
             if ( l > 3 ) {
                 k[3] = new Modulus( key[3] );
                 k[4] = new Modulus( key[4] );
-                k[5] = new BigNumber( key[5] );
-                k[6] = new BigNumber( key[6] );
-                k[7] = new BigNumber( key[7] );
+                k[5] = new BigNumber_constructor( key[5] );
+                k[6] = new BigNumber_constructor( key[6] );
+                k[7] = new BigNumber_constructor( key[7] );
             }
 
             this.key = k;
@@ -43,7 +48,7 @@ function RSA_reset ( options ) {
     return this;
 }
 
-function RSA_encrypt ( data ) {
+export function RSA_encrypt ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
@@ -55,7 +60,7 @@ function RSA_encrypt ( data ) {
 
     var msg;
     if ( is_bytes(data) ) {
-        msg = new BigNumber(data);
+        msg = new BigNumber_constructor(data);
     }
     else if ( is_big_number(data) ) {
         msg = data;
@@ -84,7 +89,7 @@ function RSA_encrypt ( data ) {
     return this;
 }
 
-function RSA_decrypt ( data ) {
+export function RSA_decrypt ( data ) {
     if ( !this.key )
         throw new IllegalStateError("no key is associated with the instance");
 
@@ -99,7 +104,7 @@ function RSA_decrypt ( data ) {
 
     var msg;
     if ( is_bytes(data) ) {
-        msg = new BigNumber(data);
+        msg = new BigNumber_constructor(data);
     }
     else if ( is_big_number(data) ) {
         msg = data;

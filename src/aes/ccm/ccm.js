@@ -13,6 +13,12 @@
  * you have to know the `dataLength` in advance and pass that value to the cipher options.
  */
 
+import { AES_asm} from '../aes.asm'
+import { AES, AES_reset, AES_set_iv } from '../aes'
+import {_heap_write, is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../../utils';
+import {AES_CTR_set_options} from '../ctr/ctr';
+import {IllegalArgumentError, IllegalStateError, SecurityError} from '../../errors';
+
 function _cbc_mac_process ( data ) {
     var heap = this.heap,
         asm  = this.asm,
@@ -33,7 +39,7 @@ function _cbc_mac_process ( data ) {
 var _AES_CCM_adata_maxLength = 65279,            // 2^16 - 2^8
     _AES_CCM_data_maxLength = 4503599627370480;  // 2^52 - 2^4
 
-function AES_CCM ( options ) {
+export function AES_CCM_constructor (options ) {
     this.tagSize    = 16;
     this.lengthSize = 4;
     this.nonce      = null;
@@ -47,12 +53,12 @@ function AES_CCM ( options ) {
     this.mode       = 'CCM';
 }
 
-function AES_CCM_Encrypt ( options ) {
-    AES_CCM.call( this, options );
+export function AES_CCM_Encrypt ( options ) {
+    AES_CCM_constructor.call( this, options );
 }
 
-function AES_CCM_Decrypt ( options ) {
-    AES_CCM.call( this, options );
+export function AES_CCM_Decrypt ( options ) {
+    AES_CCM_constructor.call( this, options );
 }
 
 function AES_CCM_calculate_iv () {
@@ -411,7 +417,7 @@ function AES_CCM_decrypt ( data ) {
     return this;
 }
 
-var AES_CCM_prototype = AES_CCM.prototype;
+var AES_CCM_prototype = AES_CCM_constructor.prototype;
 AES_CCM_prototype.BLOCK_SIZE = 16;
 AES_CCM_prototype.reset = AES_CCM_reset;
 AES_CCM_prototype.encrypt = AES_CCM_encrypt;

@@ -1,4 +1,9 @@
-function pbkdf2_hmac_sha1_constructor ( options ) {
+import {get_hmac_sha1_instance, hmac_sha1_constructor} from '../hmac/hmac-sha1';
+import {pbkdf2_constructor, pbkdf2_reset} from './pbkdf2';
+import {is_string} from '../utils';
+import {IllegalArgumentError, IllegalStateError} from '../errors';
+
+export function pbkdf2_hmac_sha1_constructor (options ) {
     options = options || {};
 
     if ( !( options.hmac instanceof hmac_sha1_constructor ) )
@@ -42,7 +47,7 @@ pbkdf2_hmac_sha1_prototype.generate = pbkdf2_hmac_sha1_generate;
 
 var pbkdf2_hmac_sha1_instance = null;
 
-function get_pbkdf2_hmac_sha1_instance () {
+export function get_pbkdf2_hmac_sha1_instance () {
     if ( pbkdf2_hmac_sha1_instance === null ) pbkdf2_hmac_sha1_instance = new pbkdf2_hmac_sha1_constructor();
     return pbkdf2_hmac_sha1_instance;
 }
