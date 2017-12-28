@@ -17,7 +17,7 @@ module.exports = function (grunt) {
             options: {
                 format: 'umd',
                 sourceMap: true,
-                banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2013 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */",
+                banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2018 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */",
             },
             default: {
                 options: {
@@ -27,12 +27,28 @@ module.exports = function (grunt) {
                     'asmcrypto.js': './src/entry-default.js'
                 }
             },
+            default_esm: {
+                options: {
+                    format: 'es',
+                },
+                files: {
+                    'asmcrypto.mjs': './src/entry-default.js'
+                }
+            },
             all: {
                 options: {
                     moduleName: 'asmCrypto',
                 },
                 files: {
                     'asmcrypto.js': './src/entry-export_all.js'
+                }
+            },
+            all_esm: {
+                options: {
+                    format: 'es',
+                },
+                files: {
+                    'asmcrypto.mjs': './src/entry-export_all.js'
                 }
             },
             test_AES_ASM: {
@@ -53,7 +69,7 @@ module.exports = function (grunt) {
                 sourceMapIn: 'asmcrypto.js.map',
                 sourceMapIncludeSources: true,
                 screwIE8: true,
-                banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2013 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */"
+                banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2018 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */"
             },
             all: {
                 files: {
@@ -108,6 +124,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', ['rollup:default', 'rollup:test_AES_ASM', 'uglify']);
+    grunt.registerTask('esm', ['rollup:default_esm']);
     grunt.registerTask('devel', ['rollup:all', 'rollup:test_AES_ASM', 'connect', 'watch']);
     grunt.registerTask('test', ['connect', 'qunit']);
 };
