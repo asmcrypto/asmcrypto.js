@@ -1,6 +1,6 @@
 {
   "name": "asmcrypto.js",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "description": "Asm.js implementation of WebCrypto API",
   "homepage": "https://github.com/vibornoff/asmcrypto.js",
   "main": "asmcrypto.js",
@@ -43,5 +43,6 @@
   "scripts": {
     "prepublish": "grunt && grunt esm && grunt all",
     "test": "grunt test"
-  }
+  },
+  "typings": "./asmcrypto.js.d.ts"
 }
