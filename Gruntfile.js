@@ -27,14 +27,6 @@ module.exports = function (grunt) {
                     'asmcrypto.js': './src/entry-default.js'
                 }
             },
-            default_esm: {
-                options: {
-                    format: 'es',
-                },
-                files: {
-                    'asmcrypto.mjs': './src/entry-default.js'
-                }
-            },
             all: {
                 options: {
                     moduleName: 'asmCrypto',
@@ -124,7 +116,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', ['rollup:default', 'rollup:test_AES_ASM', 'uglify']);
-    grunt.registerTask('esm', ['rollup:default_esm']);
+    grunt.registerTask('esm', ['rollup:all_esm']);
     grunt.registerTask('devel', ['rollup:all', 'rollup:test_AES_ASM', 'connect', 'watch']);
     grunt.registerTask('test', ['connect', 'qunit']);
 };
