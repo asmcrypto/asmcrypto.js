@@ -1,3 +1,5 @@
+import {SHA512} from "asmcrypto.js/asmcrypto.all.js";
+
 declare class AES {
   BLOCK_SIZE: number;
   result: Uint8Array;
@@ -7,10 +9,10 @@ declare interface AES_reset<M> {
   (options: {key: Uint8Array, iv?: Uint8Array, padding?: boolean}): M;
 }
 declare interface AES_Encrypt_finish<M> {
-  (data: Uint8Array): M;
+  (data?: Uint8Array): M;
 }
 declare interface AES_Decrypt_finish<M> {
-  (data: Uint8Array): M;
+  (data?: Uint8Array): M;
 }
 declare interface AES_Encrypt_process<M> {
   (data: Uint8Array): M;
@@ -188,7 +190,7 @@ declare module 'asmcrypto.js/asmcrypto.all.js' {
     static hex(data: Uint8Array, password: Uint8Array): string;
     static base64(data: Uint8Array, password: Uint8Array): string;
 
-    constructor(options: {asm?: Uint8Array, heap?: Uint8Array, heapSize?: number, password?: Uint8Array});
+    constructor(options: {asm?: Uint8Array, heap?: Uint8Array, heapSize?: number, password?: Uint8Array, hash?: SHA1});
     reset(options: {password: Uint8Array}): HMAC_SHA1;
     process(data: Uint8Array): HMAC_SHA1;
     finish(): HMAC_SHA1;
@@ -200,7 +202,7 @@ declare module 'asmcrypto.js/asmcrypto.all.js' {
     static hex(data: Uint8Array, password: Uint8Array): string;
     static base64(data: Uint8Array, password: Uint8Array): string;
 
-    constructor(options: {asm?: Uint8Array, heap?: Uint8Array, heapSize?: number, password?: Uint8Array});
+    constructor(options: {asm?: Uint8Array, heap?: Uint8Array, heapSize?: number, password?: Uint8Array, hash?: SHA256});
     reset(options: {password: Uint8Array}): HMAC_SHA256;
     process(data: Uint8Array): HMAC_SHA256;
     finish(): HMAC_SHA256;
@@ -212,7 +214,7 @@ declare module 'asmcrypto.js/asmcrypto.all.js' {
     static hex(data: Uint8Array, password: Uint8Array): string;
     static base64(data: Uint8Array, password: Uint8Array): string;
 
-    constructor(options: {asm?: Uint8Array, heap?: Uint8Array, heapSize?: number, password?: Uint8Array});
+    constructor(options: {asm?: Uint8Array, heap?: Uint8Array, heapSize?: number, password?: Uint8Array, hash?: SHA512});
     reset(options: {password: Uint8Array}): HMAC_SHA512;
     process(data: Uint8Array): HMAC_SHA512;
     finish(): HMAC_SHA512;
