@@ -2,38 +2,105 @@
  * Cipher Feedback Mode (CFB)
  */
 
-import {AES, AES_Decrypt_finish, AES_Decrypt_process, AES_Encrypt_finish, AES_Encrypt_process, AES_reset} from '../aes';
+import {AES} from '../aes';
 
-export function AES_CFB_constructor (options ) {
-    this.iv = null;
-
-    AES.call( this, options );
+export class AES_CFB extends AES {
+  /**
+   * @param {Uint8Array} key
+   * @param {Uint8Array} [iv]
+   * @param {Uint8Array} [heap]
+   * @param {Uint8Array} [asm]
+   */
+  constructor(key, iv, heap, asm) {
+    super(key, iv, true, heap, asm);
+    delete this.padding;
 
     this.mode = 'CFB';
+    this.BLOCK_SIZE = 16;
+  }
+
+  encrypt(data) {
+    return this.AES_Encrypt_finish(data);
+  }
+
+  decrypt(data) {
+    return this.AES_Decrypt_finish(data);
+  }
 }
 
-var AES_CFB_prototype = AES_CFB_constructor.prototype;
-AES_CFB_prototype.BLOCK_SIZE = 16;
-AES_CFB_prototype.reset = AES_reset;
-AES_CFB_prototype.encrypt = AES_Encrypt_finish;
-AES_CFB_prototype.decrypt = AES_Decrypt_finish;
+export class AES_CFB_Encrypt extends AES_CFB {
+  /**
+   * @param {Uint8Array} key
+   * @param {Uint8Array} [iv=null]
+   * @param {Uint8Array} [heap]
+   * @param {Uint8Array} [asm]
+   */
+  constructor(key, iv, heap, asm) {
+    super(key, iv, heap, asm);
+  }
 
-export function AES_CFB_Encrypt ( options ) {
-    AES_CFB_constructor.call( this, options );
+  /**
+   * @param {Uint8Array} key
+   * @param {Uint8Array} [iv]
+   * @param {boolean} [padding]
+   * @returns {AES_CFB_Encrypt}
+   */
+  reset(key, iv, padding) {
+    return this.AES_reset(key, iv, padding);
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @returns {AES_CFB_Encrypt}
+   */
+  process(data) {
+    return this.AES_Encrypt_process(data);
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @returns {AES_CFB_Encrypt}
+   */
+  finish(data) {
+    return this.AES_Encrypt_finish(data);
+  }
 }
 
-var AES_CFB_Encrypt_prototype = AES_CFB_Encrypt.prototype;
-AES_CFB_Encrypt_prototype.BLOCK_SIZE = 16;
-AES_CFB_Encrypt_prototype.reset = AES_reset;
-AES_CFB_Encrypt_prototype.process = AES_Encrypt_process;
-AES_CFB_Encrypt_prototype.finish = AES_Encrypt_finish;
+export class AES_CFB_Decrypt extends AES_CFB{
+  /**
+   * @param {Uint8Array} key
+   * @param {Uint8Array} [iv=null]
+   * @param {Uint8Array} [heap]
+   * @param {Uint8Array} [asm]
+   */
+  constructor(key, iv, heap, asm) {
+    super(key, iv, heap, asm);
+  }
 
-export function AES_CFB_Decrypt ( options ) {
-    AES_CFB_constructor.call( this, options );
+  /**
+   * @param {Uint8Array} key
+   * @param {Uint8Array} [iv]
+   * @param {boolean} [padding]
+   * @returns {AES_CFB_Decrypt}
+   */
+  reset(key, iv, padding) {
+    return this.AES_reset(key, iv, padding);
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @returns {AES_CFB_Decrypt}
+   */
+  process(data) {
+    return this.AES_Encrypt_process(data);
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @returns {AES_CFB_Decrypt}
+   */
+  finish(data) {
+    return this.AES_Encrypt_finish(data);
+  }
 }
 
-var AES_CFB_Decrypt_prototype = AES_CFB_Decrypt.prototype;
-AES_CFB_Decrypt_prototype.BLOCK_SIZE = 16;
-AES_CFB_Decrypt_prototype.reset = AES_reset;
-AES_CFB_Decrypt_prototype.process = AES_Decrypt_process;
-AES_CFB_Decrypt_prototype.finish = AES_Decrypt_finish;

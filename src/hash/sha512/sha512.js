@@ -8,7 +8,7 @@ export var _sha512_hash_size = 64;
 export function sha512_constructor ( options ) {
     options = options || {};
 
-    this.heap = _heap_init( Uint8Array, options );
+    this.heap = _heap_init( Uint8Array, options.heapx );
     this.asm = options.asm || sha512_asm( { Uint8Array: Uint8Array }, null, this.heap.buffer );
 
     this.BLOCK_SIZE = _sha512_block_size;

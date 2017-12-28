@@ -8,7 +8,7 @@ export var _sha256_hash_size = 32;
 export function sha256_constructor ( options ) {
     options = options || {};
 
-    this.heap = _heap_init( Uint8Array, options );
+    this.heap = _heap_init( Uint8Array, options.heap );
     this.asm = options.asm || sha256_asm( { Uint8Array: Uint8Array }, null, this.heap.buffer );
 
     this.BLOCK_SIZE = _sha256_block_size;
