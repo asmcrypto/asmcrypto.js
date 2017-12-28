@@ -60,7 +60,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-saucelabs');
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-rollup');
 
@@ -135,18 +134,6 @@ module.exports = function (grunt) {
             }
         },
 
-        'saucelabs-qunit': {
-            all: {
-                options: {
-                    testname: 'asmcrypto.js',
-                    urls: ['http://localhost:9999/'],
-                    browsers: browsers,
-                    build: process.env.TRAVIS_JOB_ID,
-                    'max-duration': 600
-                }
-            }
-        },
-
         connect: {
             all: {
                 options: {
@@ -177,5 +164,4 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['rollup:default', 'rollup:test_AES_ASM', 'uglify']);
     grunt.registerTask('devel', ['rollup:all', 'rollup:test_AES_ASM', 'connect', 'watch']);
     grunt.registerTask('test', ['connect', 'qunit']);
-    grunt.registerTask('sauce', ['connect', 'saucelabs-qunit']);
 };
