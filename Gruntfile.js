@@ -32,7 +32,7 @@ module.exports = function (grunt) {
                     moduleName: 'asmCrypto',
                 },
                 files: {
-                    'asmcrypto.js': './src/entry-export_all.js'
+                    'asmcrypto.all.js': './src/entry-export_all.js'
                 }
             },
             all_esm: {
@@ -116,6 +116,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', ['rollup:default', 'rollup:test_AES_ASM', 'uglify']);
+    grunt.registerTask('all', ['rollup:all']);
     grunt.registerTask('esm', ['rollup:all_esm']);
     grunt.registerTask('devel', ['rollup:all', 'rollup:test_AES_ASM', 'connect', 'watch']);
     grunt.registerTask('test', ['connect', 'qunit']);
