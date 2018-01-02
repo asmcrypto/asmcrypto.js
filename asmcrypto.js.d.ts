@@ -62,28 +62,28 @@ declare class AES_ECB_Decrypt extends AES {
 }
 
 declare class AES_CBC_Encrypt extends AES {
-  constructor(iv: Uint8Array, key: Uint8Array, padding?: boolean, heap?: Uint8Array, asm?: Uint8Array);
+  constructor(key: Uint8Array, iv: Uint8Array, padding?: boolean, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CBC_Encrypt>;
   process: AES_Encrypt_process<AES_CBC_Encrypt>;
   finish: AES_Encrypt_finish<AES_CBC_Encrypt>;
 }
 
 declare class AES_CBC_Decrypt extends AES {
-  constructor(iv: Uint8Array, key: Uint8Array, padding?: boolean, heap?: Uint8Array, asm?: Uint8Array);
+  constructor(key: Uint8Array, iv: Uint8Array, padding?: boolean, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CBC_Decrypt>;
   process: AES_Encrypt_process<AES_CBC_Decrypt>;
   finish: AES_Decrypt_finish<AES_CBC_Decrypt>;
 }
 
 declare class AES_CCM_Encrypt extends AES {
-  constructor(key: Uint8Array, nonce: Uint8Array, dataLength: number, adata?: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, dataLength?: number, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CCM_Encrypt>;
   process: AES_Encrypt_process<AES_CCM_Encrypt>;
   finish: AES_Encrypt_finish<AES_CCM_Encrypt>;
 }
 
 declare class AES_CCM_Decrypt extends AES {
-  constructor(key: Uint8Array, nonce: Uint8Array, dataLength: number, adata?: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, dataLength?: number, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CCM_Decrypt>;
   process: AES_Encrypt_process<AES_CCM_Decrypt>;
   finish: AES_Decrypt_finish<AES_CCM_Decrypt>;
@@ -104,21 +104,21 @@ declare class AES_CFB_Decrypt extends AES {
 }
 
 declare class AES_GCM_Encrypt extends AES {
-  constructor(nonce: Uint8Array, key: Uint8Array, adata?: Uint8Array, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_GCM_Encrypt>;
   process: AES_Encrypt_process<AES_GCM_Encrypt>;
   finish: AES_Encrypt_finish<AES_GCM_Encrypt>;
 }
 
 declare class AES_GCM_Decrypt extends AES {
-  constructor(nonce: Uint8Array, key: Uint8Array, adata?: Uint8Array, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_GCM_Decrypt>;
   process: AES_Encrypt_process<AES_GCM_Decrypt>;
   finish: AES_Decrypt_finish<AES_GCM_Decrypt>;
 }
 
 declare class AES_OFB extends AES {
-  constructor(data: Uint8Array, key: Uint8Array, iv?: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
+  constructor(key: Uint8Array, iv?: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_OFB>;
   process: AES_Encrypt_process<AES_OFB>;
   finish: AES_Encrypt_finish<AES_OFB>;
