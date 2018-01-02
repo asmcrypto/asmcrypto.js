@@ -3,7 +3,7 @@
  */
 
 import {_AES_asm_instance, _AES_heap_instance} from '../exports';
-import { AES_GCM, AES_GCM_Decrypt, AES_GCM_Encrypt} from './gcm';
+import {AES_GCM, AES_GCM_Decrypt, AES_GCM_Encrypt} from './gcm';
 
 /**
  * @param {Uint8Array} data

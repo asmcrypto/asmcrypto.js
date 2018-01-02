@@ -3,7 +3,7 @@
  */
 
 import {_AES_asm_instance, _AES_heap_instance} from '../exports';
-import { AES_CTR } from './ctr'
+import {AES_CTR} from './ctr'
 
 /**
  * @param {Uint8Array} data

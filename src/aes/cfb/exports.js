@@ -3,7 +3,7 @@
  */
 
 import {_AES_asm_instance, _AES_heap_instance} from '../exports';
-import { AES_CFB, AES_CFB_Decrypt, AES_CFB_Encrypt} from './cfb';
+import {AES_CFB, AES_CFB_Decrypt, AES_CFB_Encrypt} from './cfb';
 
 /**
  * @param {Uint8Array} data

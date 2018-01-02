@@ -3,7 +3,7 @@
  */
 
 import {_AES_asm_instance, _AES_heap_instance} from '../exports';
-import { AES_ECB, AES_ECB_Decrypt, AES_ECB_Encrypt} from './ecb';
+import {AES_ECB, AES_ECB_Decrypt, AES_ECB_Encrypt} from './ecb';
 
 function AES_ECB_encrypt_bytes ( data, key, padding ) {
     if ( data === undefined ) throw new SyntaxError("data required");

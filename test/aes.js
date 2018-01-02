@@ -492,7 +492,7 @@ if ( typeof asmCrypto.AES_CCM !== 'undefined' )
             // nonce
             asmCrypto.base64_to_bytes('R8q1njARXS7urWv3'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // plaintext

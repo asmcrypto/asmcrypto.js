@@ -1,5 +1,5 @@
-import {AES_CBC, AES_CBC_Decrypt, AES_CBC_Encrypt} from './cbc';
 import {_AES_asm_instance, _AES_heap_instance} from '../exports';
+import {AES_CBC, AES_CBC_Decrypt, AES_CBC_Encrypt} from './cbc';
 
 /**
  * @param {Uint8Array} data
