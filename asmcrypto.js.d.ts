@@ -50,12 +50,20 @@ declare interface RSA_PSS_Verify {
 }
 
 declare class AES_ECB_Encrypt extends AES {
+  constructor(key: Uint8Array, heap?: Uint8Array);
   reset: AES_reset<AES_ECB_Encrypt>;
   process: AES_Encrypt_process<AES_ECB_Encrypt>;
   finish: AES_Encrypt_finish<AES_ECB_Encrypt>;
 }
 
+declare class AES_ECB extends AES {
+  constructor(key: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
+  encrypt: AES_Encrypt_finish<AES_ECB>;
+  decrypt: AES_Decrypt_finish<AES_ECB>;
+}
+
 declare class AES_ECB_Decrypt extends AES {
+  constructor(key: Uint8Array, heap?: Uint8Array);
   reset: AES_reset<AES_ECB_Decrypt>;
   process: AES_Encrypt_process<AES_ECB_Decrypt>;
   finish: AES_Decrypt_finish<AES_ECB_Decrypt>;
@@ -137,8 +145,8 @@ declare module 'asmcrypto.js/asmcrypto.all.js' {
   }
 
   export const AES_ECB: {
-    encrypt: (data: Uint8Array, key: Uint8Array, padding?: boolean) => Uint8Array;
-    decrypt: (data: Uint8Array, key: Uint8Array, padding?: boolean) => Uint8Array;
+    encrypt: (data: Uint8Array, key: Uint8Array) => Uint8Array;
+    decrypt: (data: Uint8Array, key: Uint8Array) => Uint8Array;
     Encrypt: typeof AES_ECB_Encrypt;
     Decrypt: typeof AES_ECB_Decrypt;
   };

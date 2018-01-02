@@ -270,13 +270,13 @@ if ( typeof asmCrypto.AES_ECB !== 'undefined' )
                 cipher = new Uint8Array( asmCrypto.hex_to_bytes(ecb_aes_vectors[i][2]) );
 
             equal(
-                asmCrypto.bytes_to_hex( asmCrypto.AES_ECB.encrypt( clear, key, false ) ),
+                asmCrypto.bytes_to_hex( asmCrypto.AES_ECB.encrypt( clear, key ) ),
                 asmCrypto.bytes_to_hex(cipher),
                     "encrypt vector " + i
             );
 
             equal(
-                asmCrypto.bytes_to_hex( asmCrypto.AES_ECB.decrypt( cipher, key, false ) ),
+                asmCrypto.bytes_to_hex( asmCrypto.AES_ECB.decrypt( cipher, key ) ),
                 asmCrypto.bytes_to_hex(clear),
                     "decrypt vector " + i
             );

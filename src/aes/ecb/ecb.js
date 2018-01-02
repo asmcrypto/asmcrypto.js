@@ -6,12 +6,11 @@ import {AES} from '../aes';
 export class AES_ECB extends AES {
   /**
    * @param {Uint8Array} key
-   * @param {boolean} [padding=true]
    * @param {Uint8Array} [heap]
    * @param {Uint8Array} [asm]
    */
-  constructor(key, padding = true, heap, asm) {
-    super(key, undefined, padding, heap, asm);
+  constructor(key, heap, asm) {
+    super(key, undefined, false, heap, asm);
 
     this.mode = 'ECB';
     this.BLOCK_SIZE = 16;
@@ -29,12 +28,11 @@ export class AES_ECB extends AES {
 export class AES_ECB_Encrypt extends AES_ECB {
   /**
    * @param {Uint8Array} key
-   * @param {boolean} [padding=true]
    * @param {Uint8Array} [heap]
    * @param {Uint8Array} [asm]
    */
-  constructor(key, padding, heap, asm) {
-    super(key, padding, heap, asm);
+  constructor(key, heap, asm) {
+    super(key, heap, asm);
   }
 
   /**
@@ -65,12 +63,11 @@ export class AES_ECB_Encrypt extends AES_ECB {
 export class AES_ECB_Decrypt extends AES_ECB {
   /**
    * @param {Uint8Array} key
-   * @param {boolean} [padding=true]
    * @param {Uint8Array} [heap]
    * @param {Uint8Array} [asm]
    */
-  constructor(key, padding, heap, asm) {
-    super(key, padding, heap, asm);
+  constructor(key, heap, asm) {
+    super(key, heap, asm);
   }
 
   /**
