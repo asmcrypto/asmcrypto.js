@@ -17,7 +17,7 @@ module.exports = function (grunt) {
       options: {
         format: 'umd',
         sourceMap: true,
-        banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2018 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */",
+        banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2018 asmCrypto.js, opensource.org/licenses/<%= pkg.license %> */",
       },
       default: {
         options: {
@@ -67,7 +67,7 @@ module.exports = function (grunt) {
         sourceMapIn: 'asmcrypto.js.map',
         sourceMapIncludeSources: true,
         screwIE8: true,
-        banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2018 <%= pkg.author.name %>, opensource.org/licenses/<%= pkg.license %> */",
+        banner: "/*! asmCrypto<%= pkg.version && ' v'+pkg.version %>, (c) 2018 asmCrypto.js, opensource.org/licenses/<%= pkg.license %> */",
       },
       all: {
         files: {
