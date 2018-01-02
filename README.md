@@ -14,7 +14,6 @@ Add `<script src="path/to/asmcrypto.js"></script>` into your page.
 Index
 -----
 
-* [Download](#download)
 * [Build & Test](#build--test)
 * [Performance](#performance)
 * [API Reference](#api-reference)
@@ -48,12 +47,6 @@ Index
         * [RSA-PSS-SHA512](#rsa_pss_sha512)
     * [Cryptographically secure pseudorandom number generator](#cryptographically-secure-pseudorandom-number-generator)
 
-Download
---------
-
-* [Minified JS file](http://vibornoff.com/asmcrypto.js) 130KB,
-* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 530KB,
-* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 216KB.
 
 Build & Test
 ------------
@@ -79,6 +72,16 @@ Performance
 
 In the development of this project, special attention was paid to the performance issues.
 In the result of all the optimizations made this stuff is pretty fast under Firefox and Chrome.
+
+Support
+-----------
+
+* NodeJS 8 and NodeJS 9
+* IE11 (temporarily disabled, use previous versions: 0.16.x)
+* last two Chrome versions
+* last two Firefox versions and the latest Firefox ESR
+* last two Edge versions
+* last two Safari versions
 
 API Reference
 -------------
