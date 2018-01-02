@@ -8,7 +8,7 @@ export var _sha1_hash_size = 20;
 export function sha1_constructor ( options ) {
     options = options || {};
 
-    this.heap = _heap_init( Uint8Array, options );
+    this.heap = _heap_init( Uint8Array, options.heap );
     this.asm = options.asm || sha1_asm( { Uint8Array: Uint8Array }, null, this.heap.buffer );
 
     this.BLOCK_SIZE = _sha1_block_size;

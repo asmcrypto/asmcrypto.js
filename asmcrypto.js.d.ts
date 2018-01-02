@@ -1,12 +1,28 @@
-import {SHA512} from "asmcrypto.js/asmcrypto.all.js";
+declare class BigNumberInternal extends Number {
+  static ZERO: BigNumberInternal;
+  static ONE: BigNumberInternal;
+  constructor(num: Uint8Array|number);
+  toString(radix?: number): string;
+  toBytes(): Uint8Array;
+  valueOf(): number;
+  clamp(b: number): BigNumberInternal;
+  slice(f: number,b: number): BigNumberInternal;
+  negate(): BigNumberInternal;
+  compare(that: BigNumberInternal): 0|1|-1;
+  add(that: BigNumberInternal): BigNumberInternal;
+  subtract(that: BigNumberInternal): BigNumberInternal;
+  multiply(that: BigNumberInternal): BigNumberInternal;
+  square(): BigNumberInternal;
+  divide(that: BigNumberInternal): BigNumberInternal;
+}
 
 declare class AES {
   BLOCK_SIZE: number;
   result: Uint8Array;
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, key: Uint8Array, padding?: boolean});
+  constructor(key: Uint8Array, iv?: Uint8Array, padding?: boolean, heap?: Uint8Array, asm?: Uint8Array);
 }
 declare interface AES_reset<M> {
-  (options: {key: Uint8Array, iv?: Uint8Array, padding?: boolean}): M;
+  (key: Uint8Array, iv?: Uint8Array, padding?: boolean): M;
 }
 declare interface AES_Encrypt_finish<M> {
   (data?: Uint8Array): M;
@@ -19,6 +35,18 @@ declare interface AES_Encrypt_process<M> {
 }
 declare interface AES_Decrypt_process<M> {
   (data: Uint8Array): M;
+}
+declare interface RSA_OAEP_Encrypt {
+  (data: Uint8Array, key: BigNumberInternal[], label?: Uint8Array): Uint8Array;
+}
+declare interface RSA_OAEP_Decrypt {
+  (data: Uint8Array, key: BigNumberInternal[], label?: Uint8Array): Uint8Array;
+}
+declare interface RSA_PSS_Sign {
+  (data: Uint8Array, key: BigNumberInternal[], slen?: number): Uint8Array;
+}
+declare interface RSA_PSS_Verify {
+  (signature: Uint8Array, data: Uint8Array, key: BigNumberInternal[], slen?: number): boolean;
 }
 
 declare class AES_ECB_Encrypt extends AES {
@@ -34,77 +62,80 @@ declare class AES_ECB_Decrypt extends AES {
 }
 
 declare class AES_CBC_Encrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, iv: Uint8Array, key: Uint8Array, padding?: boolean});
+  constructor(key: Uint8Array, iv: Uint8Array, padding?: boolean, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CBC_Encrypt>;
   process: AES_Encrypt_process<AES_CBC_Encrypt>;
   finish: AES_Encrypt_finish<AES_CBC_Encrypt>;
 }
 
 declare class AES_CBC_Decrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, iv: Uint8Array, key: Uint8Array, padding?: boolean});
+  constructor(key: Uint8Array, iv: Uint8Array, padding?: boolean, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CBC_Decrypt>;
   process: AES_Encrypt_process<AES_CBC_Decrypt>;
   finish: AES_Decrypt_finish<AES_CBC_Decrypt>;
 }
 
 declare class AES_CCM_Encrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, dataLength: number});
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, dataLength?: number, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CCM_Encrypt>;
   process: AES_Encrypt_process<AES_CCM_Encrypt>;
   finish: AES_Encrypt_finish<AES_CCM_Encrypt>;
 }
 
 declare class AES_CCM_Decrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, dataLength: number});
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, dataLength?: number, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CCM_Decrypt>;
   process: AES_Encrypt_process<AES_CCM_Decrypt>;
   finish: AES_Decrypt_finish<AES_CCM_Decrypt>;
 }
 
 declare class AES_CFB_Encrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, iv?: Uint8Array, key: Uint8Array});
+  constructor(key: Uint8Array, iv?: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CFB_Encrypt>;
   process: AES_Encrypt_process<AES_CFB_Encrypt>;
   finish: AES_Encrypt_finish<AES_CFB_Encrypt>;
 }
 
 declare class AES_CFB_Decrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, iv?: Uint8Array, key: Uint8Array});
+  constructor(key: Uint8Array, iv?: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_CFB_Decrypt>;
   process: AES_Encrypt_process<AES_CFB_Decrypt>;
   finish: AES_Decrypt_finish<AES_CFB_Decrypt>;
 }
 
 declare class AES_GCM_Encrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, nonce: Uint8Array, key: Uint8Array, adata?: Uint8Array, tagSize?: number});
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_GCM_Encrypt>;
   process: AES_Encrypt_process<AES_GCM_Encrypt>;
   finish: AES_Encrypt_finish<AES_GCM_Encrypt>;
 }
 
 declare class AES_GCM_Decrypt extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, nonce: Uint8Array, key: Uint8Array, adata?: Uint8Array, tagSize?: number});
+  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, tagSize?: number, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_GCM_Decrypt>;
   process: AES_Encrypt_process<AES_GCM_Decrypt>;
   finish: AES_Decrypt_finish<AES_GCM_Decrypt>;
 }
 
 declare class AES_OFB extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, data: Uint8Array, key: Uint8Array, iv?: Uint8Array});
+  constructor(key: Uint8Array, iv?: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
   reset: AES_reset<AES_OFB>;
   process: AES_Encrypt_process<AES_OFB>;
   finish: AES_Encrypt_finish<AES_OFB>;
 }
 
 declare class AES_CTR extends AES {
-  constructor(options: {heap?: Uint8Array, asm?: Uint8Array, nonce: Uint8Array, key: Uint8Array});
-  reset(options: {nonce?: Uint8Array, counter: number, counterSize: number}): AES_CTR;
+  constructor(key: Uint8Array, nonce: Uint8Array, heap?: Uint8Array, asm?: Uint8Array);
+  reset(key: Uint8Array, nonce: Uint8Array, counter?: number, counterSize?: number): AES_CTR;
   process: AES_Encrypt_process<AES_CTR>;
   finish: AES_Encrypt_finish<AES_CTR>;
 }
 
-
 declare module 'asmcrypto.js/asmcrypto.all.js' {
+  export class BigNumber extends BigNumberInternal {
+
+  }
+
   export const AES_ECB: {
     encrypt: (data: Uint8Array, key: Uint8Array, padding?: boolean) => Uint8Array;
     decrypt: (data: Uint8Array, key: Uint8Array, padding?: boolean) => Uint8Array;
@@ -234,6 +265,37 @@ declare module 'asmcrypto.js/asmcrypto.all.js' {
     hex(password: Uint8Array, salt: Uint8Array, iterations?: number, dklen?: number): Uint8Array;
     base64(password: Uint8Array, salt: Uint8Array, iterations?: number, dklen?: number): Uint8Array;
   };
+  export const RSA_OAEP_SHA1: {
+    encrypt: RSA_OAEP_Encrypt;
+    decrypt: RSA_OAEP_Decrypt;
+  };
+  export const RSA_OAEP_SHA256: {
+    encrypt: RSA_OAEP_Encrypt;
+    decrypt: RSA_OAEP_Decrypt;
+  };
+  export const RSA_OAEP_SHA512: {
+    encrypt: RSA_OAEP_Encrypt;
+    decrypt: RSA_OAEP_Decrypt;
+  };
+  export const RSA_PSS_SHA1: {
+    sign: RSA_PSS_Sign;
+    verify: RSA_PSS_Verify;
+  };
+  export const RSA_PSS_SHA256: {
+    sign: RSA_PSS_Sign;
+    verify: RSA_PSS_Verify;
+  };
+  export const RSA_PSS_SHA512: {
+    sign: RSA_PSS_Sign;
+    verify: RSA_PSS_Verify;
+  };
+
+  export function random(): number;
+  export namespace random {
+    export function seed(data: Uint8Array): boolean;
+  }
+
+
   export function string_to_bytes(s: string): Uint8Array;
   export function hex_to_bytes(s: string): Uint8Array;
   export function base64_to_bytes(s: string): Uint8Array;

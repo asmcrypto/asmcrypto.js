@@ -148,9 +148,8 @@ export function is_typed_array ( a ) {
         || ( a instanceof Float64Array );
 }
 
-export function _heap_init ( constructor, options ) {
-    var heap = options.heap,
-        size = heap ? heap.byteLength : options.heapSize || 65536;
+export function _heap_init ( constructor, heap, heapSize ) {
+    var size = heap ? heap.byteLength : heapSize || 65536;
 
     if ( size & 0xfff || size <= 0 )
         throw new Error("heap size must be a positive integer and a multiple of 4096");

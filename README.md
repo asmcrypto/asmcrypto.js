@@ -1,4 +1,4 @@
-asmCrypto [![Build Status](https://travis-ci.org/vibornoff/asmcrypto.js.svg?branch=master)](https://travis-ci.org/vibornoff/asmcrypto.js) [![Selenium Test Status](https://saucelabs.com/buildstatus/vibornoff)](https://saucelabs.com/u/vibornoff) [![Join the chat at https://gitter.im/vibornoff/asmcrypto.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vibornoff/asmcrypto.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![CDNJS version](https://img.shields.io/cdnjs/v/asmCrypto.svg)](https://cdnjs.com/libraries/asmCrypto)
+asmCrypto [![Build Status](https://travis-ci.org/asmcrypto/asmcrypto.js.svg?branch=master)](https://travis-ci.org/asmcrypto/asmcrypto.js) [![Join the chat at https://gitter.im/asmcrypto/asmcrypto.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/asmcrypto/asmcrypto.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 =========
 
 JavaScript implementation of popular cryptographic utilities with performance in mind.
@@ -14,7 +14,6 @@ Add `<script src="path/to/asmcrypto.js"></script>` into your page.
 Index
 -----
 
-* [Download](#download)
 * [Build & Test](#build--test)
 * [Performance](#performance)
 * [API Reference](#api-reference)
@@ -47,15 +46,7 @@ Index
         * [RSA-PSS-SHA256](#rsa_pss_sha256)
         * [RSA-PSS-SHA512](#rsa_pss_sha512)
     * [Cryptographically secure pseudorandom number generator](#cryptographically-secure-pseudorandom-number-generator)
-* [Bugs & TODO](#bugs--todo)
-* [Donate](#donate)
 
-Download
---------
-
-* [Minified JS file](http://vibornoff.com/asmcrypto.js) 130KB,
-* [Source Map file](http://vibornoff.com/asmcrypto.js.map) 530KB,
-* [All-in-One archive](http://vibornoff.com/asmcrypto.tar.gz) 216KB.
 
 Build & Test
 ------------
@@ -66,7 +57,7 @@ Before you start check that [npm](http://npmjs.org/) is installed:
 
 Then download and build the stuff:
 
-    git clone https://github.com/vibornoff/asmcrypto.js.git
+    git clone https://github.com/asmcrypto/asmcrypto.js.git
     cd asmcrypto.js/
     npm install
 
@@ -74,7 +65,7 @@ Running tests is always a good idea:
 
     npm test
 
-Congratulations! Now you have your `asmcrypto.js` and `asmcrypto.js.map` ready to use ☺
+Congratulations! Now you have your `asmcrypto.js` ready to use ☺
 
 Performance
 -----------
@@ -82,20 +73,15 @@ Performance
 In the development of this project, special attention was paid to the performance issues.
 In the result of all the optimizations made this stuff is pretty fast under Firefox and Chrome.
 
-My *Intel® Core™ i7-3770 CPU @ 3.40GHz* typical processing speeds are:
-* *Chrome/31.0*
-    * SHA256: 51 MiB/s (**9 times faster** than *SJCL* and *CryptoJS*)
-    * AES-CBC: 47 MiB/s (**13 times faster** than *CryptoJS* and **20 times faster** than *SJCL*)
-* *Firefox/26.0*
-    * SHA256: 144 MiB/s (**5 times faster** than *CryptoJS* and **20 times faster** than *SJCL*)
-    * AES-CBC: 81 MiB/s (**3 times faster** than *CryptoJS* and **8 times faster** than *SJCL*)
+Support
+-----------
 
-See benchmarks:
-* [SHA256](http://jsperf.com/sha256/34),
-* [HMAC-SHA256](http://jsperf.com/hmac-sha256/1),
-* [PBKDF2-HMAC-SHA256](http://jsperf.com/pbkdf2-hmac-sha256/2),
-* [AES](http://jsperf.com/aes/19),
-* [Modular exponentiation (used internally in RSA)](http://jsperf.com/jsbn-vs-bigint-js-modular-exponentiation-montgomery/4).
+* NodeJS 8 and NodeJS 9
+* IE11 (temporarily disabled, use previous versions: 0.16.x)
+* last two Chrome versions
+* last two Firefox versions and the latest Firefox ESR
+* last two Edge versions
+* last two Safari versions
 
 API Reference
 -------------
@@ -568,18 +554,7 @@ Allow implicitly-only seeded random output.
 
 Disable implicit seeding warning when it's not desirable, e.g. at a unit test run.
 
-Bugs & TODO
------------
-
-* Progressive operations are temporary fade out, they'll be back with WebCrypto API;
-* Moar docs needed ☺
-
 Not yet implemented:
 * scrypt,
 * dsa, ecdsa,
 * rsa-pkcs-v1.5
-
-Donate
-------
-
-If you like this stuff feel free to donate some funds to `1CiGzP1EFLTftqkfvVtbwvZ9Koiuoc4FSC` ☺

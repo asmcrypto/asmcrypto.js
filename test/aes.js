@@ -342,20 +342,6 @@ if ( typeof asmCrypto.AES_CBC !== 'undefined' )
                 asmCrypto.bytes_to_hex(clear),
                 "decrypt vector " + i
             );
-
-            if ( asmCrypto.bytes_to_string !== undefined ) {
-                equal(
-                    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( asmCrypto.bytes_to_string(clear), key, false, iv ) ),
-                    asmCrypto.bytes_to_hex(cipher),
-                    "encrypt (string) vector " + i
-                );
-
-                equal(
-                    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.decrypt( asmCrypto.bytes_to_string(cipher), key, false, iv ) ),
-                    asmCrypto.bytes_to_hex(clear),
-                    "decrypt (string) vector " + i
-                );
-            }
         }
     });
 }
@@ -506,7 +492,7 @@ if ( typeof asmCrypto.AES_CCM !== 'undefined' )
             // nonce
             asmCrypto.base64_to_bytes('R8q1njARXS7urWv3'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // plaintext
@@ -588,7 +574,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // tagSize
             16,
             // input message
-            '',
+            asmCrypto.string_to_bytes(''),
             // encrypted message
             asmCrypto.hex_to_bytes('58e2fccefa7e3061367f1d57a4e7455a')
         ],
@@ -598,7 +584,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // nonce
             asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // input message
@@ -612,7 +598,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // nonce
             asmCrypto.hex_to_bytes('cafebabefacedbaddecaf888'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // input message
@@ -668,7 +654,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // nonce
             asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // input message
@@ -682,7 +668,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // nonce
             asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // input message
@@ -696,11 +682,11 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // nonce
             asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // input message
-            '',
+            asmCrypto.string_to_bytes(''),
             // encrypted message
             asmCrypto.hex_to_bytes('530f8afbc74536b9a963b4f1c4cb738b')
         ],
@@ -710,7 +696,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // nonce
             asmCrypto.hex_to_bytes('000000000000000000000000'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // input message
@@ -738,7 +724,7 @@ if ( typeof asmCrypto.AES_GCM !== 'undefined' )
             // nonce
             asmCrypto.hex_to_bytes('00'),
             // adata
-            '',
+            asmCrypto.string_to_bytes(''),
             // tagSize
             16,
             // input message

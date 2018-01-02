@@ -2,28 +2,65 @@
  * Output Feedback (OFB)
  */
 
-import {AES, AES_Encrypt_finish, AES_Encrypt_process, AES_reset} from '../aes';
+import {AES} from '../aes';
 
-export function AES_OFB_constructor (options ) {
-    this.iv = null;
-
-    AES.call( this, options );
+export class AES_OFB extends AES {
+  /**
+   * @param {Uint8Array} key
+   * @param {Uint8Array} iv
+   * @param {Uint8Array} [heap]
+   * @param {Uint8Array} [asm]
+   */
+  constructor(key, iv, heap, asm) {
+    super(key, iv, false, heap, asm);
 
     this.mode = 'OFB';
+    this.BLOCK_SIZE = 16;
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @return {AES_OFB}
+   */
+  encrypt(data) {
+    return this.AES_Encrypt_finish(data);
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @return {AES_OFB}
+   */
+  decrypt(data) {
+    return this.AES_Encrypt_finish(data);
+  }
 }
 
-export function AES_OFB_Crypt ( options ) {
-    AES_OFB_constructor.call( this, options );
+export class AES_OFB_Crypt extends AES_OFB {
+  /**
+   * @param {Uint8Array} key
+   * @param {Uint8Array} iv
+   * @param {Uint8Array} [heap]
+   * @param {Uint8Array} [asm]
+   */
+  constructor(key, iv, heap, asm) {
+    super(key, iv, heap, asm);
+    this.BLOCK_SIZE = 16;
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @return {AES_OFB_Crypt}
+   */
+  process(data) {
+    return this.AES_Encrypt_process(data);
+  }
+
+  /**
+   * @param {Uint8Array} data
+   * @return {AES_OFB_Crypt}
+   */
+  finish(data) {
+    return this.AES_Encrypt_finish(data);
+  }
 }
 
-var AES_OFB_prototype = AES_OFB_constructor.prototype;
-AES_OFB_prototype.BLOCK_SIZE = 16;
-AES_OFB_prototype.reset = AES_reset;
-AES_OFB_prototype.encrypt = AES_Encrypt_finish;
-AES_OFB_prototype.decrypt = AES_Encrypt_finish;
-
-var AES_OFB_Crypt_prototype = AES_OFB_Crypt.prototype;
-AES_OFB_Crypt_prototype.BLOCK_SIZE = 16;
-AES_OFB_Crypt_prototype.reset = AES_reset;
-AES_OFB_Crypt_prototype.process = AES_Encrypt_process;
-AES_OFB_Crypt_prototype.finish = AES_Encrypt_finish;
