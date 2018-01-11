@@ -1,5 +1,5 @@
 // Tests if the number supplied is a Miller-Rabin strong probable prime
-import {BigNumber_constructor} from './bignum';
+import {BigNumber_constructor, BigNumber_ONE} from './bignum';
 import {pow2_ceil} from '../utils';
 import {Random_getValues} from '../random/random';
 import {Modulus} from './modulus';
@@ -13,7 +13,7 @@ function _BigNumber_isMillerRabinProbablePrime (rounds ) {
     t = t.slice(s);
 
     var m = new Modulus(this),
-        m1 = this.subtract(BigNumber_constructor.ONE),
+        m1 = this.subtract(BigNumber_ONE),
         a = new BigNumber_constructor(this),
         l = this.limbs.length-1;
     while ( a.limbs[l] === 0 ) l--;
@@ -24,13 +24,13 @@ function _BigNumber_isMillerRabinProbablePrime (rounds ) {
         while ( a.compare(m1) >= 0 ) a.limbs[l] >>>= 1;
 
         var x = m.power( a, t );
-        if ( x.compare(BigNumber_constructor.ONE) === 0 ) continue;
+        if ( x.compare(BigNumber_ONE) === 0 ) continue;
         if ( x.compare(m1) === 0 ) continue;
 
         var c = s;
         while ( --c > 0 ) {
             x = x.square().divide(m).remainder;
-            if ( x.compare(BigNumber_constructor.ONE) === 0 ) return false;
+            if ( x.compare(BigNumber_ONE) === 0 ) return false;
             if ( x.compare(m1) === 0 ) break;
         }
 
