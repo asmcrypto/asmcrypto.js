@@ -92,7 +92,7 @@ export class AES_CFB_Decrypt extends AES_CFB{
    * @returns {AES_CFB_Decrypt}
    */
   process(data) {
-    return this.AES_Encrypt_process(data);
+    return this.AES_Decrypt_process(data);
   }
 
   /**
@@ -100,7 +100,7 @@ export class AES_CFB_Decrypt extends AES_CFB{
    * @returns {AES_CFB_Decrypt}
    */
   finish(data) {
-    return this.AES_Encrypt_finish(data);
+    return this.AES_Decrypt_finish(data);
   }
 }
 
