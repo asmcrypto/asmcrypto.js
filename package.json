@@ -1,6 +1,6 @@
 {
   "name": "asmcrypto.js",
-  "version": "0.18.2",
+  "version": "0.18.3",
   "description": "Asm.js implementation of WebCrypto API",
   "homepage": "https://github.com/vibornoff/asmcrypto.js",
   "main": "asmcrypto.js",
@@ -36,7 +36,7 @@
     "grunt-contrib-uglify-es": "git+https://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "grunt-contrib-watch": "~1.0",
     "grunt-jsdoc": "~2.2",
-    "grunt-rollup": "^8.2.0",
+    "grunt-rollup": "^9.0.0",
     "grunt-shell": "^2.1.0",
     "qunit-puppeteer": "^1.0.1",
     "uglify-es": "^3.3.4"
