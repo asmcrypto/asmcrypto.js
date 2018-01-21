@@ -23,14 +23,14 @@ export function RSA_reset(options) {
       if (l !== 2 && l !== 3 && l !== 8) throw new SyntaxError('unexpected key type');
 
       var k = [];
-      k[0] = new Modulus(key[0]);
+      k[0] = new Modulus(new BigNumber(key[0]));
       k[1] = new BigNumber(key[1]);
       if (l > 2) {
         k[2] = new BigNumber(key[2]);
       }
       if (l > 3) {
-        k[3] = new Modulus(key[3]);
-        k[4] = new Modulus(key[4]);
+        k[3] = new Modulus(new BigNumber(key[3]));
+        k[4] = new Modulus(new BigNumber(key[4]));
         k[5] = new BigNumber(key[5]);
         k[6] = new BigNumber(key[6]);
         k[7] = new BigNumber(key[7]);

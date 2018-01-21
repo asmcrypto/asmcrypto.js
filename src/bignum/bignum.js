@@ -1,6 +1,6 @@
 import { Random_getValues } from '../random/random';
 import { bigint_asm } from './bigint.asm';
-import { is_buffer, is_bytes, is_number, is_string, string_to_bytes } from '../utils';
+import { is_buffer, is_bytes, is_number, is_string, string_to_bytes, pow2_ceil } from '../utils';
 import { IllegalArgumentError } from '../errors';
 import { BigNumber_extGCD, Number_extGCD } from './extgcd';
 
@@ -35,7 +35,64 @@ const _BigNumber_ZERO_limbs = new Uint32Array(0);
 
 export class BigNumber {
   /**
-   * @param {BigNumber|string|number|Uint8Array} num
+   * @param {string} str
+   * @return {BigNumber}
+   */
+  static fromString(str) {
+    const bytes = string_to_bytes(str);
+    return new BigNumber(bytes);
+  }
+
+  /**
+   * @param {number} num
+   * @return {BigNumber}
+   */
+  static fromNumber(num) {
+    let limbs = _BigNumber_ZERO_limbs;
+    let bitlen = 0;
+    let sign = 0;
+
+    var absnum = Math.abs(num);
+    if (absnum > 0xffffffff) {
+      limbs = new Uint32Array(2);
+      limbs[0] = absnum | 0;
+      limbs[1] = (absnum / 0x100000000) | 0;
+      bitlen = 52;
+    } else if (absnum > 0) {
+      limbs = new Uint32Array(1);
+      limbs[0] = absnum;
+      bitlen = 32;
+    } else {
+      limbs = _BigNumber_ZERO_limbs;
+      bitlen = 0;
+    }
+    sign = num < 0 ? -1 : 1;
+
+    return BigNumber.fromConfig({ limbs, bitLength: bitlen, sign });
+  }
+
+  /**
+   * @param {ArrayBuffer} buffer
+   * @return {BigNumber}
+   */
+  static fromArrayBuffer(buffer) {
+    return new BigNumber(new Uint8Array(buffer));
+  }
+
+  /**
+   * @param {{ limbs: Uint32Array, bitLength: number, sign: number }} obj
+   * @return {BigNumber}
+   */
+  static fromConfig(obj) {
+    const bn = new BigNumber();
+    bn.limbs = new Uint32Array(obj.limbs);
+    bn.bitLength = obj.bitLength;
+    bn.sign = obj.sign;
+    return bn;
+  }
+
+  /**
+   * @param {Uint8Array} [num]
    * @return {BigNumber}
    */
   constructor(num) {
@@ -43,28 +100,8 @@ export class BigNumber {
     let bitlen = 0;
     let sign = 0;
 
-    if (is_string(num)) num = string_to_bytes(num);
-
-    if (is_buffer(num)) num = new Uint8Array(num);
-
     if (num === undefined) {
       // do nothing
-    } else if (is_number(num)) {
-      var absnum = Math.abs(num);
-      if (absnum > 0xffffffff) {
-        limbs = new Uint32Array(2);
-        limbs[0] = absnum | 0;
-        limbs[1] = (absnum / 0x100000000) | 0;
-        bitlen = 52;
-      } else if (absnum > 0) {
-        limbs = new Uint32Array(1);
-        limbs[0] = absnum;
-        bitlen = 32;
-      } else {
-        limbs = _BigNumber_ZERO_limbs;
-        bitlen = 0;
-      }
-      sign = num < 0 ? -1 : 1;
     } else if (is_bytes(num)) {
       for (var i = 0; !num[i]; i++);
 
@@ -84,10 +121,6 @@ export class BigNumber {
       }
 
       sign = 1;
-    } else if (typeof num === 'object' && num !== null) {
-      limbs = new Uint32Array(num.limbs);
-      bitlen = num.bitLength;
-      sign = num.sign;
     } else {
       throw new TypeError('number is of unexpected type');
     }
@@ -97,6 +130,10 @@ export class BigNumber {
     this.sign = sign;
   }
 
+  /**
+   * @param {number} radix
+   * @return {string}
+   */
   toString(radix) {
     radix = radix || 16;
 
@@ -124,6 +161,9 @@ export class BigNumber {
     return str;
   }
 
+  /**
+   * @return {Uint8Array}
+   */
   toBytes() {
     const bitlen = this.bitLength;
     const limbs = this.limbs;
@@ -266,8 +306,6 @@ export class BigNumber {
    * @return {number}
    */
   compare(that) {
-    if (!is_big_number(that)) that = new BigNumber(that);
-
     var alimbs = this.limbs,
       alimbcnt = alimbs.length,
       blimbs = that.limbs,
@@ -290,8 +328,6 @@ export class BigNumber {
    * @return {BigNumber}
    */
   add(that) {
-    if (!is_big_number(that)) that = new BigNumber(that);
-
     if (!this.sign) return that;
 
     if (!that.sign) return this;
@@ -351,8 +387,6 @@ export class BigNumber {
    * @return {BigNumber}
    */
   subtract(that) {
-    if (!is_big_number(that)) that = new BigNumber(that);
-
     return this.add(that.negate());
   }
 
@@ -395,8 +429,6 @@ export class BigNumber {
    * @return {{quotient: BigNumber, remainder: BigNumber}}
    */
   divide(that) {
-    if (!is_big_number(that)) that = new BigNumber(that);
-
     var abitlen = this.bitLength,
       alimbs = this.limbs,
       alimbcnt = alimbs.length,
@@ -448,8 +480,6 @@ export class BigNumber {
    * @return {BigNumber}
    */
   multiply(that) {
-    if (!is_big_number(that)) that = new BigNumber(that);
-
     if (!this.sign || !that.sign) return BigNumber_ZERO;
 
     var abitlen = this.bitLength,
@@ -490,8 +520,8 @@ export class BigNumber {
    * @return {boolean}
    * @private
    */
-  _isMillerRabinProbablePrime(rounds) {
-    var t = new BigNumber(this),
+  isMillerRabinProbablePrime(rounds) {
+    var t = BigNumber.fromConfig(this),
       s = 0;
     t.limbs[0] -= 1;
     while (t.limbs[s >> 5] === 0) s += 32;
@@ -500,7 +530,7 @@ export class BigNumber {
 
     var m = new Modulus(this),
       m1 = this.subtract(BigNumber_ONE),
-      a = new BigNumber(this),
+      a = BigNumber.fromConfig(this),
       l = this.limbs.length - 1;
     while (a.limbs[l] === 0) l--;
 
@@ -527,14 +557,16 @@ export class BigNumber {
   }
 
   /**
-   * @param {number} paranoia
+   * @param {number} [paranoia]
    * @return {boolean}
    */
   isProbablePrime(paranoia) {
     paranoia = paranoia || 80;
+    console.log(paranoia);
+    console.log(this);
 
-    var limbs = this.limbs,
-      i = 0;
+    var limbs = this.limbs;
+    var i = 0;
 
     // Oddity test
     // (50% false positive probability)
@@ -574,12 +606,12 @@ export class BigNumber {
 
     // Miller-Rabin test
     // (≤ 4^(-k) false positive probability)
-    return this._isMillerRabinProbablePrime(paranoia >>> 1);
+    return this.isMillerRabinProbablePrime(paranoia >>> 1);
   }
 }
 
-export const BigNumber_ZERO = new BigNumber(0);
-export const BigNumber_ONE = new BigNumber(1);
+export const BigNumber_ZERO = BigNumber.fromNumber(0);
+export const BigNumber_ONE = BigNumber.fromNumber(1);
 
 /**
  * Returns an array populated with first n primes.
@@ -605,12 +637,12 @@ function _small_primes(n) {
  * Returns strong pseudoprime of a specified bit length
  *
  * @param {number} bitlen
- * @param {function(p: BigNumber): number} filter
+ * @param {function(BigNumber): boolean} filter
  * @return {BigNumber}
  */
 export function randomProbablePrime(bitlen, filter) {
   let limbcnt = (bitlen + 31) >> 5;
-  const prime = new BigNumber({ sign: 1, bitLength: bitlen, limbs: limbcnt });
+  const prime = BigNumber.fromConfig({ sign: 1, bitLength: bitlen, limbs: new Uint32Array(limbcnt) });
   const limbs = prime.limbs;
 
   // Number of small divisors to try that minimizes the total cost of the trial division
@@ -641,7 +673,7 @@ export function randomProbablePrime(bitlen, filter) {
     // remainders from division to small primes
     remainders[0] = 1;
     for (let i = 1; i < k; i++) {
-      remainders[i] = prime.divide(divisors[i]).remainder.valueOf();
+      remainders[i] = prime.divide(BigNumber.fromNumber(divisors[i])).remainder.valueOf();
     }
 
     // try no more than `s` subsequent candidates
@@ -655,7 +687,7 @@ export function randomProbablePrime(bitlen, filter) {
       if (typeof filter === 'function' && !filter(prime)) continue;
 
       // proceed to Miller-Rabin test
-      if (prime._isMillerRabinProbablePrime(r)) return prime;
+      if (prime.isMillerRabinProbablePrime(r)) return prime;
     }
   }
 }
@@ -664,10 +696,13 @@ export class Modulus extends BigNumber {
   /**
    * Modulus
    *
-   * @param {BigNumber|string|number|Uint8Array} number
+   * @param {BigNumber} number
    */
   constructor(number) {
-    super(number);
+    super();
+    this.limbs = number.limbs;
+    this.bitLength = number.bitLength;
+    this.sign = number.sign;
 
     if (this.valueOf() < 1) throw new RangeError();
 
@@ -710,9 +745,7 @@ export class Modulus extends BigNumber {
    * @constructor
    */
   reduce(a) {
-    if (!is_big_number(a)) a = new BigNumber(a);
-
-    if (a.bitLength <= 32 && this.bitLength <= 32) return new BigNumber(a.valueOf() % this.valueOf());
+    if (a.bitLength <= 32 && this.bitLength <= 32) return BigNumber.fromNumber(a.valueOf() % this.valueOf());
 
     if (a.compare(this) < 0) return a;
 
@@ -746,10 +779,6 @@ export class Modulus extends BigNumber {
    * @constructor
    */
   power(g, e) {
-    if (!is_big_number(g)) g = new BigNumber(g);
-
-    if (!is_big_number(e)) e = new BigNumber(e);
-
     // count exponent set bits
     let c = 0;
     for (let i = 0; i < e.limbs.length; i++) {
@@ -816,7 +845,7 @@ export class Modulus extends BigNumber {
 
 /**
  * @param {BigNumber} a
- * @param {BigNumber} n
+ * @param {Modulus} n
  * @return {BigNumber}
  * @private
  */

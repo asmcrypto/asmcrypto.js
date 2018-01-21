@@ -2,7 +2,7 @@ declare class BigNumber {
   static ZERO: BigNumber;
   static ONE: BigNumber;
 
-  constructor(num: Uint8Array | number);
+  constructor(num?: Uint8Array);
 
   toString(radix?: number): string;
 

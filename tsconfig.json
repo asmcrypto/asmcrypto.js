@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es2017",
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "sourceMap": false
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src"
+  ]
+}

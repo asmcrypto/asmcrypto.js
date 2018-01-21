@@ -11,7 +11,7 @@ if ( typeof asmCrypto.RSA !== 'undefined' )
 
     var privkey = [
         asmCrypto.hex_to_bytes('c13f894819c136381a94c193e619851ddfcde5eca770003ec354f3142e0f61f0676d7d4215cc7a13b06e0744aa8316c9c3766cbefa30b2346fba8f1236d7e6548cf87d9578e6904fc4291e096a2737fcd96624f72e762793505f9dfc5fa17b44611add54f5c00bf54373d720cb6f4e5cabae36c4442b39dbf49158414547f453'),
-        65537,
+        asmCrypto.hex_to_bytes('10001'),
         asmCrypto.hex_to_bytes('75497aa8a7f8fc4f50d2b82a6b9d518db027e7449adaff4b18829685c8eecd227ba3984263b896df1c55ab53a1a9ae4b06b6f9896f8fde98b4b725de882ac13fc11b614cb2cc81bcc69b9ad167dda093c5c6637754acd0ec9e9845b1b2244d597c9f63d7ea076bda19feadcdb3bd1ba9018915fec981657fb7a4301cb87a3e1'),
         asmCrypto.hex_to_bytes('ef2f8d91d7cd96710d6b3b5ea1b6762b4214efe329e7d0609ab8419744ef8620391e423d5890c864aebb36c0daf5035d27f3427e6a84fde36466a14b56ad1cfb'),
         asmCrypto.hex_to_bytes('ced5477e0acb9c836c3c54e33268e064ce8cdfd40452c8b87ab838b36b498ae22fdbdb331f59f61dd3ca1512143e77a68f8f2400dbe9e576a000084e6fcbb689'),
@@ -28,7 +28,7 @@ if ( typeof asmCrypto.RSA !== 'undefined' )
         var key = asmCrypto.RSA.generateKey( 1024, 3 );
         ok( key, "generateKey" );
 
-        var m = new asmCrypto.Modulus( key[0] ),
+        var m = new asmCrypto.Modulus( new asmCrypto.BigNumber(key[0]) ),
             e = new asmCrypto.BigNumber( key[1] ),
             d = new asmCrypto.BigNumber( key[2] ),
             p = new asmCrypto.BigNumber( key[3] ),
@@ -38,9 +38,9 @@ if ( typeof asmCrypto.RSA !== 'undefined' )
             qi = new asmCrypto.BigNumber( key[7] );
 
         equal( p.multiply(q).toString(16), m.toString(16), "m == p*q" );
-        equal( e.multiply(d).divide(p.subtract(1).multiply(q.subtract(1))).remainder.toString(16), '1', "e*d == 1 mod (p-1)(q-1)" );
-        equal( d.divide(p.subtract(1)).remainder.toString(16), dp.toString(16), "dp == d mod (p-1)" );
-        equal( d.divide(q.subtract(1)).remainder.toString(16), dq.toString(16), "dq == d mod (q-1)" );
+        equal( e.multiply(d).divide(p.subtract(asmCrypto.BigNumber.fromNumber(1)).multiply(q.subtract(asmCrypto.BigNumber.fromNumber(1)))).remainder.toString(16), '1', "e*d == 1 mod (p-1)(q-1)" );
+        equal( d.divide(p.subtract(asmCrypto.BigNumber.fromNumber(1))).remainder.toString(16), dp.toString(16), "dp == d mod (p-1)" );
+        equal( d.divide(q.subtract(asmCrypto.BigNumber.fromNumber(1))).remainder.toString(16), dq.toString(16), "dq == d mod (q-1)" );
         equal( qi.multiply(q).divide(p).remainder.toString(16), '1', "qi*q == 1 mod p" );
         equal( m.slice(m.bitLength-1).valueOf(), 1, "m highest bit is 1" );
     });
@@ -105,7 +105,7 @@ if ( typeof asmCrypto.RSA_PSS_SHA256 !== 'undefined' )
     test( "asmCrypto.RSA_PSS_SHA256 verify OpenSSL-signed-data", function () {
         var key = [
             asmCrypto.hex_to_bytes('f30be5ce8941c8e6e764c78d12f3ce6e02a0dea03577bc0c16029de258321b74ceb43ea94f768aec900011c78eb247ab0e94b4477ea8f086ba7b5ce4b03c0ad7e0bf2f54ed509a536a0f179e27db539f729b38a279873f7b3a360690c8390e289dedca6da1ba232d8edc3c1eb229e1072716ddf3ef88caf4a824c152d6ad38f1'),
-            65537
+            asmCrypto.hex_to_bytes('10001'),
 /*
             asmCrypto.hex_to_bytes('a2f4032c2ad2b4843bf851e2c0263eed7b4da875f9e3416d4904901ec5cb32a56a416711d5794143c278897326b5595fd2f2d8bc66ab96387ea75f6ce4cc1ce7ba0269a49ce03eb4aea16ca914938e88e5398b10b314276ba9f3f2e448a5f643515ee591cb4c4c5270edccacf7e5b88f86a0c08dc05311513a4ed01802de2511'),
             asmCrypto.hex_to_bytes('fc592285e370d57900bfd2f8c66b15274b3381ca7ec485091d5aa0092ca8f2b97f8796e608a2fc6aa1df3647b10198c49801e3201fefa72ef9d7ccafcdae5d37'),

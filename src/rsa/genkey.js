@@ -21,8 +21,12 @@ export function RSA_generateKey(bitlen, e) {
 
   if (is_buffer(e)) e = new Uint8Array(e);
 
-  if (is_bytes(e) || is_number(e) || is_big_number(e)) {
+  if (is_bytes(e)) {
     e = new BigNumber(e);
+  } else if (is_number(e)) {
+    e = BigNumber.fromNumber(e);
+  } else if (is_big_number(e)) {
+    e = BigNumber.fromConfig(e);
   } else {
     throw new TypeError('unexpected exponent type');
   }
@@ -32,7 +36,7 @@ export function RSA_generateKey(bitlen, e) {
   var m, e, d, p, q, p1, q1, dp, dq, u;
 
   p = randomProbablePrime(bitlen >> 1, function(p) {
-    p1 = new BigNumber(p);
+    p1 = BigNumber.fromConfig(p);
     p1.limbs[0] -= 1;
     return BigNumber_extGCD(p1, e).gcd.valueOf() == 1;
   });
@@ -40,7 +44,7 @@ export function RSA_generateKey(bitlen, e) {
   q = randomProbablePrime(bitlen - (bitlen >> 1), function(q) {
     m = new Modulus(p.multiply(q));
     if (!(m.limbs[((bitlen + 31) >> 5) - 1] >>> ((bitlen - 1) & 31))) return false;
-    q1 = new BigNumber(q);
+    q1 = BigNumber.fromConfig(q);
     q1.limbs[0] -= 1;
     return BigNumber_extGCD(q1, e).gcd.valueOf() == 1;
   });

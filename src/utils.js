@@ -1,5 +1,10 @@
 export var FloatArray = typeof Float64Array !== 'undefined' ? Float64Array : Float32Array; // make PhantomJS happy
 
+/**
+ * @param {string} str
+ * @param {boolean} [utf8]
+ * @return {Uint8Array}
+ */
 export function string_to_bytes(str, utf8) {
   utf8 = !!utf8;
 
