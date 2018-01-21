@@ -5,7 +5,7 @@ import { IllegalArgumentError } from '../errors';
 import { BigNumber_extGCD, Number_extGCD } from './extgcd';
 
 export function is_big_number(a) {
-  return a instanceof BigNumber_constructor;
+  return a instanceof BigNumber;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,10 +33,10 @@ if (_bigint_stdlib.Math.imul === undefined) {
 
 const _BigNumber_ZERO_limbs = new Uint32Array(0);
 
-export class BigNumber_constructor {
+export class BigNumber {
   /**
-   * @param {BigNumber_constructor|string|number|Uint8Array} num
-   * @return {BigNumber_constructor}
+   * @param {BigNumber|string|number|Uint8Array} num
+   * @return {BigNumber}
    */
   constructor(num) {
     let limbs = _BigNumber_ZERO_limbs;
@@ -178,7 +178,7 @@ export class BigNumber_constructor {
 
   /**
    * @param {number} b
-   * @return {BigNumber_constructor}
+   * @return {BigNumber}
    */
   clamp(b) {
     const limbs = this.limbs;
@@ -188,7 +188,7 @@ export class BigNumber_constructor {
 
     if (b >= bitlen) return this;
 
-    const clamped = new BigNumber_constructor();
+    const clamped = new BigNumber();
     let n = (b + 31) >> 5;
     let k = b % 32;
 
@@ -204,7 +204,7 @@ export class BigNumber_constructor {
   /**
    * @param {number} f
    * @param {number} [b]
-   * @return {BigNumber_constructor}
+   * @return {BigNumber}
    */
   slice(f, b) {
     if (!is_number(f)) throw new TypeError('TODO');
@@ -220,7 +220,7 @@ export class BigNumber_constructor {
 
     if (b === undefined || b > bitlen - f) b = bitlen - f;
 
-    const sliced = new BigNumber_constructor();
+    const sliced = new BigNumber();
     let n = f >> 5;
     let m = (f + b + 31) >> 5;
     let l = (b + 31) >> 5;
@@ -249,10 +249,10 @@ export class BigNumber_constructor {
   }
 
   /**
-   * @return {BigNumber_constructor}
+   * @return {BigNumber}
    */
   negate() {
-    const negative = new BigNumber_constructor();
+    const negative = new BigNumber();
 
     negative.limbs = this.limbs;
     negative.bitLength = this.bitLength;
@@ -262,11 +262,11 @@ export class BigNumber_constructor {
   }
 
   /**
-   * @param {BigNumber_constructor} that
+   * @param {BigNumber} that
    * @return {number}
    */
   compare(that) {
-    if (!is_big_number(that)) that = new BigNumber_constructor(that);
+    if (!is_big_number(that)) that = new BigNumber(that);
 
     var alimbs = this.limbs,
       alimbcnt = alimbs.length,
@@ -286,11 +286,11 @@ export class BigNumber_constructor {
   }
 
   /**
-   * @param {BigNumber_constructor} that
-   * @return {BigNumber_constructor}
+   * @param {BigNumber} that
+   * @return {BigNumber}
    */
   add(that) {
-    if (!is_big_number(that)) that = new BigNumber_constructor(that);
+    if (!is_big_number(that)) that = new BigNumber(that);
 
     if (!this.sign) return that;
 
@@ -308,7 +308,7 @@ export class BigNumber_constructor {
       rlimbcnt,
       rsign,
       rof,
-      result = new BigNumber_constructor();
+      result = new BigNumber();
 
     rbitlen = (abitlen > bbitlen ? abitlen : bbitlen) + (asign * bsign > 0 ? 1 : 0);
     rlimbcnt = (rbitlen + 31) >> 5;
@@ -347,17 +347,17 @@ export class BigNumber_constructor {
   }
 
   /**
-   * @param {BigNumber_constructor} that
-   * @return {BigNumber_constructor}
+   * @param {BigNumber} that
+   * @return {BigNumber}
    */
   subtract(that) {
-    if (!is_big_number(that)) that = new BigNumber_constructor(that);
+    if (!is_big_number(that)) that = new BigNumber(that);
 
     return this.add(that.negate());
   }
 
   /**
-   * @return {BigNumber_constructor}
+   * @return {BigNumber}
    */
   square() {
     if (!this.sign) return BigNumber_ZERO;
@@ -367,7 +367,7 @@ export class BigNumber_constructor {
       alimbcnt = alimbs.length,
       rbitlen,
       rlimbcnt,
-      result = new BigNumber_constructor();
+      result = new BigNumber();
 
     rbitlen = abitlen << 1;
     rlimbcnt = (rbitlen + 31) >> 5;
@@ -391,11 +391,11 @@ export class BigNumber_constructor {
   }
 
   /**
-   * @param {BigNumber_constructor} that
-   * @return {{quotient: BigNumber_constructor, remainder: BigNumber_constructor}}
+   * @param {BigNumber} that
+   * @return {{quotient: BigNumber, remainder: BigNumber}}
    */
   divide(that) {
-    if (!is_big_number(that)) that = new BigNumber_constructor(that);
+    if (!is_big_number(that)) that = new BigNumber(that);
 
     var abitlen = this.bitLength,
       alimbs = this.limbs,
@@ -423,7 +423,7 @@ export class BigNumber_constructor {
 
     qlimbcnt = _bigint_asm.tst(pQ, alimbcnt << 2) >> 2;
     if (qlimbcnt) {
-      quotient = new BigNumber_constructor();
+      quotient = new BigNumber();
       quotient.limbs = new Uint32Array(_bigint_heap.subarray(pQ >> 2, (pQ >> 2) + qlimbcnt));
       quotient.bitLength = abitlen < qlimbcnt << 5 ? abitlen : qlimbcnt << 5;
       quotient.sign = this.sign * that.sign;
@@ -431,7 +431,7 @@ export class BigNumber_constructor {
 
     rlimbcnt = _bigint_asm.tst(pA, blimbcnt << 2) >> 2;
     if (rlimbcnt) {
-      remainder = new BigNumber_constructor();
+      remainder = new BigNumber();
       remainder.limbs = new Uint32Array(_bigint_heap.subarray(pA >> 2, (pA >> 2) + rlimbcnt));
       remainder.bitLength = bbitlen < rlimbcnt << 5 ? bbitlen : rlimbcnt << 5;
       remainder.sign = this.sign;
@@ -444,11 +444,11 @@ export class BigNumber_constructor {
   }
 
   /**
-   * @param {BigNumber_constructor} that
-   * @return {BigNumber_constructor}
+   * @param {BigNumber} that
+   * @return {BigNumber}
    */
   multiply(that) {
-    if (!is_big_number(that)) that = new BigNumber_constructor(that);
+    if (!is_big_number(that)) that = new BigNumber(that);
 
     if (!this.sign || !that.sign) return BigNumber_ZERO;
 
@@ -460,7 +460,7 @@ export class BigNumber_constructor {
       blimbcnt = blimbs.length,
       rbitlen,
       rlimbcnt,
-      result = new BigNumber_constructor();
+      result = new BigNumber();
 
     rbitlen = abitlen + bbitlen;
     rlimbcnt = (rbitlen + 31) >> 5;
@@ -491,7 +491,7 @@ export class BigNumber_constructor {
    * @private
    */
   _isMillerRabinProbablePrime(rounds) {
-    var t = new BigNumber_constructor(this),
+    var t = new BigNumber(this),
       s = 0;
     t.limbs[0] -= 1;
     while (t.limbs[s >> 5] === 0) s += 32;
@@ -500,7 +500,7 @@ export class BigNumber_constructor {
 
     var m = new Modulus(this),
       m1 = this.subtract(BigNumber_ONE),
-      a = new BigNumber_constructor(this),
+      a = new BigNumber(this),
       l = this.limbs.length - 1;
     while (a.limbs[l] === 0) l--;
 
@@ -578,8 +578,8 @@ export class BigNumber_constructor {
   }
 }
 
-export const BigNumber_ZERO = new BigNumber_constructor(0);
-export const BigNumber_ONE = new BigNumber_constructor(1);
+export const BigNumber_ZERO = new BigNumber(0);
+export const BigNumber_ONE = new BigNumber(1);
 
 /**
  * Returns an array populated with first n primes.
@@ -605,12 +605,12 @@ function _small_primes(n) {
  * Returns strong pseudoprime of a specified bit length
  *
  * @param {number} bitlen
- * @param {function(p: BigNumber_constructor): number} filter
- * @return {BigNumber_constructor}
+ * @param {function(p: BigNumber): number} filter
+ * @return {BigNumber}
  */
 export function randomProbablePrime(bitlen, filter) {
   let limbcnt = (bitlen + 31) >> 5;
-  const prime = new BigNumber_constructor({ sign: 1, bitLength: bitlen, limbs: limbcnt });
+  const prime = new BigNumber({ sign: 1, bitLength: bitlen, limbs: limbcnt });
   const limbs = prime.limbs;
 
   // Number of small divisors to try that minimizes the total cost of the trial division
@@ -660,11 +660,11 @@ export function randomProbablePrime(bitlen, filter) {
   }
 }
 
-export class Modulus extends BigNumber_constructor {
+export class Modulus extends BigNumber {
   /**
    * Modulus
    *
-   * @param {BigNumber_constructor|string|number|Uint8Array} number
+   * @param {BigNumber|string|number|Uint8Array} number
    */
   constructor(number) {
     super(number);
@@ -679,7 +679,7 @@ export class Modulus extends BigNumber_constructor {
       const bitlen = ((this.bitLength + 31) & -32) + 1;
       const limbs = new Uint32Array((bitlen + 31) >> 5);
       limbs[limbs.length - 1] = 1;
-      comodulus = new BigNumber_constructor();
+      comodulus = new BigNumber();
       comodulus.sign = 1;
       comodulus.bitLength = bitlen;
       comodulus.limbs = limbs;
@@ -705,14 +705,14 @@ export class Modulus extends BigNumber_constructor {
   /**
    * Modular reduction
    *
-   * @param {BigNumber_constructor} a
-   * @return {BigNumber_constructor}
+   * @param {BigNumber} a
+   * @return {BigNumber}
    * @constructor
    */
   reduce(a) {
-    if (!is_big_number(a)) a = new BigNumber_constructor(a);
+    if (!is_big_number(a)) a = new BigNumber(a);
 
-    if (a.bitLength <= 32 && this.bitLength <= 32) return new BigNumber_constructor(a.valueOf() % this.valueOf());
+    if (a.bitLength <= 32 && this.bitLength <= 32) return new BigNumber(a.valueOf() % this.valueOf());
 
     if (a.compare(this) < 0) return a;
 
@@ -722,8 +722,8 @@ export class Modulus extends BigNumber_constructor {
   /**
    * Modular inverse
    *
-   * @param {BigNumber_constructor} a
-   * @return {BigNumber_constructor}
+   * @param {BigNumber} a
+   * @return {BigNumber}
    * @constructor
    */
   inverse(a) {
@@ -740,15 +740,15 @@ export class Modulus extends BigNumber_constructor {
   /**
    * Modular exponentiation
    *
-   * @param {BigNumber_constructor} g
-   * @param {BigNumber_constructor} e
-   * @return {BigNumber_constructor}
+   * @param {BigNumber} g
+   * @param {BigNumber} e
+   * @return {BigNumber}
    * @constructor
    */
   power(g, e) {
-    if (!is_big_number(g)) g = new BigNumber_constructor(g);
+    if (!is_big_number(g)) g = new BigNumber(g);
 
-    if (!is_big_number(e)) e = new BigNumber_constructor(e);
+    if (!is_big_number(e)) e = new BigNumber(e);
 
     // count exponent set bits
     let c = 0;
@@ -815,9 +815,9 @@ export class Modulus extends BigNumber_constructor {
 }
 
 /**
- * @param {BigNumber_constructor} a
- * @param {BigNumber_constructor} n
- * @return {BigNumber_constructor}
+ * @param {BigNumber} a
+ * @param {BigNumber} n
+ * @return {BigNumber}
  * @private
  */
 function _Montgomery_reduce(a, n) {
@@ -840,7 +840,7 @@ function _Montgomery_reduce(a, n) {
 
   _bigint_asm.mredc(pA, alimbcnt << 2, pN, nlimbcnt << 2, y, pR);
 
-  const result = new BigNumber_constructor();
+  const result = new BigNumber();
   result.limbs = new Uint32Array(_bigint_heap.subarray(pR >> 2, (pR >> 2) + nlimbcnt));
   result.bitLength = n.bitLength;
   result.sign = 1;

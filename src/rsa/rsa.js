@@ -1,4 +1,4 @@
-import { BigNumber_constructor, is_big_number, Modulus } from '../bignum/bignum';
+import { BigNumber, is_big_number, Modulus } from '../bignum/bignum';
 import { is_buffer, is_bytes, is_string, string_to_bytes } from '../utils';
 import { IllegalStateError } from '../errors';
 
@@ -24,16 +24,16 @@ export function RSA_reset(options) {
 
       var k = [];
       k[0] = new Modulus(key[0]);
-      k[1] = new BigNumber_constructor(key[1]);
+      k[1] = new BigNumber(key[1]);
       if (l > 2) {
-        k[2] = new BigNumber_constructor(key[2]);
+        k[2] = new BigNumber(key[2]);
       }
       if (l > 3) {
         k[3] = new Modulus(key[3]);
         k[4] = new Modulus(key[4]);
-        k[5] = new BigNumber_constructor(key[5]);
-        k[6] = new BigNumber_constructor(key[6]);
-        k[7] = new BigNumber_constructor(key[7]);
+        k[5] = new BigNumber(key[5]);
+        k[6] = new BigNumber(key[6]);
+        k[7] = new BigNumber(key[7]);
       }
 
       this.key = k;
@@ -54,7 +54,7 @@ export function RSA_encrypt(data) {
 
   var msg;
   if (is_bytes(data)) {
-    msg = new BigNumber_constructor(data);
+    msg = new BigNumber(data);
   } else if (is_big_number(data)) {
     msg = data;
   } else {
@@ -91,7 +91,7 @@ export function RSA_decrypt(data) {
 
   var msg;
   if (is_bytes(data)) {
-    msg = new BigNumber_constructor(data);
+    msg = new BigNumber(data);
   } else if (is_big_number(data)) {
     msg = data;
   } else {

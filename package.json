@@ -1,6 +1,6 @@
 {
   "name": "asmcrypto.js",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "Asm.js implementation of WebCrypto API",
   "homepage": "https://github.com/vibornoff/asmcrypto.js",
   "main": "asmcrypto.js",
