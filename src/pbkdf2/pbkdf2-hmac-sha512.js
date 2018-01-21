@@ -12,6 +12,12 @@ export class pbkdf2_hmac_sha512_constructor extends pbkdf2_constructor {
     super(options);
   }
 
+  /**
+   * @param {Uint8Array} salt
+   * @param {number} count
+   * @param {number} length
+   * @return {pbkdf2_hmac_sha512_constructor}
+   */
   generate(salt, count, length) {
     if (this.result !== null) throw new IllegalStateError('state must be reset before processing new data');
 
@@ -40,6 +46,9 @@ export class pbkdf2_hmac_sha512_constructor extends pbkdf2_constructor {
 
 var pbkdf2_hmac_sha512_instance = null;
 
+/**
+ * @return {get_pbkdf2_hmac_sha512_instance}
+ */
 export function get_pbkdf2_hmac_sha512_instance() {
   if (pbkdf2_hmac_sha512_instance === null) pbkdf2_hmac_sha512_instance = new pbkdf2_hmac_sha512_constructor();
   return pbkdf2_hmac_sha512_instance;

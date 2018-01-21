@@ -1,4 +1,4 @@
-import { hmac_constructor, _hmac_init_verify, _hmac_key } from './hmac';
+import { hmac_constructor, _hmac_key } from './hmac';
 import { _sha256_hash_size, get_sha256_instance, sha256_constructor } from '../hash/sha256/sha256';
 import { is_string, string_to_bytes } from '../utils';
 import { IllegalStateError } from '../errors';
@@ -49,7 +49,7 @@ export class hmac_sha256_constructor extends hmac_constructor {
 
     var verify = options.verify;
     if (verify !== undefined) {
-      _hmac_init_verify.call(this, verify);
+      this._hmac_init_verify(verify);
     } else {
       this.verify = null;
     }
@@ -57,6 +57,9 @@ export class hmac_sha256_constructor extends hmac_constructor {
     return this;
   }
 
+  /**
+   * @return {hmac_sha256_constructor}
+   */
   finish() {
     if (this.key === null) throw new IllegalStateError('no key is associated with the instance');
 
@@ -95,6 +98,9 @@ hmac_sha256_constructor.HMAC_SIZE = sha256_constructor.HASH_SIZE;
 
 var hmac_sha256_instance = null;
 
+/**
+ * @return {hmac_sha256_constructor}
+ */
 export function get_hmac_sha256_instance() {
   if (hmac_sha256_instance === null) hmac_sha256_instance = new hmac_sha256_constructor();
   return hmac_sha256_instance;

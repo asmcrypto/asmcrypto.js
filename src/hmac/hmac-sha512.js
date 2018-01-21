@@ -1,5 +1,5 @@
 import { _sha512_hash_size, get_sha512_instance, sha512_constructor } from '../hash/sha512/sha512';
-import { hmac_constructor, _hmac_init_verify, _hmac_key } from './hmac';
+import { hmac_constructor, _hmac_key } from './hmac';
 import { is_string, string_to_bytes } from '../utils';
 import { IllegalStateError } from '../errors';
 
@@ -65,7 +65,7 @@ export class hmac_sha512_constructor extends hmac_constructor {
 
     var verify = options.verify;
     if (verify !== undefined) {
-      _hmac_init_verify.call(this, verify);
+      this._hmac_init_verify(verify);
     } else {
       this.verify = null;
     }
@@ -73,6 +73,9 @@ export class hmac_sha512_constructor extends hmac_constructor {
     return this;
   }
 
+  /**
+   * @return {hmac_sha512_constructor}
+   */
   finish() {
     if (this.key === null) throw new IllegalStateError('no key is associated with the instance');
 
@@ -111,6 +114,9 @@ hmac_sha512_constructor.HMAC_SIZE = sha512_constructor.HASH_SIZE;
 
 var hmac_sha512_instance = null;
 
+/**
+ * @return {get_hmac_sha512_instance}
+ */
 export function get_hmac_sha512_instance() {
   if (hmac_sha512_instance === null) hmac_sha512_instance = new hmac_sha512_constructor();
   return hmac_sha512_instance;

@@ -42,7 +42,7 @@ export class hmac_constructor {
 
     var verify = options.verify;
     if (verify !== undefined) {
-      _hmac_init_verify.call(this, verify);
+      this._hmac_init_verify(verify);
     } else {
       this.verify = null;
     }
@@ -93,6 +93,20 @@ export class hmac_constructor {
 
     return this;
   }
+
+  _hmac_init_verify(verify) {
+    if (is_buffer(verify) || is_bytes(verify)) {
+      verify = new Uint8Array(verify);
+    } else if (is_string(verify)) {
+      verify = string_to_bytes(verify);
+    } else {
+      throw new TypeError("verify tag isn't of expected type");
+    }
+
+    if (verify.length !== this.HMAC_SIZE) throw new IllegalArgumentError('illegal verification tag size');
+
+    this.verify = verify;
+  }
 }
 
 export function _hmac_key(hash, password) {
@@ -116,18 +130,4 @@ export function _hmac_key(hash, password) {
   }
 
   return key;
-}
-
-export function _hmac_init_verify(verify) {
-  if (is_buffer(verify) || is_bytes(verify)) {
-    verify = new Uint8Array(verify);
-  } else if (is_string(verify)) {
-    verify = string_to_bytes(verify);
-  } else {
-    throw new TypeError("verify tag isn't of expected type");
-  }
-
-  if (verify.length !== this.HMAC_SIZE) throw new IllegalArgumentError('illegal verification tag size');
-
-  this.verify = verify;
 }
