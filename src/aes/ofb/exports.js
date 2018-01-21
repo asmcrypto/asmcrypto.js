@@ -19,7 +19,4 @@ function AES_OFB_crypt_bytes(data, key, iv) {
 AES_OFB.encrypt = AES_OFB_crypt_bytes;
 AES_OFB.decrypt = AES_OFB_crypt_bytes;
 
-AES_OFB.Encrypt = AES_OFB_Crypt;
-AES_OFB.Decrypt = AES_OFB_Crypt;
-
-export { AES_OFB };
+export { AES_OFB, AES_OFB_Crypt };

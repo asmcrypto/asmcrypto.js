@@ -21,6 +21,4 @@ function AES_CTR_crypt_bytes(data, key, nonce) {
 AES_CTR.encrypt = AES_CTR_crypt_bytes;
 AES_CTR.decrypt = AES_CTR_crypt_bytes;
 
-AES_CTR.Encrypt = AES_CTR.Decrypt = AES_CTR;
-
 export { AES_CTR };

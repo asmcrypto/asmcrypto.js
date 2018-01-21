@@ -42,7 +42,4 @@ function AES_CCM_decrypt_bytes(data, key, nonce, adata, tagSize) {
 AES_CCM.encrypt = AES_CCM_encrypt_bytes;
 AES_CCM.decrypt = AES_CCM_decrypt_bytes;
 
-AES_CCM.Encrypt = AES_CCM_Encrypt;
-AES_CCM.Decrypt = AES_CCM_Decrypt;
-
-export { AES_CCM };
+export { AES_CCM, AES_CCM_Encrypt, AES_CCM_Decrypt };

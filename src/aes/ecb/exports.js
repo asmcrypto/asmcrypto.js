@@ -20,7 +20,4 @@ function AES_ECB_decrypt_bytes(data, key) {
 AES_ECB.encrypt = AES_ECB_encrypt_bytes;
 AES_ECB.decrypt = AES_ECB_decrypt_bytes;
 
-AES_ECB.Encrypt = AES_ECB_Encrypt;
-AES_ECB.Decrypt = AES_ECB_Decrypt;
-
-export { AES_ECB };
+export { AES_ECB, AES_ECB_Encrypt, AES_ECB_Decrypt };

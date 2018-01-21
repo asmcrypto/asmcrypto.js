@@ -32,7 +32,4 @@ function AES_CFB_decrypt_bytes(data, key, iv) {
 AES_CFB.encrypt = AES_CFB_encrypt_bytes;
 AES_CFB.decrypt = AES_CFB_decrypt_bytes;
 
-AES_CFB.Encrypt = AES_CFB_Encrypt;
-AES_CFB.Decrypt = AES_CFB_Decrypt;
-
-export { AES_CFB };
+export { AES_CFB, AES_CFB_Encrypt, AES_CFB_Decrypt };

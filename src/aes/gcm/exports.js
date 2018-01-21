@@ -38,7 +38,4 @@ function AES_GCM_decrypt_bytes(data, key, nonce, adata, tagSize) {
 AES_GCM.encrypt = AES_GCM_encrypt_bytes;
 AES_GCM.decrypt = AES_GCM_decrypt_bytes;
 
-AES_GCM.Encrypt = AES_GCM_Encrypt;
-AES_GCM.Decrypt = AES_GCM_Decrypt;
-
-export { AES_GCM };
+export { AES_GCM, AES_GCM_Encrypt, AES_GCM_Decrypt };
