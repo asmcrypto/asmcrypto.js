@@ -2,7 +2,7 @@
  * Cipher Feedback Mode (CFB)
  */
 
-import {AES} from '../aes';
+import { AES } from '../aes';
 
 export class AES_CFB extends AES {
   /**
@@ -66,7 +66,7 @@ export class AES_CFB_Encrypt extends AES_CFB {
   }
 }
 
-export class AES_CFB_Decrypt extends AES_CFB{
+export class AES_CFB_Decrypt extends AES_CFB {
   /**
    * @param {Uint8Array} key
    * @param {Uint8Array} [iv=null]
@@ -103,4 +103,3 @@ export class AES_CFB_Decrypt extends AES_CFB{
     return this.AES_Decrypt_finish(data);
   }
 }
-

@@ -44,7 +44,8 @@
   },
   "scripts": {
     "prepublish": "grunt && grunt esm && grunt all",
-    "test": "grunt test"
+    "test": "grunt test",
+    "prettier": "prettier --single-quote --trailing-comma all --write \"src/**/*.js\" --print-width 120"
   },
   "typings": "./asmcrypto.js.d.ts"
 }

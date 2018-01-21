@@ -2,7 +2,7 @@
  * Output Feedback (OFB)
  */
 
-import {AES} from '../aes';
+import { AES } from '../aes';
 
 export class AES_OFB extends AES {
   /**
@@ -63,4 +63,3 @@ export class AES_OFB_Crypt extends AES_OFB {
     return this.AES_Encrypt_finish(data);
   }
 }
-

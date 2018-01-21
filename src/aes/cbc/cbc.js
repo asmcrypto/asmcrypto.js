@@ -1,7 +1,7 @@
 /**
  * Cipher Block Chaining Mode (CBC)
  */
-import {AES} from '../aes';
+import { AES } from '../aes';
 
 export class AES_CBC extends AES {
   /**
@@ -100,4 +100,3 @@ export class AES_CBC_Decrypt extends AES_CBC {
     return this.AES_Decrypt_finish(data);
   }
 }
-

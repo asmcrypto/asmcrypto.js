@@ -2,8 +2,8 @@
  * AES-CFB exports
  */
 
-import {_AES_asm_instance, _AES_heap_instance} from '../exports';
-import {AES_CFB, AES_CFB_Decrypt, AES_CFB_Encrypt} from './cfb';
+import { _AES_asm_instance, _AES_heap_instance } from '../exports';
+import { AES_CFB, AES_CFB_Decrypt, AES_CFB_Encrypt } from './cfb';
 
 /**
  * @param {Uint8Array} data
@@ -11,10 +11,10 @@ import {AES_CFB, AES_CFB_Decrypt, AES_CFB_Encrypt} from './cfb';
  * @param {Uint8Array} [iv]
  * @returns {Uint8Array}
  */
-function AES_CFB_encrypt_bytes ( data, key, iv ) {
-    if ( data === undefined ) throw new SyntaxError("data required");
-    if ( key === undefined ) throw new SyntaxError("key required");
-    return new AES_CFB(key, iv, _AES_heap_instance, _AES_asm_instance).encrypt(data).result;
+function AES_CFB_encrypt_bytes(data, key, iv) {
+  if (data === undefined) throw new SyntaxError('data required');
+  if (key === undefined) throw new SyntaxError('key required');
+  return new AES_CFB(key, iv, _AES_heap_instance, _AES_asm_instance).encrypt(data).result;
 }
 
 /**
@@ -23,10 +23,10 @@ function AES_CFB_encrypt_bytes ( data, key, iv ) {
  * @param {Uint8Array} [iv]
  * @returns {Uint8Array}
  */
-function AES_CFB_decrypt_bytes ( data, key, iv ) {
-    if ( data === undefined ) throw new SyntaxError("data required");
-    if ( key === undefined ) throw new SyntaxError("key required");
-    return new AES_CFB(key, iv, _AES_heap_instance, _AES_asm_instance).decrypt(data).result;
+function AES_CFB_decrypt_bytes(data, key, iv) {
+  if (data === undefined) throw new SyntaxError('data required');
+  if (key === undefined) throw new SyntaxError('key required');
+  return new AES_CFB(key, iv, _AES_heap_instance, _AES_asm_instance).decrypt(data).result;
 }
 
 AES_CFB.encrypt = AES_CFB_encrypt_bytes;
@@ -35,6 +35,4 @@ AES_CFB.decrypt = AES_CFB_decrypt_bytes;
 AES_CFB.Encrypt = AES_CFB_Encrypt;
 AES_CFB.Decrypt = AES_CFB_Decrypt;
 
-export {AES_CFB};
-
-
+export { AES_CFB };

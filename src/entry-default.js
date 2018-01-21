@@ -1,4 +1,4 @@
-export * from "./exportedUtils";
+export * from './exportedUtils';
 
 export * from './errors';
 export * from './aes/cbc/exports';

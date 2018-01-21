@@ -2,7 +2,7 @@
  * Counter Mode (CTR)
  */
 
-import {AES} from '../aes';
+import { AES } from '../aes';
 
 export class AES_CTR extends AES {
   /**

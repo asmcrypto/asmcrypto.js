@@ -1,4 +1,4 @@
-import {AES} from '../aes';
+import { AES } from '../aes';
 
 /**
  * Electronic Code Book Mode (ECB)
@@ -94,5 +94,3 @@ export class AES_ECB_Decrypt extends AES_ECB {
     return this.AES_Decrypt_finish(data);
   }
 }
-
-

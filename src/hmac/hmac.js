@@ -1,14 +1,13 @@
-import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
-import {IllegalArgumentError, IllegalStateError} from '../errors';
+import { is_buffer, is_bytes, is_string, string_to_bytes } from '../utils';
+import { IllegalArgumentError, IllegalStateError } from '../errors';
 
 export class hmac_constructor {
-  constructor(options ) {
+  constructor(options) {
     options = options || {};
 
-    if ( !options.hash )
-      throw new SyntaxError("option 'hash' is required");
+    if (!options.hash) throw new SyntaxError("option 'hash' is required");
 
-    if ( !options.hash.HASH_SIZE )
+    if (!options.hash.HASH_SIZE)
       throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");
 
     this.hash = options.hash;
@@ -19,48 +18,42 @@ export class hmac_constructor {
     this.verify = null;
     this.result = null;
 
-    if ( options.password !== undefined || options.verify !== undefined )
-      this.reset(options);
+    if (options.password !== undefined || options.verify !== undefined) this.reset(options);
 
     return this;
   }
 
-  reset(options ) {
+  reset(options) {
     options = options || {};
     var password = options.password;
 
-    if ( this.key === null && !is_string(password) && !password )
-      throw new IllegalStateError("no key is associated with the instance");
+    if (this.key === null && !is_string(password) && !password)
+      throw new IllegalStateError('no key is associated with the instance');
 
     this.result = null;
     this.hash.reset();
 
-    if ( password || is_string(password) )
-      this.key = _hmac_key( this.hash, password );
+    if (password || is_string(password)) this.key = _hmac_key(this.hash, password);
 
     var ipad = new Uint8Array(this.key);
-    for ( var i = 0; i < ipad.length; ++i )
-      ipad[i] ^= 0x36;
+    for (var i = 0; i < ipad.length; ++i) ipad[i] ^= 0x36;
 
     this.hash.process(ipad);
 
     var verify = options.verify;
-    if ( verify !== undefined ) {
-      _hmac_init_verify.call( this, verify );
-    }
-    else {
+    if (verify !== undefined) {
+      _hmac_init_verify.call(this, verify);
+    } else {
       this.verify = null;
     }
 
     return this;
   }
 
-  process(data ) {
-    if ( this.key === null )
-      throw new IllegalStateError("no key is associated with the instance");
+  process(data) {
+    if (this.key === null) throw new IllegalStateError('no key is associated with the instance');
 
-    if ( this.result !== null )
-      throw new IllegalStateError("state must be reset before processing new data");
+    if (this.result !== null) throw new IllegalStateError('state must be reset before processing new data');
 
     this.hash.process(data);
 
@@ -68,33 +61,33 @@ export class hmac_constructor {
   }
 
   finish() {
-    if ( this.key === null )
-      throw new IllegalStateError("no key is associated with the instance");
+    if (this.key === null) throw new IllegalStateError('no key is associated with the instance');
 
-    if ( this.result !== null )
-      throw new IllegalStateError("state must be reset before processing new data");
+    if (this.result !== null) throw new IllegalStateError('state must be reset before processing new data');
 
     var inner_result = this.hash.finish().result;
 
     var opad = new Uint8Array(this.key);
-    for ( var i = 0; i < opad.length; ++i )
-      opad[i] ^= 0x5c;
+    for (var i = 0; i < opad.length; ++i) opad[i] ^= 0x5c;
 
     var verify = this.verify;
-    var result = this.hash.reset().process(opad).process(inner_result).finish().result;
+    var result = this.hash
+      .reset()
+      .process(opad)
+      .process(inner_result)
+      .finish().result;
 
-    if ( verify ) {
-      if ( verify.length === result.length ) {
+    if (verify) {
+      if (verify.length === result.length) {
         var diff = 0;
-        for ( var i = 0; i < verify.length; i++ ) {
-          diff |= ( verify[i] ^ result[i] );
+        for (var i = 0; i < verify.length; i++) {
+          diff |= verify[i] ^ result[i];
         }
         this.result = !diff;
       } else {
         this.result = false;
       }
-    }
-    else {
+    } else {
       this.result = result;
     }
 
@@ -102,42 +95,39 @@ export class hmac_constructor {
   }
 }
 
-export function _hmac_key ( hash, password ) {
-  if ( is_buffer(password) )
-    password = new Uint8Array(password);
+export function _hmac_key(hash, password) {
+  if (is_buffer(password)) password = new Uint8Array(password);
 
-  if ( is_string(password) )
-    password = string_to_bytes(password);
+  if (is_string(password)) password = string_to_bytes(password);
 
-    if ( !is_bytes(password) )
-        throw new TypeError("password isn't of expected type");
+  if (!is_bytes(password)) throw new TypeError("password isn't of expected type");
 
-    var key = new Uint8Array( hash.BLOCK_SIZE );
+  var key = new Uint8Array(hash.BLOCK_SIZE);
 
-    if ( password.length > hash.BLOCK_SIZE ) {
-        key.set( hash.reset().process(password).finish().result );
-    }
-    else {
-        key.set(password);
-    }
+  if (password.length > hash.BLOCK_SIZE) {
+    key.set(
+      hash
+        .reset()
+        .process(password)
+        .finish().result,
+    );
+  } else {
+    key.set(password);
+  }
 
-    return key;
+  return key;
 }
 
-export function _hmac_init_verify ( verify ) {
-    if ( is_buffer(verify) || is_bytes(verify) ) {
-        verify = new Uint8Array(verify);
-    }
-    else if ( is_string(verify) ) {
-        verify = string_to_bytes(verify);
-    }
-    else {
-        throw new TypeError("verify tag isn't of expected type");
-    }
+export function _hmac_init_verify(verify) {
+  if (is_buffer(verify) || is_bytes(verify)) {
+    verify = new Uint8Array(verify);
+  } else if (is_string(verify)) {
+    verify = string_to_bytes(verify);
+  } else {
+    throw new TypeError("verify tag isn't of expected type");
+  }
 
-    if ( verify.length !== this.HMAC_SIZE )
-        throw new IllegalArgumentError("illegal verification tag size");
+  if (verify.length !== this.HMAC_SIZE) throw new IllegalArgumentError('illegal verification tag size');
 
-    this.verify = verify;
+  this.verify = verify;
 }
-

@@ -9,4 +9,4 @@ export {
   bytes_to_string,
   bytes_to_hex,
   bytes_to_base64,
-} from "./utils.js";
+} from './utils.js';

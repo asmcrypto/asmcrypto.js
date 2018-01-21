@@ -1,3 +1,3 @@
-import {RSA} from './rsa';
+import { RSA } from './rsa';
 
 export default RSA;
