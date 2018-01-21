@@ -562,8 +562,6 @@ export class BigNumber {
    */
   isProbablePrime(paranoia) {
     paranoia = paranoia || 80;
-    console.log(paranoia);
-    console.log(this);
 
     var limbs = this.limbs;
     var i = 0;
