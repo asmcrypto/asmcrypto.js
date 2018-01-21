@@ -250,7 +250,7 @@ export class BigNumber_constructor {
 
       const slimbs = new Uint32Array(l);
       if ( t ) {
-        for ( let i = 0; i < m-n-1; i++ ) {
+        for ( var i = 0; i < m-n-1; i++ ) {
           slimbs[i] = (limbs[n+i]>>>t) | ( limbs[n+i+1]<<(32-t) );
         }
         slimbs[i] = limbs[n+i]>>>t;
@@ -599,7 +599,7 @@ function _small_primes ( n ) {
     return _primes.slice( 0, n );
 
   for ( let p = _primes[_primes.length-1] + 2; _primes.length < n; p += 2 ) {
-    for ( let i = 0, d = _primes[i]; d*d <= p; d = _primes[++i] ) {
+    for ( var i = 0, d = _primes[i]; d*d <= p; d = _primes[++i] ) {
       if ( p % d == 0 ) break;
     }
     if ( d*d > p ) _primes.push(p);

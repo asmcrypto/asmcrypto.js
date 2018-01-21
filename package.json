@@ -38,6 +38,7 @@
     "grunt-jsdoc": "~2.2",
     "grunt-rollup": "^9.0.0",
     "grunt-shell": "^2.1.0",
+    "prettier": "^1.10.2",
     "qunit-puppeteer": "^1.0.1",
     "uglify-es": "^3.3.4"
   },

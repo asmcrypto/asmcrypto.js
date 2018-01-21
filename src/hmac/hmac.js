@@ -1,14 +1,15 @@
 import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
 import {IllegalArgumentError, IllegalStateError} from '../errors';
 
-export function hmac_constructor (options ) {
+export class hmac_constructor {
+  constructor(options ) {
     options = options || {};
 
     if ( !options.hash )
-        throw new SyntaxError("option 'hash' is required");
+      throw new SyntaxError("option 'hash' is required");
 
     if ( !options.hash.HASH_SIZE )
-        throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");
+      throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");
 
     this.hash = options.hash;
     this.BLOCK_SIZE = this.hash.BLOCK_SIZE;
@@ -19,17 +20,94 @@ export function hmac_constructor (options ) {
     this.result = null;
 
     if ( options.password !== undefined || options.verify !== undefined )
-        this.reset(options);
+      this.reset(options);
 
     return this;
+  }
+
+  reset(options ) {
+    options = options || {};
+    var password = options.password;
+
+    if ( this.key === null && !is_string(password) && !password )
+      throw new IllegalStateError("no key is associated with the instance");
+
+    this.result = null;
+    this.hash.reset();
+
+    if ( password || is_string(password) )
+      this.key = _hmac_key( this.hash, password );
+
+    var ipad = new Uint8Array(this.key);
+    for ( var i = 0; i < ipad.length; ++i )
+      ipad[i] ^= 0x36;
+
+    this.hash.process(ipad);
+
+    var verify = options.verify;
+    if ( verify !== undefined ) {
+      _hmac_init_verify.call( this, verify );
+    }
+    else {
+      this.verify = null;
+    }
+
+    return this;
+  }
+
+  process(data ) {
+    if ( this.key === null )
+      throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.result !== null )
+      throw new IllegalStateError("state must be reset before processing new data");
+
+    this.hash.process(data);
+
+    return this;
+  }
+
+  finish() {
+    if ( this.key === null )
+      throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.result !== null )
+      throw new IllegalStateError("state must be reset before processing new data");
+
+    var inner_result = this.hash.finish().result;
+
+    var opad = new Uint8Array(this.key);
+    for ( var i = 0; i < opad.length; ++i )
+      opad[i] ^= 0x5c;
+
+    var verify = this.verify;
+    var result = this.hash.reset().process(opad).process(inner_result).finish().result;
+
+    if ( verify ) {
+      if ( verify.length === result.length ) {
+        var diff = 0;
+        for ( var i = 0; i < verify.length; i++ ) {
+          diff |= ( verify[i] ^ result[i] );
+        }
+        this.result = !diff;
+      } else {
+        this.result = false;
+      }
+    }
+    else {
+      this.result = result;
+    }
+
+    return this;
+  }
 }
 
 export function _hmac_key ( hash, password ) {
-    if ( is_buffer(password) )
-        password = new Uint8Array(password);
+  if ( is_buffer(password) )
+    password = new Uint8Array(password);
 
-    if ( is_string(password) )
-        password = string_to_bytes(password);
+  if ( is_string(password) )
+    password = string_to_bytes(password);
 
     if ( !is_bytes(password) )
         throw new TypeError("password isn't of expected type");
@@ -63,83 +141,3 @@ export function _hmac_init_verify ( verify ) {
     this.verify = verify;
 }
 
-function hmac_reset ( options ) {
-    options = options || {};
-    var password = options.password;
-
-    if ( this.key === null && !is_string(password) && !password )
-        throw new IllegalStateError("no key is associated with the instance");
-
-    this.result = null;
-    this.hash.reset();
-
-    if ( password || is_string(password) )
-        this.key = _hmac_key( this.hash, password );
-
-    var ipad = new Uint8Array(this.key);
-    for ( var i = 0; i < ipad.length; ++i )
-        ipad[i] ^= 0x36;
-
-    this.hash.process(ipad);
-
-    var verify = options.verify;
-    if ( verify !== undefined ) {
-        _hmac_init_verify.call( this, verify );
-    }
-    else {
-        this.verify = null;
-    }
-
-    return this;
-}
-
-export function hmac_process ( data ) {
-    if ( this.key === null )
-        throw new IllegalStateError("no key is associated with the instance");
-
-    if ( this.result !== null )
-        throw new IllegalStateError("state must be reset before processing new data");
-
-    this.hash.process(data);
-
-    return this;
-}
-
-function hmac_finish () {
-    if ( this.key === null )
-        throw new IllegalStateError("no key is associated with the instance");
-
-    if ( this.result !== null )
-        throw new IllegalStateError("state must be reset before processing new data");
-
-    var inner_result = this.hash.finish().result;
-
-    var opad = new Uint8Array(this.key);
-    for ( var i = 0; i < opad.length; ++i )
-        opad[i] ^= 0x5c;
-
-    var verify = this.verify;
-    var result = this.hash.reset().process(opad).process(inner_result).finish().result;
-
-    if ( verify ) {
-        if ( verify.length === result.length ) {
-            var diff = 0;
-            for ( var i = 0; i < verify.length; i++ ) {
-                diff |= ( verify[i] ^ result[i] );
-            }
-            this.result = !diff;
-        } else {
-            this.result = false;
-        }
-    }
-    else {
-        this.result = result;
-    }
-
-    return this;
-}
-
-var hmac_prototype = hmac_constructor.prototype;
-hmac_prototype.reset =   hmac_reset;
-hmac_prototype.process = hmac_process;
-hmac_prototype.finish =  hmac_finish;
