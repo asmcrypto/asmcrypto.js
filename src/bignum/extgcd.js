@@ -1,5 +1,11 @@
 import {BigNumber_constructor, BigNumber_ONE, BigNumber_ZERO, is_big_number} from './bignum';
 
+/**
+ * @param {number} a
+ * @param {number} b
+ * @return {{gcd: number, x: number, y: number}}
+ * @constructor
+ */
 export function Number_extGCD (a, b ) {
     var sa = ( a < 0 ) ? -1 : 1,
         sb = ( b < 0 ) ? -1 : 1,
@@ -39,6 +45,12 @@ export function Number_extGCD (a, b ) {
     };
 }
 
+/**
+ * @param a
+ * @param b
+ * @return {{gcd: BigNumber_constructor, x: BigNumber_constructor, y: BigNumber_constructor}}
+ * @constructor
+ */
 export function BigNumber_extGCD ( a, b ) {
     if ( !is_big_number(a) )
         a = new BigNumber_constructor(a);

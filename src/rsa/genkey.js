@@ -5,10 +5,9 @@
  * @param e public exponent, default is 65537
  */
 import {RSA} from './rsa';
-import {BigNumber_randomProbablePrime} from '../bignum/prime';
+import {randomProbablePrime} from '../bignum/bignum';
 import {BigNumber_extGCD} from '../bignum/extgcd';
-import {BigNumber_constructor, is_big_number} from '../bignum/bignum';
-import {Modulus} from '../bignum/modulus';
+import {BigNumber_constructor, is_big_number, Modulus} from '../bignum/bignum';
 import {is_buffer, is_bytes, is_number, is_string, string_to_bytes} from '../utils';
 import {IllegalArgumentError} from '../errors';
 
@@ -37,7 +36,7 @@ export function RSA_generateKey (bitlen, e ) {
 
     var m, e, d, p, q, p1, q1, dp, dq, u;
 
-    p = BigNumber_randomProbablePrime(
+    p = randomProbablePrime(
         bitlen >> 1,
         function ( p ) {
             p1 = new BigNumber_constructor(p); p1.limbs[0] -= 1;
@@ -45,7 +44,7 @@ export function RSA_generateKey (bitlen, e ) {
         }
     );
 
-    q = BigNumber_randomProbablePrime(
+    q = randomProbablePrime(
         bitlen - (bitlen >> 1),
         function ( q ) {
             m = new Modulus( p.multiply(q) );

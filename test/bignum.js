@@ -247,7 +247,6 @@ if ( typeof asmCrypto.BigNumber !== 'undefined' )
         var M = new asmCrypto.Modulus(123456789);
 
         ok( M, "new Modulus" );
-        ok( M instanceof Number, "instanceof Number" );
         equal( M.reduce(987654321).valueOf(), 9, "Modulus.reduce(small)" );
 
         var M2 = new asmCrypto.Modulus(0xabcdabcdabcd);

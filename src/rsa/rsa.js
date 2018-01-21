@@ -1,5 +1,4 @@
-import {Modulus} from '../bignum/modulus';
-import {BigNumber_constructor, is_big_number} from '../bignum/bignum';
+import {BigNumber_constructor, is_big_number, Modulus} from '../bignum/bignum';
 import {is_buffer, is_bytes, is_string, string_to_bytes} from '../utils';
 import {IllegalStateError} from '../errors';
 
