@@ -4,6 +4,7 @@ export * from './errors';
 export * from './aes/cbc/exports';
 export * from './aes/ccm/exports';
 export * from './aes/cfb/exports';
+export * from './aes/cmac/exports';
 export * from './aes/ctr/exports';
 export * from './aes/ecb/exports';
 export * from './aes/gcm/exports';

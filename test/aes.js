@@ -967,3 +967,42 @@ testIf( asmCrypto.AES_OFB !== undefined, "asmCrypto.AES_OFB", function () {
         );
     }
 });
+
+testIf( asmCrypto.AES_CMAC !== undefined, "asmCrypto.AES_CMAC", function () {
+    // key, data, result
+    var cmac_vectors = [
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes(''),
+            asmCrypto.hex_to_bytes('bb1d6929e95937287fa37d129b756746'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e117393172a'),
+            asmCrypto.hex_to_bytes('070a16b46b4d4144f79bdd9dd04a287c'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411'),
+            asmCrypto.hex_to_bytes('dfa66747de9ae63030ca32611497c827'),
+        ],
+        [
+            asmCrypto.hex_to_bytes('2b7e151628aed2a6abf7158809cf4f3c'),
+            asmCrypto.hex_to_bytes('6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710'),
+            asmCrypto.hex_to_bytes('51f0bebf7e3b9d92fc49741779363cfe'),
+        ],
+    ];
+
+    for ( var i = 0; i < cmac_vectors.length; ++i ) {
+        var key = new Uint8Array( cmac_vectors[i][0] ),
+            data = new Uint8Array( cmac_vectors[i][1] ),
+            result = new Uint8Array( cmac_vectors[i][2] );
+
+        equal(
+            asmCrypto.bytes_to_hex( asmCrypto.AES_CMAC.bytes( data, key ) ),
+            asmCrypto.bytes_to_hex(result),
+                "cmac vector " + i
+        );
+
+    }
+});
