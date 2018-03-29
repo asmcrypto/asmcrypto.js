@@ -131,6 +131,8 @@ export var AES_asm = function () {
         aes_dec[t][s] = (aes_dec[t - 1][s] >>> 8) | (aes_dec[t - 1][s] << 24);
       }
     }
+
+    aes_init_done = true;
   }
 
   /**
