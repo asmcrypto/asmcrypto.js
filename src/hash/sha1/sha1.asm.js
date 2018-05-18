@@ -849,18 +849,18 @@ export function sha1_asm ( stdlib, foreign, buffer ) {
     }
 
     return {
-        // SHA1
-        reset: reset,
-        init: init,
-        process: process,
-        finish: finish,
+      // SHA1
+      reset: reset,
+      init: init,
+      process: process,
+      finish: finish,
 
-        // HMAC-SHA1
-        hmac_reset: hmac_reset,
-        hmac_init: hmac_init,
-        hmac_finish: hmac_finish,
+      // HMAC-SHA1
+      hmac_reset: hmac_reset,
+      hmac_init: hmac_init,
+      hmac_finish: hmac_finish,
 
-        // PBKDF2-HMAC-SHA1
-        pbkdf2_generate_block: pbkdf2_generate_block
+      // PBKDF2-HMAC-SHA1
+      pbkdf2_generate_block: pbkdf2_generate_block
     }
 }

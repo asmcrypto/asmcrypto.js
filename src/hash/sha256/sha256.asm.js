@@ -808,18 +808,18 @@ export function sha256_asm ( stdlib, foreign, buffer ) {
     }
 
     return {
-        // SHA256
-        reset: reset,
-        init: init,
-        process: process,
-        finish: finish,
+      // SHA256
+      reset: reset,
+      init: init,
+      process: process,
+      finish: finish,
 
-        // HMAC-SHA256
-        hmac_reset: hmac_reset,
-        hmac_init: hmac_init,
-        hmac_finish: hmac_finish,
+      // HMAC-SHA256
+      hmac_reset: hmac_reset,
+      hmac_init: hmac_init,
+      hmac_finish: hmac_finish,
 
-        // PBKDF2-HMAC-SHA256
-        pbkdf2_generate_block: pbkdf2_generate_block
+      // PBKDF2-HMAC-SHA256
+      pbkdf2_generate_block: pbkdf2_generate_block
     }
 }

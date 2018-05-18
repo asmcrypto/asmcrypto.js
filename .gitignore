@@ -6,4 +6,5 @@ test/aes.asm.js.map
 doc/
 node_modules/
 .idea/
-package-lock.json
+dist_es5
+dist_es8
