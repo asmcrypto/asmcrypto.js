@@ -1,0 +1,8 @@
+{
+  "mode": "all",
+  "cjs": {
+    "namedExports": true,
+    "vars": true,
+    "interop": true
+  }
+}

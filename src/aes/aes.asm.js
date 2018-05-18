@@ -153,8 +153,8 @@ export var AES_asm = function () {
    *
    * @alias AES_asm
    * @class
-   * @param {Object} foreign - <i>ignored</i>
-   * @param {ArrayBuffer} buffer - heap buffer to link with
+   * @param foreign - <i>ignored</i>
+   * @param buffer - heap buffer to link with
    */
   var wrapper = function (foreign, buffer) {
     // Init AES stuff for the first time
@@ -304,7 +304,7 @@ export var AES_asm = function () {
           x0,
           x1,
           x2,
-          x3,
+          x3
         );
       }
 
@@ -329,7 +329,7 @@ export var AES_asm = function () {
           x0,
           x3,
           x2,
-          x1,
+          x1
         );
 
         t = S1, S1 = S3, S3 = t;
@@ -355,7 +355,7 @@ export var AES_asm = function () {
           I0 ^ x0,
           I1 ^ x1,
           I2 ^ x2,
-          I3 ^ x3,
+          I3 ^ x3
         );
 
         I0 = S0,
@@ -385,7 +385,7 @@ export var AES_asm = function () {
           x0,
           x3,
           x2,
-          x1,
+          x1
         );
 
         t = S1, S1 = S3, S3 = t;
@@ -420,7 +420,7 @@ export var AES_asm = function () {
           I0,
           I1,
           I2,
-          I3,
+          I3
         );
 
         I0 = S0 = S0 ^ x0,
@@ -449,7 +449,7 @@ export var AES_asm = function () {
           I0,
           I1,
           I2,
-          I3,
+          I3
         );
 
         S0 = S0 ^ x0,
@@ -482,7 +482,7 @@ export var AES_asm = function () {
           I0,
           I1,
           I2,
-          I3,
+          I3
         );
 
         I0 = S0,
@@ -515,7 +515,7 @@ export var AES_asm = function () {
           N0,
           N1,
           N2,
-          N3,
+          N3
         );
 
         N3 = (~M3 & N3) | M3 & (N3 + 1);
@@ -801,7 +801,7 @@ export var AES_asm = function () {
             DATA[pos | 0] << 24 | DATA[pos | 1] << 16 | DATA[pos | 2] << 8 | DATA[pos | 3],
             DATA[pos | 4] << 24 | DATA[pos | 5] << 16 | DATA[pos | 6] << 8 | DATA[pos | 7],
             DATA[pos | 8] << 24 | DATA[pos | 9] << 16 | DATA[pos | 10] << 8 | DATA[pos | 11],
-            DATA[pos | 12] << 24 | DATA[pos | 13] << 16 | DATA[pos | 14] << 8 | DATA[pos | 15],
+            DATA[pos | 12] << 24 | DATA[pos | 13] << 16 | DATA[pos | 14] << 8 | DATA[pos | 15]
           );
 
           DATA[pos | 0] = S0 >>> 24,
@@ -852,7 +852,7 @@ export var AES_asm = function () {
             DATA[pos | 0] << 24 | DATA[pos | 1] << 16 | DATA[pos | 2] << 8 | DATA[pos | 3],
             DATA[pos | 4] << 24 | DATA[pos | 5] << 16 | DATA[pos | 6] << 8 | DATA[pos | 7],
             DATA[pos | 8] << 24 | DATA[pos | 9] << 16 | DATA[pos | 10] << 8 | DATA[pos | 11],
-            DATA[pos | 12] << 24 | DATA[pos | 13] << 16 | DATA[pos | 14] << 8 | DATA[pos | 15],
+            DATA[pos | 12] << 24 | DATA[pos | 13] << 16 | DATA[pos | 14] << 8 | DATA[pos | 15]
           );
 
           ret = (ret + 16) | 0,
