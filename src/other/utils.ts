@@ -159,3 +159,15 @@ export function _heap_write(heap: Uint8Array, hpos: number, data: Uint8Array, dp
 
   return wlen;
 }
+
+export function joinBytes(...arg: Uint8Array[]): Uint8Array {
+  const totalLenght = arg.reduce((sum, curr) => sum + curr.length, 0);
+  const ret = new Uint8Array(totalLenght);
+
+  let cursor = 0;
+  for (let i = 0; i < arg.length; i++) {
+    ret.set(arg[i], cursor);
+    cursor += arg[i].length;
+  }
+  return ret;
+}

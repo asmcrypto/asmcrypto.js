@@ -18,7 +18,7 @@ export class AES_GCM extends AES {
     adata?: Uint8Array,
     tagsize?: number,
   ): Uint8Array {
-    return new AES_GCM(key, nonce, adata, tagsize).encrypt(cleartext).result as Uint8Array;
+    return new AES_GCM(key, nonce, adata, tagsize).encrypt(cleartext);
   }
 
   static decrypt(
@@ -28,7 +28,7 @@ export class AES_GCM extends AES {
     adata?: Uint8Array,
     tagsize?: number,
   ): Uint8Array {
-    return new AES_GCM(key, nonce, adata, tagsize).decrypt(ciphertext).result as Uint8Array;
+    return new AES_GCM(key, nonce, adata, tagsize).decrypt(ciphertext);
   }
 
   constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, private readonly tagSize: number = 16) {
@@ -107,7 +107,7 @@ export class AES_GCM extends AES {
     return this.AES_GCM_decrypt(data);
   }
 
-  AES_GCM_Encrypt_process(data: Uint8Array) {
+  AES_GCM_Encrypt_process(data: Uint8Array): Uint8Array {
     let dpos = 0;
     let dlen = data.length || 0;
     let asm = this.asm;
@@ -145,15 +145,14 @@ export class AES_GCM extends AES {
       }
     }
 
-    this.result = result;
     this.counter = counter;
     this.pos = pos;
     this.len = len;
 
-    return this;
+    return result;
   }
 
-  AES_GCM_Encrypt_finish() {
+  AES_GCM_Encrypt_finish(): Uint8Array {
     let asm = this.asm;
     let heap = this.heap;
     let counter = this.counter;
@@ -196,15 +195,14 @@ export class AES_GCM extends AES {
     asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16);
     result.set(heap.subarray(0, tagSize), len);
 
-    this.result = result;
     this.counter = 1;
     this.pos = 0;
     this.len = 0;
 
-    return this;
+    return result;
   }
 
-  AES_GCM_Decrypt_process(data: Uint8Array) {
+  AES_GCM_Decrypt_process(data: Uint8Array): Uint8Array {
     let dpos = 0;
     let dlen = data.length || 0;
     let asm = this.asm;
@@ -243,12 +241,11 @@ export class AES_GCM extends AES {
       len += _heap_write(heap, 0, data, dpos, dlen);
     }
 
-    this.result = result;
     this.counter = counter;
     this.pos = pos;
     this.len = len;
 
-    return this;
+    return result;
   }
 
   AES_GCM_Decrypt_finish() {
@@ -300,36 +297,33 @@ export class AES_GCM extends AES {
     for (let i = 0; i < tagSize; ++i) acheck |= atag[i] ^ heap[i];
     if (acheck) throw new SecurityError('data integrity check failed');
 
-    this.result = result;
     this.counter = 1;
     this.pos = 0;
     this.len = 0;
 
-    return this;
+    return result;
   }
 
-  private AES_GCM_decrypt(data: Uint8Array) {
-    const result1 = this.AES_GCM_Decrypt_process(data).result as Uint8Array;
-    const result2 = this.AES_GCM_Decrypt_finish().result as Uint8Array;
+  private AES_GCM_decrypt(data: Uint8Array): Uint8Array {
+    const result1 = this.AES_GCM_Decrypt_process(data);
+    const result2 = this.AES_GCM_Decrypt_finish();
 
     const result = new Uint8Array(result1.length + result2.length);
     if (result1.length) result.set(result1);
     if (result2.length) result.set(result2, result1.length);
-    this.result = result;
 
-    return this;
+    return result;
   }
 
-  private AES_GCM_encrypt(data: Uint8Array) {
-    const result1 = this.AES_GCM_Encrypt_process(data).result as Uint8Array;
-    const result2 = this.AES_GCM_Encrypt_finish().result as Uint8Array;
+  private AES_GCM_encrypt(data: Uint8Array): Uint8Array {
+    const result1 = this.AES_GCM_Encrypt_process(data);
+    const result2 = this.AES_GCM_Encrypt_finish();
 
     const result = new Uint8Array(result1.length + result2.length);
     if (result1.length) result.set(result1);
     if (result2.length) result.set(result2, result1.length);
-    this.result = result;
 
-    return this;
+    return result;
   }
 
   _gcm_mac_process(data: Uint8Array) {

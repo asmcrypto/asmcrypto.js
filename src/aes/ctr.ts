@@ -1,13 +1,14 @@
 import { AES } from './aes';
 import { IllegalArgumentError } from '../other/errors';
+import { joinBytes } from '../other/utils';
 
 export class AES_CTR extends AES {
   static encrypt(data: Uint8Array, key: Uint8Array, nonce: Uint8Array): Uint8Array {
-    return new AES_CTR(key, nonce).encrypt(data).result as Uint8Array;
+    return new AES_CTR(key, nonce).encrypt(data);
   }
 
   static decrypt(data: Uint8Array, key: Uint8Array, nonce: Uint8Array): Uint8Array {
-    return new AES_CTR(key, nonce).encrypt(data).result as Uint8Array;
+    return new AES_CTR(key, nonce).encrypt(data);
   }
 
   constructor(key: Uint8Array, nonce: Uint8Array) {
@@ -17,14 +18,18 @@ export class AES_CTR extends AES {
     this.AES_CTR_set_options(nonce);
   }
 
-  encrypt(data: Uint8Array): this {
-    this.AES_Encrypt_process(data);
-    return this.AES_Encrypt_finish();
+  encrypt(data: Uint8Array): Uint8Array {
+    const r1 = this.AES_Encrypt_process(data);
+    const r2 = this.AES_Encrypt_finish();
+
+    return joinBytes(r1, r2);
   }
 
-  decrypt(data: Uint8Array): this {
-    this.AES_Encrypt_process(data);
-    return this.AES_Encrypt_finish();
+  decrypt(data: Uint8Array): Uint8Array {
+    const r1 = this.AES_Encrypt_process(data);
+    const r2 = this.AES_Encrypt_finish();
+
+    return joinBytes(r1, r2);
   }
 
   private AES_CTR_set_options(nonce: Uint8Array, counter?: number, size?: number): void {

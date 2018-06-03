@@ -21,7 +21,7 @@ export class AES_CMAC {
   }
 
   constructor(key: Uint8Array) {
-    this.k = new AES_ECB(key).encrypt(new Uint8Array(16)).result as Uint8Array;
+    this.k = new AES_ECB(key).encrypt(new Uint8Array(16));
     mul2(this.k);
     this.cbc = new AES_CBC(key, new Uint8Array(16), false);
 
@@ -56,7 +56,7 @@ export class AES_CMAC {
       this.buffer[i] ^= this.k[i];
     }
 
-    this.result = this.cbc.encrypt(this.buffer).result;
+    this.result = this.cbc.encrypt(this.buffer);
     return this;
   }
 }

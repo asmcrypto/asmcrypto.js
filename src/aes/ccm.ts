@@ -36,7 +36,7 @@ export class AES_CCM extends AES {
     adata: Uint8Array | undefined,
     tagsize: number = 16,
   ): Uint8Array {
-    return new AES_CCM(key, nonce, adata, tagsize, clear.length).encrypt(clear).result as Uint8Array;
+    return new AES_CCM(key, nonce, adata, tagsize, clear.length).encrypt(clear);
   }
   static decrypt(
     cipher: Uint8Array,
@@ -45,7 +45,7 @@ export class AES_CCM extends AES {
     adata: Uint8Array | undefined,
     tagsize: number = 16,
   ): Uint8Array {
-    return new AES_CCM(key, nonce, adata, tagsize, cipher.length - tagsize).decrypt(cipher).result as Uint8Array;
+    return new AES_CCM(key, nonce, adata, tagsize, cipher.length - tagsize).decrypt(cipher);
   }
 
   constructor(
@@ -86,32 +86,30 @@ export class AES_CCM extends AES {
     this.AES_CTR_set_options(nonce, this.counter, 8 * this.lengthSize);
   }
 
-  encrypt(data: Uint8Array): this {
+  encrypt(data: Uint8Array): Uint8Array {
     this.dataLength = data.length || 0;
 
-    const result1 = this.AES_CCM_Encrypt_process(data).result as Uint8Array;
-    const result2 = this.AES_CCM_Encrypt_finish().result as Uint8Array;
+    const result1 = this.AES_CCM_Encrypt_process(data);
+    const result2 = this.AES_CCM_Encrypt_finish();
 
     const result = new Uint8Array(result1.length + result2.length);
     if (result1.length) result.set(result1);
     if (result2.length) result.set(result2, result1.length);
-    this.result = result;
 
-    return this;
+    return result;
   }
 
-  decrypt(data: Uint8Array): this {
+  decrypt(data: Uint8Array): Uint8Array {
     this.dataLength = data.length || 0;
 
-    const result1 = this.AES_CCM_Decrypt_process(data).result as Uint8Array;
-    const result2 = this.AES_CCM_Decrypt_finish().result as Uint8Array;
+    const result1 = this.AES_CCM_Decrypt_process(data);
+    const result2 = this.AES_CCM_Decrypt_finish();
 
     const result = new Uint8Array(result1.length + result2.length);
     if (result1.length) result.set(result1);
     if (result2.length) result.set(result2, result1.length);
-    this.result = result;
 
-    return this;
+    return result;
   }
 
   AES_CCM_calculate_iv(): void {
@@ -166,7 +164,7 @@ export class AES_CCM extends AES {
     }
   }
 
-  AES_CCM_Encrypt_process(data: Uint8Array): this {
+  AES_CCM_Encrypt_process(data: Uint8Array): Uint8Array {
     const asm = this.asm;
     const heap = this.heap;
 
@@ -208,15 +206,14 @@ export class AES_CCM extends AES {
       }
     }
 
-    this.result = result;
     this.counter = counter;
     this.pos = pos;
     this.len = len;
 
-    return this;
+    return result;
   }
 
-  AES_CCM_Encrypt_finish(): this {
+  AES_CCM_Encrypt_finish(): Uint8Array {
     const asm = this.asm;
     const heap = this.heap;
     const tagSize = this.tagSize;
@@ -237,15 +234,14 @@ export class AES_CCM extends AES {
     asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16);
     result.set(heap.subarray(0, tagSize), len);
 
-    this.result = result;
     this.counter = 1;
     this.pos = 0;
     this.len = 0;
 
-    return this;
+    return result;
   }
 
-  AES_CCM_Decrypt_process(data: Uint8Array): this {
+  AES_CCM_Decrypt_process(data: Uint8Array): Uint8Array {
     let dpos = 0;
     let dlen = data.length || 0;
     const asm = this.asm;
@@ -284,15 +280,14 @@ export class AES_CCM extends AES {
       len += _heap_write(heap, 0, data, dpos, dlen);
     }
 
-    this.result = result;
     this.counter = counter;
     this.pos = pos;
     this.len = len;
 
-    return this;
+    return result;
   }
 
-  AES_CCM_Decrypt_finish(): this {
+  AES_CCM_Decrypt_finish(): Uint8Array {
     const asm = this.asm;
     const heap = this.heap;
     const tagSize = this.tagSize;
@@ -320,12 +315,11 @@ export class AES_CCM extends AES {
     for (let j = 0; j < tagSize; ++j) acheck |= atag[j] ^ heap[j];
     if (acheck) throw new SecurityError('data integrity check failed');
 
-    this.result = result;
     this.counter = 1;
     this.pos = 0;
     this.len = 0;
 
-    return this;
+    return result;
   }
 
   private AES_CTR_set_options(nonce: Uint8Array, counter: number, size: number): void {

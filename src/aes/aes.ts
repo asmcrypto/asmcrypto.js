@@ -7,7 +7,6 @@ export abstract class AES {
   protected readonly asm: AES_asm;
   private readonly mode: string;
   protected padding: boolean; // TODO: This should be `private readonly`, hacking for AES-CFB?!
-  public result!: Uint8Array | null;
   protected pos: number = 0;
   protected len: number = 0;
 
@@ -19,7 +18,6 @@ export abstract class AES {
     this.asm = new AES_asm(null, this.heap.buffer);
 
     // The AES object state
-    this.result = null;
     this.pos = 0;
     this.len = 0;
 
@@ -54,7 +52,7 @@ export abstract class AES {
     this.padding = padding;
   }
 
-  AES_Encrypt_process(data: Uint8Array): this {
+  AES_Encrypt_process(data: Uint8Array): Uint8Array {
     if (!is_bytes(data)) throw new TypeError("data isn't of expected type");
 
     let asm = this.asm;
@@ -91,14 +89,13 @@ export abstract class AES {
       }
     }
 
-    this.result = result;
     this.pos = pos;
     this.len = len;
 
-    return this;
+    return result;
   }
 
-  AES_Encrypt_finish(): this {
+  AES_Encrypt_finish(): Uint8Array {
     let asm = this.asm;
     let heap = this.heap;
     let amode = AES_asm.ENC[this.mode];
@@ -122,23 +119,19 @@ export abstract class AES {
       len += plen;
     }
 
-    if (!this.result) throw new Error('There is no result');
-
-    const result = new Uint8Array(this.result.length + rlen);
-    result.set(this.result, 0);
+    const result = new Uint8Array(rlen);
 
     if (len) asm.cipher(amode, hpos + pos, len);
 
-    if (rlen) result.set(heap.subarray(pos, pos + rlen), this.result.length);
+    if (rlen) result.set(heap.subarray(pos, pos + rlen));
 
-    this.result = result;
     this.pos = 0;
     this.len = 0;
 
-    return this;
+    return result;
   }
 
-  AES_Decrypt_process(data: Uint8Array): this {
+  AES_Decrypt_process(data: Uint8Array): Uint8Array {
     if (!is_bytes(data)) throw new TypeError("data isn't of expected type");
 
     let asm = this.asm;
@@ -181,14 +174,13 @@ export abstract class AES {
       }
     }
 
-    this.result = result;
     this.pos = pos;
     this.len = len;
 
-    return this;
+    return result;
   }
 
-  AES_Decrypt_finish(): this {
+  AES_Decrypt_finish(): Uint8Array {
     let asm = this.asm;
     let heap = this.heap;
     let amode = AES_asm.DEC[this.mode];
@@ -220,19 +212,15 @@ export abstract class AES {
       }
     }
 
-    if (!this.result) throw new Error('There is no result');
-
-    const result = new Uint8Array(rlen + this.result.length);
-    result.set(this.result, 0);
+    const result = new Uint8Array(rlen);
 
     if (rlen > 0) {
-      result.set(heap.subarray(pos, pos + rlen), this.result.length);
+      result.set(heap.subarray(pos, pos + rlen));
     }
 
-    this.result = result;
     this.pos = 0;
     this.len = 0;
 
-    return this;
+    return result;
   }
 }
