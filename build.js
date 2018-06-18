@@ -55,6 +55,12 @@ import UglifyES from 'uglify-es';
     name: 'asmCrypto',
   });
 
+  // Legacy browser export, as a bundle
+  await es5bundle.write({
+    file: 'asmcrypto.all.es5.mjs',
+    format: 'es',
+  });
+
   // NodeJS old
   await es5bundle.write({
     file: 'asmcrypto.all.js',
