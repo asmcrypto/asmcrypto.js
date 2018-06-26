@@ -4,7 +4,6 @@ import { Sha512 } from '../hash/sha512/sha512';
 import { Sha1 } from '../hash/sha1/sha1';
 import { Sha256 } from '../hash/sha256/sha256';
 import { BigNumber } from '../bignum/bignum';
-import { getRandomValues } from '../other/get-random-values';
 
 export class RSA_OAEP {
   private readonly rsa: RSA;
@@ -23,7 +22,7 @@ export class RSA_OAEP {
     }
   }
 
-  encrypt(data: Uint8Array): Uint8Array {
+  encrypt(data: Uint8Array, random: Uint8Array): Uint8Array {
     const key_size = Math.ceil(this.rsa.key[0].bitLength / 8);
     const hash_size = this.hash.HASH_SIZE;
     const data_length = data.byteLength || data.length || 0;
@@ -40,7 +39,8 @@ export class RSA_OAEP {
     data_block.set(this.hash.process(this.label || new Uint8Array(0)).finish().result as Uint8Array, 0);
     data_block[hash_size + ps_length] = 1;
 
-    getRandomValues(seed);
+    if (seed.length !== random.length) throw new IllegalArgumentError('random size must equal the hash size');
+    seed.set(random);
 
     const data_block_mask = this.RSA_MGF1_generate(seed, data_block.length);
     for (let i = 0; i < data_block.length; i++) data_block[i] ^= data_block_mask[i];
@@ -144,7 +144,7 @@ export class RSA_PSS {
       throw new SyntaxError('saltLength is too large');
   }
 
-  sign(data: Uint8Array): Uint8Array {
+  sign(data: Uint8Array, random: Uint8Array): Uint8Array {
     const key_bits = this.rsa.key[0].bitLength;
     const hash_size = this.hash.HASH_SIZE;
     const message_length = Math.ceil((key_bits - 1) / 8);
@@ -162,7 +162,10 @@ export class RSA_PSS {
 
     m_hash.set(this.hash.process(data).finish().result as Uint8Array);
 
-    if (salt_length > 0) getRandomValues(m_salt);
+    if (salt_length > 0) {
+      if (m_salt.length !== random.length) throw new IllegalArgumentError('random size must equal the salt size');
+      m_salt.set(random);
+    }
 
     d_block[ps_length] = 1;
     d_salt.set(m_salt);

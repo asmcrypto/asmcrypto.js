@@ -77,8 +77,12 @@ describe('RSA-OAEP', () => {
     const cleartext = asmCrypto.string_to_bytes('HelloWorld!');
     const rsaOaepEnc = new asmCrypto.RSA_OAEP(pubKey, new asmCrypto.Sha256(), asmCrypto.string_to_bytes('test'));
     const rsaOaepDec = new asmCrypto.RSA_OAEP(privkey, new asmCrypto.Sha256(), asmCrypto.string_to_bytes('test'));
+    const random = new Uint8Array(32);
+    const nodeCrypto = require('crypto');
+    const bytes = nodeCrypto.randomBytes(random.length);
+    random.set(bytes);
 
-    const ciphertext = rsaOaepEnc.encrypt(cleartext);
+    const ciphertext = rsaOaepEnc.encrypt(cleartext, random);
 
     const result = rsaOaepDec.decrypt(ciphertext);
     expect(asmCrypto.bytes_to_string(result), 'decrypt').to.equal('HelloWorld!');
@@ -90,8 +94,12 @@ describe('RSA-PSS-SHA256', () => {
     const text = 'HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!';
     const rsaPssSign = new asmCrypto.RSA_PSS(privkey, new asmCrypto.Sha256());
     const rsaPssVerify = new asmCrypto.RSA_PSS(pubKey, new asmCrypto.Sha256());
+    const random = new Uint8Array(4);
+    const nodeCrypto = require('crypto');
+    const bytes = nodeCrypto.randomBytes(random.length);
+    random.set(bytes);
 
-    const signature = rsaPssSign.sign(asmCrypto.string_to_bytes(text));
+    const signature = rsaPssSign.sign(asmCrypto.string_to_bytes(text), random);
     rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text));
   });
 
