@@ -1,17 +1,16 @@
 export function getRandomValues(buf: Uint32Array | Uint8Array): void {
-  try {
-    if (typeof window === 'undefined') {
-      const nodeCrypto = require('crypto');
-      const bytes = nodeCrypto.randomBytes(buf.length);
-      buf.set(bytes);
-      return;
-    }
-  } catch (e) {
-    console.error(e);
-    throw new Error('No secure random number generator available.');
+  if (typeof process !== 'undefined') {
+    const nodeCrypto = require('crypto');
+    const bytes = nodeCrypto.randomBytes(buf.length);
+    buf.set(bytes);
+    return;
   }
   if (window.crypto && window.crypto.getRandomValues) {
     window.crypto.getRandomValues(buf);
+    return;
+  }
+  if (self.crypto && self.crypto.getRandomValues) {
+    self.crypto.getRandomValues(buf);
     return;
   }
   // @ts-ignore
@@ -20,4 +19,5 @@ export function getRandomValues(buf: Uint32Array | Uint8Array): void {
     window.msCrypto.getRandomValues(buf);
     return;
   }
+  throw new Error('No secure random number generator available.');
 }
