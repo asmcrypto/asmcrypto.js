@@ -68,7 +68,13 @@ import UglifyES from 'uglify-es';
   });
 
   const legacyCode = await fs.readFile('asmcrypto.all.es5.js', 'utf8');
-  const { error, code } = UglifyJS.minify(legacyCode, { compress: { inline: false } });
+  const { error, code } = UglifyJS.minify(legacyCode, {
+    compress: {
+      inline: false,
+      collapse_vars: false,
+      reduce_vars: false,
+    },
+  });
   if (error) throw new Error(`Uglify failed: ${error}`);
   await fs.writeFile('asmcrypto.all.es5.min.js', code, 'utf8');
 
@@ -86,7 +92,13 @@ import UglifyES from 'uglify-es';
   });
 
   const es8Code = await fs.readFile('asmcrypto.all.es8.js', 'utf8');
-  const { error: errorEs8, code: codeEs8 } = UglifyES.minify(es8Code, { compress: { inline: false } });
+  const { error: errorEs8, code: codeEs8 } = UglifyES.minify(es8Code, {
+    compress: {
+      inline: false,
+      collapse_vars: false,
+      reduce_vars: false,
+    },
+  });
   if (errorEs8) throw new Error(`Uglify failed: ${error}`);
   await fs.writeFile('asmcrypto.all.es8.min.js', codeEs8, 'utf8');
 
