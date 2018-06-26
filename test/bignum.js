@@ -448,13 +448,4 @@ describe('Bignum', () => {
       '5b3823974b3eda87286d3f38499de290bd575d8b02f06720acacf3d50950f9ca0ff6b749f3be03913ddca0b291e0b263bdab6c9cb97e4ab47ee9c235ff20931a8ca358726fab93614e2c549594f5c50b1c979b34f840b6d4fc51d6feb2dd072995421d17862cb405e040fc1ed662a3245a1f97bbafa6d1f7f76c7db6a802e3037acdf01ab5053f5da518d6753477193b9c25e1720519dcb9e2f6e70d5786656d356151845a49861dfc40187eff0e85cd18b1f3f3b97c476472edfa090b868b2388edfffecc521c20df8cebb8aacfb3669b020330dd6ea64b2a3067a972b8f249bccc19347eff43893e916f0949bd5789a5cce0f8b7cd87cece909d679345c0d4',
     );
   });
-
-  it('asmCrypto.isProbablePrime', function() {
-    const p = new asmCrypto.BigNumber(
-      asmCrypto.hex_to_bytes(
-        '8844ae66464b4b7db53644be87617124f314a1d8243d347867c8cfd6afb595bdb88ce63538fbd6c3f8461133d77ed4f5ef403f48c65b7340c683839c00bc7874bff3e9ffe7916a3ca085c7096f31871f2d628198f9c1deaeaefa581ebaef834a89afdf663b9570287a257bd6e4f507cede3b31eda6bd7fd4f8ae3c5b8791d89f',
-      ),
-    );
-    expect(p.isProbablePrime(), 'p is probable prime').to.be.true;
-  });
 });

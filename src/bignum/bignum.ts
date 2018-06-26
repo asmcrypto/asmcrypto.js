@@ -2,7 +2,6 @@ import { bigint_asm, bigintresult } from './bigint.asm';
 import { string_to_bytes } from '../other/utils';
 import { IllegalArgumentError } from '../other/errors';
 import { BigNumber_extGCD, Number_extGCD } from './extgcd';
-import { getRandomValues } from '../other/get-random-values';
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -444,87 +443,6 @@ export class BigNumber {
     result.bitLength = rbitlen;
 
     return result;
-  }
-
-  public isMillerRabinProbablePrime(rounds: number): boolean {
-    var t = BigNumber.fromConfig(this),
-      s = 0;
-    t.limbs[0] -= 1;
-    while (t.limbs[s >> 5] === 0) s += 32;
-    while (((t.limbs[s >> 5] >> (s & 31)) & 1) === 0) s++;
-    t = t.slice(s);
-
-    var m = new Modulus(this),
-      m1 = this.subtract(BigNumber.ONE),
-      a = BigNumber.fromConfig(this),
-      l = this.limbs.length - 1;
-    while (a.limbs[l] === 0) l--;
-
-    while (--rounds >= 0) {
-      getRandomValues(a.limbs);
-      if (a.limbs[0] < 2) a.limbs[0] += 2;
-      while (a.compare(m1) >= 0) a.limbs[l] >>>= 1;
-
-      var x = m.power(a, t);
-      if (x.compare(BigNumber.ONE) === 0) continue;
-      if (x.compare(m1) === 0) continue;
-
-      var c = s;
-      while (--c > 0) {
-        x = x.square().divide(m).remainder;
-        if (x.compare(BigNumber.ONE) === 0) return false;
-        if (x.compare(m1) === 0) break;
-      }
-
-      if (c === 0) return false;
-    }
-
-    return true;
-  }
-
-  isProbablePrime(paranoia: number = 80): boolean {
-    var limbs = this.limbs;
-    var i = 0;
-
-    // Oddity test
-    // (50% false positive probability)
-    if ((limbs[0] & 1) === 0) return false;
-    if (paranoia <= 1) return true;
-
-    // Magic divisors (3, 5, 17) test
-    // (~25% false positive probability)
-    var s3 = 0,
-      s5 = 0,
-      s17 = 0;
-    for (i = 0; i < limbs.length; i++) {
-      var l3 = limbs[i];
-      while (l3) {
-        s3 += l3 & 3;
-        l3 >>>= 2;
-      }
-
-      var l5 = limbs[i];
-      while (l5) {
-        s5 += l5 & 3;
-        l5 >>>= 2;
-        s5 -= l5 & 3;
-        l5 >>>= 2;
-      }
-
-      var l17 = limbs[i];
-      while (l17) {
-        s17 += l17 & 15;
-        l17 >>>= 4;
-        s17 -= l17 & 15;
-        l17 >>>= 4;
-      }
-    }
-    if (!(s3 % 3) || !(s5 % 5) || !(s17 % 17)) return false;
-    if (paranoia <= 2) return true;
-
-    // Miller-Rabin test
-    // (≤ 4^(-k) false positive probability)
-    return this.isMillerRabinProbablePrime(paranoia >>> 1);
   }
 }
 
