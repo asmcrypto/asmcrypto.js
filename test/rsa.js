@@ -95,6 +95,43 @@ describe('RSA-PSS-SHA256', () => {
     rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text));
   });
 
+  it('asmCrypto.RSA_PSS_SHA256 sign/verify with non-default salt length', function() {
+    const text = 'HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!';
+    const rsaPssSign = new asmCrypto.RSA_PSS(privkey, new asmCrypto.Sha256(), 32);
+    const rsaPssVerify = new asmCrypto.RSA_PSS(pubKey, new asmCrypto.Sha256(), 32);
+
+    const signature = rsaPssSign.sign(asmCrypto.string_to_bytes(text));
+    rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text));
+  });
+
+  it('asmCrypto.RSA_PSS_SHA256 sign/verify with salt length mismatch', function() {
+    const text = 'HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!';
+    const rsaPssSign = new asmCrypto.RSA_PSS(privkey, new asmCrypto.Sha256(), 4);
+    const rsaPssVerify = new asmCrypto.RSA_PSS(pubKey, new asmCrypto.Sha256(), 32);
+
+    const signature = rsaPssSign.sign(asmCrypto.string_to_bytes(text));
+    expect(() => rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text))).to.throw;
+  });
+
+  it('asmCrypto.RSA_PSS_SHA512 sign/verify', function() {
+    const text = 'HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!';
+    const rsaPssSign = new asmCrypto.RSA_PSS(privkey, new asmCrypto.Sha512());
+    const rsaPssVerify = new asmCrypto.RSA_PSS(pubKey, new asmCrypto.Sha512());
+
+    const signature = rsaPssSign.sign(asmCrypto.string_to_bytes(text));
+    rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text));
+  });
+
+  // This requires a RSA2048 key instead of RSA1024
+  it.skip('asmCrypto.RSA_PSS_SHA512 sign/verify with non-default salt length', function() {
+    const text = 'HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!';
+    const rsaPssSign = new asmCrypto.RSA_PSS(privkey, new asmCrypto.Sha512(), 64);
+    const rsaPssVerify = new asmCrypto.RSA_PSS(pubKey, new asmCrypto.Sha512(), 64);
+
+    const signature = rsaPssSign.sign(asmCrypto.string_to_bytes(text));
+    rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text));
+  });
+
   it('asmCrypto.RSA_PSS_SHA256 verify OpenSSL-signed-data', function() {
     const key = [
       asmCrypto.hex_to_bytes(
