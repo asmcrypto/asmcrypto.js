@@ -113,6 +113,15 @@ describe('RSA-PSS-SHA256', () => {
     expect(() => rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text))).to.throw;
   });
 
+  it('asmCrypto.RSA_PSS_SHA256 sign/verify with default salt length mismatch', function() {
+    const text = 'HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!';
+    const rsaPssSign = new asmCrypto.RSA_PSS(privkey, new asmCrypto.Sha256(), 32);
+    const rsaPssVerify = new asmCrypto.RSA_PSS(pubKey, new asmCrypto.Sha256());
+
+    const signature = rsaPssSign.sign(asmCrypto.string_to_bytes(text));
+    expect(() => rsaPssVerify.verify(signature, asmCrypto.string_to_bytes(text))).to.throw;
+  });
+
   it('asmCrypto.RSA_PSS_SHA512 sign/verify', function() {
     const text = 'HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!HelloWorld!';
     const rsaPssSign = new asmCrypto.RSA_PSS(privkey, new asmCrypto.Sha512());
