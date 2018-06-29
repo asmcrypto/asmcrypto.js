@@ -1,4 +1,4 @@
-import { _heap_write } from '../other/utils';
+import { _heap_init, _heap_write } from '../other/utils';
 import { IllegalStateError } from '../other/errors';
 import { sha1result } from './sha1/sha1.asm';
 import { sha256result } from './sha256/sha256.asm';
@@ -13,7 +13,32 @@ export abstract class Hash<T extends sha1result | sha256result | sha512result> {
   public BLOCK_SIZE!: number;
   public HASH_SIZE!: number;
 
+  protected static heap_pool !: Array;
+  protected static asm_pool !: Array;
+  protected static asm_function!: Function;
+
+  constructor() {
+    this.acquire_asm();
+  }
+
+  protected acquire_asm() {
+    if (this.heap === undefined && this.asm === undefined) {
+      this.heap = this.constructor.heap_pool.pop() || _heap_init();
+      this.asm = this.constructor.asm_pool.pop() || this.constructor.asm_function({ Uint8Array: Uint8Array }, null, this.heap.buffer);
+      this.reset();
+    }
+  }
+
+  protected release_asm() {
+    this.constructor.heap_pool.push(this.heap));
+    this.constructor.asm_pool.push(this.asm);
+    this.heap = undefined;
+    this.asm = undefined;
+  }
+
   reset() {
+    this.acquire_asm();
+
     this.result = null;
     this.pos = 0;
     this.len = 0;
@@ -25,6 +50,8 @@ export abstract class Hash<T extends sha1result | sha256result | sha512result> {
 
   process(data: Uint8Array) {
     if (this.result !== null) throw new IllegalStateError('state must be reset before processing new data');
+
+    this.acquire_asm();
 
     let asm = this.asm;
     let heap = this.heap;
@@ -57,6 +84,8 @@ export abstract class Hash<T extends sha1result | sha256result | sha512result> {
   finish() {
     if (this.result !== null) throw new IllegalStateError('state must be reset before processing new data');
 
+    this.acquire_asm();
+
     this.asm.finish(this.pos, this.len, 0);
 
     this.result = new Uint8Array(this.HASH_SIZE);
@@ -64,6 +93,8 @@ export abstract class Hash<T extends sha1result | sha256result | sha512result> {
 
     this.pos = 0;
     this.len = 0;
+
+    this.release_asm();
 
     return this;
   }

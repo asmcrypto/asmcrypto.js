@@ -2,6 +2,9 @@ import { AES_asm, AES_mode } from './aes.asm';
 import { _heap_init, _heap_write, is_bytes } from '../other/utils';
 import { IllegalArgumentError, SecurityError } from '../other/errors';
 
+const heap_pool = [];
+const asm_pool = [];
+
 export abstract class AES {
   protected readonly heap: Uint8Array;
   protected readonly asm: AES_asm;
@@ -13,14 +16,36 @@ export abstract class AES {
   protected constructor(key: Uint8Array, iv: Uint8Array | undefined, padding = true, mode: AES_mode) {
     this.mode = mode;
 
-    // The AES "worker"
-    this.heap = _heap_init().subarray(AES_asm.HEAP_DATA);
-    this.asm = new AES_asm(null, this.heap.buffer);
-
     // The AES object state
     this.pos = 0;
     this.len = 0;
 
+    this.key = key;
+    this.iv = iv;
+    this.padding = padding;
+
+    // The AES "worker"
+    this.acquire_asm();
+  }
+
+  protected acquire_asm() {
+    if (this.heap === undefined && this.asm === undefined) {
+      this.heap = heap_pool.pop() || _heap_init().subarray(AES_asm.HEAP_DATA);
+      this.asm = asm_pool.pop() || AES_asm(null, this.heap.buffer);
+      this.reset(this.key, this.iv);
+    }
+  }
+
+  protected release_asm() {
+    this.iv = this.heap.slice(0, this.asm.get_iv(AES_asm.HEAP_DATA));
+
+    heap_pool.push(this.heap);
+    asm_pool.push(this.asm);
+    this.heap = undefined;
+    this.asm = undefined;
+  }
+
+  protected reset(key, iv) {
     // Key
     const keylen = key.length;
     if (keylen !== 16 && keylen !== 24 && keylen !== 32) throw new IllegalArgumentError('illegal key size');
@@ -48,12 +73,12 @@ export abstract class AES {
     } else {
       this.asm.set_iv(0, 0, 0, 0);
     }
-
-    this.padding = padding;
   }
 
   AES_Encrypt_process(data: Uint8Array): Uint8Array {
     if (!is_bytes(data)) throw new TypeError("data isn't of expected type");
+
+    this.acquire_asm();
 
     let asm = this.asm;
     let heap = this.heap;
@@ -96,6 +121,8 @@ export abstract class AES {
   }
 
   AES_Encrypt_finish(): Uint8Array {
+    this.acquire_asm();
+
     let asm = this.asm;
     let heap = this.heap;
     let amode = AES_asm.ENC[this.mode];
@@ -128,11 +155,15 @@ export abstract class AES {
     this.pos = 0;
     this.len = 0;
 
+    this.release_asm();
+
     return result;
   }
 
   AES_Decrypt_process(data: Uint8Array): Uint8Array {
     if (!is_bytes(data)) throw new TypeError("data isn't of expected type");
+
+    this.acquire_asm();
 
     let asm = this.asm;
     let heap = this.heap;
@@ -181,6 +212,8 @@ export abstract class AES {
   }
 
   AES_Decrypt_finish(): Uint8Array {
+    this.acquire_asm();
+
     let asm = this.asm;
     let heap = this.heap;
     let amode = AES_asm.DEC[this.mode];
@@ -220,6 +253,8 @@ export abstract class AES {
 
     this.pos = 0;
     this.len = 0;
+
+    this.release_asm();
 
     return result;
   }
