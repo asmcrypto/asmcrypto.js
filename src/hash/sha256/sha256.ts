@@ -13,4 +13,8 @@ export class Sha256 extends Hash<sha256result> {
   protected static heap_pool = [];
   protected static asm_pool = [];
   protected static asm_function = sha256_asm;
+
+  static bytes(data: Uint8Array): Uint8Array {
+    return new Sha256().process(data).finish().result;
+  }
 }

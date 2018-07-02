@@ -13,4 +13,8 @@ export class Sha512 extends Hash<sha512result> {
   protected static heap_pool = [];
   protected static asm_pool = [];
   protected static asm_function = sha512_asm;
+
+  static bytes(data: Uint8Array): Uint8Array {
+    return new Sha512().process(data).finish().result;
+  }
 }

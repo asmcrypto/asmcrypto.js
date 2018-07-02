@@ -13,4 +13,8 @@ export class Sha1 extends Hash<sha1result> {
   protected static heap_pool = [];
   protected static asm_pool = [];
   protected static asm_function = sha1_asm;
+
+  static bytes(data: Uint8Array): Uint8Array {
+    return new Sha1().process(data).finish().result;
+  }
 }
