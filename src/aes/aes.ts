@@ -37,7 +37,7 @@ export abstract class AES {
   }
 
   protected release_asm() {
-    this.iv = this.heap.slice(0, this.asm.get_iv(AES_asm.HEAP_DATA));
+    this.iv = this.heap.slice(0, this.asm[this.mode === 'CTR' ? 'get_nonce' : 'get_iv'](AES_asm.HEAP_DATA));
 
     heap_pool.push(this.heap);
     asm_pool.push(this.asm);

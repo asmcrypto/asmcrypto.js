@@ -12,9 +12,12 @@ export class AES_CTR extends AES {
   }
 
   constructor(key: Uint8Array, nonce: Uint8Array) {
-    super(key, undefined, false, 'CTR');
+    super(key, nonce, false, 'CTR');
     delete this.padding;
+  }
 
+  protected reset(key: Uint8Array, nonce: Uint8Array) {
+    super.reset(key, undefined);
     this.AES_CTR_set_options(nonce);
   }
 

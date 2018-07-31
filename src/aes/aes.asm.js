@@ -768,6 +768,38 @@ export var AES_asm = function () {
       }
 
       /**
+       * Store the internal nonce vector into the heap.
+       * @instance
+       * @memberof AES_asm
+       * @param {number} pos - offset where to put the data
+       * @return {number} The number of bytes have been written into the heap, always 16.
+       */
+      function get_nonce(pos) {
+        pos = pos | 0;
+
+        if (pos & 15) return -1;
+
+        DATA[pos | 0] = N0 >>> 24,
+          DATA[pos | 1] = N0 >>> 16 & 255,
+          DATA[pos | 2] = N0 >>> 8 & 255,
+          DATA[pos | 3] = N0 & 255,
+          DATA[pos | 4] = N1 >>> 24,
+          DATA[pos | 5] = N1 >>> 16 & 255,
+          DATA[pos | 6] = N1 >>> 8 & 255,
+          DATA[pos | 7] = N1 & 255,
+          DATA[pos | 8] = N2 >>> 24,
+          DATA[pos | 9] = N2 >>> 16 & 255,
+          DATA[pos | 10] = N2 >>> 8 & 255,
+          DATA[pos | 11] = N2 & 255,
+          DATA[pos | 12] = N3 >>> 24,
+          DATA[pos | 13] = N3 >>> 16 & 255,
+          DATA[pos | 14] = N3 >>> 8 & 255,
+          DATA[pos | 15] = N3 & 255;
+
+        return 16;
+      }
+
+      /**
        * GCM initialization.
        * @instance
        * @memberof AES_asm
@@ -887,6 +919,7 @@ export var AES_asm = function () {
         set_counter: set_counter,
         get_state: get_state,
         get_iv: get_iv,
+        get_nonce: get_nonce,
         gcm_init: gcm_init,
         cipher: cipher,
         mac: mac,
