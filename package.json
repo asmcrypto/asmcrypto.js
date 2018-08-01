@@ -32,6 +32,7 @@
     "@types/mocha": "^5.2.0",
     "@types/node": "^10.1.2",
     "chai": "^4.1.2",
+    "cpy-cli": "^2.0.0",
     "esm": "3.0.36",
     "fs-extra": "^6.0.1",
     "mocha": "^5.2.0",
@@ -45,9 +46,11 @@
     "uglify-js": "^3.3.25"
   },
   "scripts": {
-    "prepublish": "node -r esm build.js",
-    "test": "node -r esm build.js && mocha -r esm test/*.js",
-    "prettier": "prettier --single-quote --trailing-comma all --write \"src/**/*.js\" \"src/**/*.ts\" --print-width 120"
+    "build": "node -r esm build.js && npm run copy",
+    "copy": "cpy src/aes/aes.asm.d.ts dist_es5/aes && cpy src/aes/aes.asm.d.ts dist_es8/aes && cpy src/bignum/bigint.asm.d.ts dist_es5/bignum && cpy src/bignum/bigint.asm.d.ts dist_es8/bignum && cpy src/hash/sha1/sha1.asm.d.ts dist_es5/hash/sha1 && cpy src/hash/sha1/sha1.asm.d.ts dist_es8/hash/sha1 && cpy src/hash/sha256/sha256.asm.d.ts dist_es5/hash/sha256 && cpy src/hash/sha256/sha256.asm.d.ts dist_es8/hash/sha256 && cpy src/hash/sha512/sha512.asm.d.ts dist_es5/hash/sha512 && cpy src/hash/sha512/sha512.asm.d.ts dist_es8/hash/sha512",
+    "prepublish": "npm run build",
+    "prettier": "prettier --single-quote --trailing-comma all --write \"src/**/*.js\" \"src/**/*.ts\" --print-width 120",
+    "test": "npm run build && mocha -r esm test/*.js"
   },
   "typings": "./dist_es8/entry-export_all.d.ts",
   "dependencies": {}
