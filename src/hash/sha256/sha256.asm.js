@@ -1,4 +1,4 @@
-export function sha256_asm ( stdlib, foreign, buffer ) {
+export var sha256_asm = function ( stdlib, foreign, buffer ) {
     "use asm";
 
     // SHA256 state
