@@ -26,19 +26,29 @@ import UglifyES from 'uglify-es';
 
   // Copy non-ts resources
   await fs.copy('src/aes/aes.asm.js', 'dist_es5/aes/aes.asm.js');
+  await fs.copy('src/aes/aes.asm.d.ts', 'dist_es5/aes/aes.asm.d.ts');
   await fs.copy('src/aes/aes.asm.js', 'dist_es8/aes/aes.asm.js');
+  await fs.copy('src/aes/aes.asm.d.ts', 'dist_es8/aes/aes.asm.d.ts');
 
   await fs.copy('src/bignum/bigint.asm.js', 'dist_es5/bignum/bigint.asm.js');
+  await fs.copy('src/bignum/bigint.asm.d.ts', 'dist_es5/bignum/bigint.asm.d.ts');
   await fs.copy('src/bignum/bigint.asm.js', 'dist_es8/bignum/bigint.asm.js');
+  await fs.copy('src/bignum/bigint.asm.d.ts', 'dist_es8/bignum/bigint.asm.d.ts');
 
   await fs.copy('src/hash/sha1/sha1.asm.js', 'dist_es5/hash/sha1/sha1.asm.js');
+  await fs.copy('src/hash/sha1/sha1.asm.d.ts', 'dist_es5/hash/sha1/sha1.asm.d.ts');
   await fs.copy('src/hash/sha1/sha1.asm.js', 'dist_es8/hash/sha1/sha1.asm.js');
+  await fs.copy('src/hash/sha1/sha1.asm.d.ts', 'dist_es8/hash/sha1/sha1.asm.d.ts');
 
   await fs.copy('src/hash/sha256/sha256.asm.js', 'dist_es5/hash/sha256/sha256.asm.js');
+  await fs.copy('src/hash/sha256/sha256.asm.d.ts', 'dist_es5/hash/sha256/sha256.asm.d.ts');
   await fs.copy('src/hash/sha256/sha256.asm.js', 'dist_es8/hash/sha256/sha256.asm.js');
+  await fs.copy('src/hash/sha256/sha256.asm.d.ts', 'dist_es8/hash/sha256/sha256.asm.d.ts');
 
   await fs.copy('src/hash/sha512/sha512.asm.js', 'dist_es5/hash/sha512/sha512.asm.js');
+  await fs.copy('src/hash/sha512/sha512.asm.d.ts', 'dist_es5/hash/sha512/sha512.asm.d.ts');
   await fs.copy('src/hash/sha512/sha512.asm.js', 'dist_es8/hash/sha512/sha512.asm.js');
+  await fs.copy('src/hash/sha512/sha512.asm.d.ts', 'dist_es8/hash/sha512/sha512.asm.d.ts');
 
   const es5bundle = await rollup.rollup({
     input: 'dist_es5/entry-export_all.js',
