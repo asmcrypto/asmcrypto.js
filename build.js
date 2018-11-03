@@ -1,6 +1,6 @@
-import fs from 'fs-extra';
+import * as fs from 'fs-extra';
 import ts from 'typescript';
-import rollup from 'rollup';
+import * as rollup from 'rollup';
 import UglifyJS from 'uglify-js';
 import UglifyES from 'uglify-es';
 
