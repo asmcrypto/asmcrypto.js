@@ -1,6 +1,5 @@
 import { sha1_asm, sha1result } from './sha1.asm';
 import { Hash } from '../hash';
-import { _heap_init } from '../../other/utils';
 
 export const _sha1_block_size = 64;
 export const _sha1_hash_size = 20;
@@ -11,12 +10,11 @@ export class Sha1 extends Hash<sha1result> {
   public BLOCK_SIZE = _sha1_block_size;
   public HASH_SIZE = _sha1_hash_size;
 
-  constructor() {
-    super();
+  protected static heap_pool = [];
+  protected static asm_pool = [];
+  protected static asm_function = sha1_asm;
 
-    this.heap = _heap_init();
-    this.asm = sha1_asm({ Uint8Array: Uint8Array }, null, this.heap.buffer);
-
-    this.reset();
+  static bytes(data: Uint8Array): Uint8Array {
+    return new Sha1().process(data).finish().result;
   }
 }
