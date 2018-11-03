@@ -5,9 +5,10 @@ import { AES_asm } from './aes.asm';
 
 const _AES_GCM_data_maxLength = 68719476704; // 2^36 - 2^5
 
-export class AES_GCM extends AES {
+export class AES_GCM {
   private readonly adata: Uint8Array | undefined;
   private readonly gamma0: number = 0;
+  private aes: AES;
 
   private counter: number = 1;
 
@@ -31,11 +32,17 @@ export class AES_GCM extends AES {
     return new AES_GCM(key, nonce, adata, tagsize).decrypt(ciphertext);
   }
 
-  constructor(key: Uint8Array, nonce: Uint8Array, adata?: Uint8Array, private readonly tagSize: number = 16) {
-    super(key, undefined, false, 'CTR');
+  constructor(
+    key: Uint8Array,
+    nonce: Uint8Array,
+    adata?: Uint8Array,
+    private readonly tagSize: number = 16,
+    aes?: AES,
+  ) {
+    this.aes = aes ? aes : new AES(key, undefined, false, 'CTR');
 
     // Init GCM
-    this.asm.gcm_init();
+    this.aes.asm.gcm_init();
 
     // Tag size
     if (this.tagSize < 4 || this.tagSize > 16) throw new IllegalArgumentError('illegal tagSize value');
@@ -46,28 +53,28 @@ export class AES_GCM extends AES {
     if (noncelen !== 12) {
       this._gcm_mac_process(nonce);
 
-      this.heap[0] = 0;
-      this.heap[1] = 0;
-      this.heap[2] = 0;
-      this.heap[3] = 0;
-      this.heap[4] = 0;
-      this.heap[5] = 0;
-      this.heap[6] = 0;
-      this.heap[7] = 0;
-      this.heap[8] = 0;
-      this.heap[9] = 0;
-      this.heap[10] = 0;
-      this.heap[11] = noncelen >>> 29;
-      this.heap[12] = (noncelen >>> 21) & 255;
-      this.heap[13] = (noncelen >>> 13) & 255;
-      this.heap[14] = (noncelen >>> 5) & 255;
-      this.heap[15] = (noncelen << 3) & 255;
-      this.asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
+      this.aes.heap[0] = 0;
+      this.aes.heap[1] = 0;
+      this.aes.heap[2] = 0;
+      this.aes.heap[3] = 0;
+      this.aes.heap[4] = 0;
+      this.aes.heap[5] = 0;
+      this.aes.heap[6] = 0;
+      this.aes.heap[7] = 0;
+      this.aes.heap[8] = 0;
+      this.aes.heap[9] = 0;
+      this.aes.heap[10] = 0;
+      this.aes.heap[11] = noncelen >>> 29;
+      this.aes.heap[12] = (noncelen >>> 21) & 255;
+      this.aes.heap[13] = (noncelen >>> 13) & 255;
+      this.aes.heap[14] = (noncelen >>> 5) & 255;
+      this.aes.heap[15] = (noncelen << 3) & 255;
+      this.aes.asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
 
-      this.asm.get_iv(AES_asm.HEAP_DATA);
-      this.asm.set_iv(0, 0, 0, 0);
+      this.aes.asm.get_iv(AES_asm.HEAP_DATA);
+      this.aes.asm.set_iv(0, 0, 0, 0);
 
-      noncebuf.set(this.heap.subarray(0, 16));
+      noncebuf.set(this.aes.heap.subarray(0, 16));
     } else {
       noncebuf.set(nonce);
       noncebuf[15] = 1;
@@ -76,8 +83,8 @@ export class AES_GCM extends AES {
     const nonceview = new DataView(noncebuf.buffer);
     this.gamma0 = nonceview.getUint32(12);
 
-    this.asm.set_nonce(nonceview.getUint32(0), nonceview.getUint32(4), nonceview.getUint32(8), 0);
-    this.asm.set_mask(0, 0, 0, 0xffffffff);
+    this.aes.asm.set_nonce(nonceview.getUint32(0), nonceview.getUint32(4), nonceview.getUint32(8), 0);
+    this.aes.asm.set_mask(0, 0, 0, 0xffffffff);
 
     // Associated data
     if (adata !== undefined) {
@@ -96,7 +103,7 @@ export class AES_GCM extends AES {
     // Counter
     if (this.counter < 1 || this.counter > 0xffffffff)
       throw new RangeError('counter must be a positive 32-bit integer');
-    this.asm.set_counter(0, 0, 0, (this.gamma0 + this.counter) | 0);
+    this.aes.asm.set_counter(0, 0, 0, (this.gamma0 + this.counter) | 0);
   }
 
   encrypt(data: Uint8Array) {
@@ -110,11 +117,11 @@ export class AES_GCM extends AES {
   AES_GCM_Encrypt_process(data: Uint8Array): Uint8Array {
     let dpos = 0;
     let dlen = data.length || 0;
-    let asm = this.asm;
-    let heap = this.heap;
+    let asm = this.aes.asm;
+    let heap = this.aes.heap;
     let counter = this.counter;
-    let pos = this.pos;
-    let len = this.len;
+    let pos = this.aes.pos;
+    let len = this.aes.len;
     let rpos = 0;
     let rlen = (len + dlen) & -16;
     let wlen = 0;
@@ -146,20 +153,20 @@ export class AES_GCM extends AES {
     }
 
     this.counter = counter;
-    this.pos = pos;
-    this.len = len;
+    this.aes.pos = pos;
+    this.aes.len = len;
 
     return result;
   }
 
   AES_GCM_Encrypt_finish(): Uint8Array {
-    let asm = this.asm;
-    let heap = this.heap;
+    let asm = this.aes.asm;
+    let heap = this.aes.heap;
     let counter = this.counter;
     let tagSize = this.tagSize;
     let adata = this.adata;
-    let pos = this.pos;
-    let len = this.len;
+    let pos = this.aes.pos;
+    let len = this.aes.len;
 
     const result = new Uint8Array(len + tagSize);
 
@@ -196,8 +203,8 @@ export class AES_GCM extends AES {
     result.set(heap.subarray(0, tagSize), len);
 
     this.counter = 1;
-    this.pos = 0;
-    this.len = 0;
+    this.aes.pos = 0;
+    this.aes.len = 0;
 
     return result;
   }
@@ -205,12 +212,12 @@ export class AES_GCM extends AES {
   AES_GCM_Decrypt_process(data: Uint8Array): Uint8Array {
     let dpos = 0;
     let dlen = data.length || 0;
-    let asm = this.asm;
-    let heap = this.heap;
+    let asm = this.aes.asm;
+    let heap = this.aes.heap;
     let counter = this.counter;
     let tagSize = this.tagSize;
-    let pos = this.pos;
-    let len = this.len;
+    let pos = this.aes.pos;
+    let len = this.aes.len;
     let rpos = 0;
     let rlen = len + dlen > tagSize ? (len + dlen - tagSize) & -16 : 0;
     let tlen = len + dlen - rlen;
@@ -242,20 +249,20 @@ export class AES_GCM extends AES {
     }
 
     this.counter = counter;
-    this.pos = pos;
-    this.len = len;
+    this.aes.pos = pos;
+    this.aes.len = len;
 
     return result;
   }
 
   AES_GCM_Decrypt_finish() {
-    let asm = this.asm;
-    let heap = this.heap;
+    let asm = this.aes.asm;
+    let heap = this.aes.heap;
     let tagSize = this.tagSize;
     let adata = this.adata;
     let counter = this.counter;
-    let pos = this.pos;
-    let len = this.len;
+    let pos = this.aes.pos;
+    let len = this.aes.len;
     let rlen = len - tagSize;
 
     if (len < tagSize) throw new IllegalStateError('authentication tag not found');
@@ -298,8 +305,8 @@ export class AES_GCM extends AES {
     if (acheck) throw new SecurityError('data integrity check failed');
 
     this.counter = 1;
-    this.pos = 0;
-    this.len = 0;
+    this.aes.pos = 0;
+    this.aes.len = 0;
 
     return result;
   }
@@ -327,8 +334,8 @@ export class AES_GCM extends AES {
   }
 
   _gcm_mac_process(data: Uint8Array) {
-    const heap = this.heap;
-    const asm = this.asm;
+    const heap = this.aes.heap;
+    const asm = this.aes.asm;
     let dpos = 0;
     let dlen = data.length || 0;
     let wlen = 0;

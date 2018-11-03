@@ -21,13 +21,14 @@ import { IllegalArgumentError, IllegalStateError, SecurityError } from '../other
 const _AES_CCM_adata_maxLength = 65279; // 2^16 - 2^8
 const _AES_CCM_data_maxLength = 4503599627370480; // 2^52 - 2^4
 
-export class AES_CCM extends AES {
+export class AES_CCM {
   private readonly tagSize: number;
   private readonly lengthSize: number;
   private nonce: Uint8Array;
   private readonly adata: Uint8Array | undefined;
   private counter: number = 1;
   private dataLength: number = -1;
+  private aes: AES;
 
   static encrypt(
     clear: Uint8Array,
@@ -54,8 +55,9 @@ export class AES_CCM extends AES {
     adata: Uint8Array | undefined,
     tagSize: number = 16,
     dataLength: number,
+    aes?: AES,
   ) {
-    super(key, undefined, undefined, 'CCM');
+    this.aes = aes ? aes : new AES(key, undefined, undefined, 'CCM');
 
     // Tag size
     if (tagSize < 4 || tagSize > 16 || tagSize & 1) throw new IllegalArgumentError('illegal tagSize value');
@@ -140,16 +142,16 @@ export class AES_CCM extends AES {
     }
 
     this._cbc_mac_process(data);
-    this.asm.get_state(AES_asm.HEAP_DATA);
+    this.aes.asm.get_state(AES_asm.HEAP_DATA);
 
-    const iv = new Uint8Array(this.heap.subarray(0, 16));
+    const iv = new Uint8Array(this.aes.heap.subarray(0, 16));
     const ivview = new DataView(iv.buffer, iv.byteOffset, iv.byteLength);
-    this.asm.set_iv(ivview.getUint32(0), ivview.getUint32(4), ivview.getUint32(8), ivview.getUint32(12));
+    this.aes.asm.set_iv(ivview.getUint32(0), ivview.getUint32(4), ivview.getUint32(8), ivview.getUint32(12));
   }
 
   _cbc_mac_process(data: Uint8Array): void {
-    const heap = this.heap;
-    const asm = this.asm;
+    const heap = this.aes.heap;
+    const asm = this.aes.asm;
     let dpos = 0;
     let dlen = data.length || 0;
     let wlen = 0;
@@ -165,14 +167,14 @@ export class AES_CCM extends AES {
   }
 
   AES_CCM_Encrypt_process(data: Uint8Array): Uint8Array {
-    const asm = this.asm;
-    const heap = this.heap;
+    const asm = this.aes.asm;
+    const heap = this.aes.heap;
 
     let dpos = 0;
     let dlen = data.length || 0;
     let counter = this.counter;
-    let pos = this.pos;
-    let len = this.len;
+    let pos = this.aes.pos;
+    let len = this.aes.len;
 
     const rlen = (len + dlen) & -16;
     let rpos = 0;
@@ -207,18 +209,18 @@ export class AES_CCM extends AES {
     }
 
     this.counter = counter;
-    this.pos = pos;
-    this.len = len;
+    this.aes.pos = pos;
+    this.aes.len = len;
 
     return result;
   }
 
   AES_CCM_Encrypt_finish(): Uint8Array {
-    const asm = this.asm;
-    const heap = this.heap;
+    const asm = this.aes.asm;
+    const heap = this.aes.heap;
     const tagSize = this.tagSize;
-    const pos = this.pos;
-    const len = this.len;
+    const pos = this.aes.pos;
+    const len = this.aes.len;
 
     const result = new Uint8Array(len + tagSize);
 
@@ -235,8 +237,8 @@ export class AES_CCM extends AES {
     result.set(heap.subarray(0, tagSize), len);
 
     this.counter = 1;
-    this.pos = 0;
-    this.len = 0;
+    this.aes.pos = 0;
+    this.aes.len = 0;
 
     return result;
   }
@@ -244,12 +246,12 @@ export class AES_CCM extends AES {
   AES_CCM_Decrypt_process(data: Uint8Array): Uint8Array {
     let dpos = 0;
     let dlen = data.length || 0;
-    const asm = this.asm;
-    const heap = this.heap;
+    const asm = this.aes.asm;
+    const heap = this.aes.heap;
     let counter = this.counter;
     const tagSize = this.tagSize;
-    let pos = this.pos;
-    let len = this.len;
+    let pos = this.aes.pos;
+    let len = this.aes.len;
     let rpos = 0;
     const rlen = len + dlen > tagSize ? (len + dlen - tagSize) & -16 : 0;
     const tlen = len + dlen - rlen;
@@ -281,18 +283,18 @@ export class AES_CCM extends AES {
     }
 
     this.counter = counter;
-    this.pos = pos;
-    this.len = len;
+    this.aes.pos = pos;
+    this.aes.len = len;
 
     return result;
   }
 
   AES_CCM_Decrypt_finish(): Uint8Array {
-    const asm = this.asm;
-    const heap = this.heap;
+    const asm = this.aes.asm;
+    const heap = this.aes.heap;
     const tagSize = this.tagSize;
-    const pos = this.pos;
-    const len = this.len;
+    const pos = this.aes.pos;
+    const len = this.aes.len;
     const rlen = len - tagSize;
 
     if (len < tagSize) throw new IllegalStateError('authentication tag not found');
@@ -316,8 +318,8 @@ export class AES_CCM extends AES {
     if (acheck) throw new SecurityError('data integrity check failed');
 
     this.counter = 1;
-    this.pos = 0;
-    this.len = 0;
+    this.aes.pos = 0;
+    this.aes.len = 0;
 
     return result;
   }
@@ -326,7 +328,7 @@ export class AES_CCM extends AES {
     if (size < 8 || size > 48) throw new IllegalArgumentError('illegal counter size');
 
     const mask = Math.pow(2, size) - 1;
-    this.asm.set_mask(0, 0, (mask / 0x100000000) | 0, mask | 0);
+    this.aes.asm.set_mask(0, 0, (mask / 0x100000000) | 0, mask | 0);
 
     const len = nonce.length;
     if (!len || len > 16) throw new IllegalArgumentError('illegal nonce size');
@@ -336,12 +338,12 @@ export class AES_CCM extends AES {
     const view = new DataView(new ArrayBuffer(16));
     new Uint8Array(view.buffer).set(nonce);
 
-    this.asm.set_nonce(view.getUint32(0), view.getUint32(4), view.getUint32(8), view.getUint32(12));
+    this.aes.asm.set_nonce(view.getUint32(0), view.getUint32(4), view.getUint32(8), view.getUint32(12));
 
     if (counter < 0 || counter >= Math.pow(2, size)) throw new IllegalArgumentError('illegal counter value');
 
     this.counter = counter;
 
-    this.asm.set_counter(0, 0, (counter / 0x100000000) | 0, counter | 0);
+    this.aes.asm.set_counter(0, 0, (counter / 0x100000000) | 0, counter | 0);
   }
 }
