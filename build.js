@@ -1,8 +1,6 @@
 import * as fs from 'fs-extra';
 import ts from 'typescript';
 import * as rollup from 'rollup';
-import UglifyJS from 'uglify-js';
-import UglifyES from 'uglify-es';
 
 (async function() {
   // Delete old
@@ -77,17 +75,6 @@ import UglifyES from 'uglify-es';
     format: 'cjs',
   });
 
-  const legacyCode = await fs.readFile('asmcrypto.all.es5.js', 'utf8');
-  const { error, code } = UglifyJS.minify(legacyCode, {
-    compress: {
-      inline: false,
-      collapse_vars: false,
-      reduce_vars: false,
-    },
-  });
-  if (error) throw new Error(`Uglify failed: ${error}`);
-  await fs.writeFile('asmcrypto.all.es5.min.js', code, 'utf8');
-
   // Modern export, eg. Chrome or NodeJS 10 with ESM
   const es8bundle = await rollup.rollup({
     input: 'dist_es8/entry-export_all.js',
@@ -100,17 +87,6 @@ import UglifyES from 'uglify-es';
     file: 'asmcrypto.all.es8.js',
     format: 'es',
   });
-
-  const es8Code = await fs.readFile('asmcrypto.all.es8.js', 'utf8');
-  const { error: errorEs8, code: codeEs8 } = UglifyES.minify(es8Code, {
-    compress: {
-      inline: false,
-      collapse_vars: false,
-      reduce_vars: false,
-    },
-  });
-  if (errorEs8) throw new Error(`Uglify failed: ${error}`);
-  await fs.writeFile('asmcrypto.all.es8.min.js', codeEs8, 'utf8');
 
   console.log('Build complete');
 })();
