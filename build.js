@@ -19,8 +19,14 @@ import * as rollup from 'rollup';
 
   const program_es5 = ts.createProgram(['src/entry-export_all.ts'], options_es5.options);
   const program_es8 = ts.createProgram(['src/entry-export_all.ts'], options_es8.options);
-  program_es5.emit();
-  program_es8.emit();
+  const result_es5 = program_es5.emit();
+  if (result_es5.emitSkipped) {
+    throw new Error(result_es5.diagnostics[0].messageText);
+  }
+  const result_es8 = program_es8.emit();
+  if (result_es8.emitSkipped) {
+    throw new Error(result_es8.diagnostics[0].messageText);
+  }
 
   // Copy non-ts resources
   await fs.copy('src/aes/aes.asm.js', 'dist_es5/aes/aes.asm.js');
