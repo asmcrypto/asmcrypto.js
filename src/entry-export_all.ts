@@ -22,7 +22,6 @@ export { Sha512 } from './hash/sha512/sha512';
 export { HmacSha1 } from './hmac/hmac-sha1';
 export { HmacSha256 } from './hmac/hmac-sha256';
 export { HmacSha512 } from './hmac/hmac-sha512';
-export { Pbkdf2 } from './pbkdf2/pbkdf2';
 export { Pbkdf2HmacSha1 } from './pbkdf2/pbkdf2-hmac-sha1';
 export { Pbkdf2HmacSha256 } from './pbkdf2/pbkdf2-hmac-sha256';
 export { Pbkdf2HmacSha512 } from './pbkdf2/pbkdf2-hmac-sha512';
