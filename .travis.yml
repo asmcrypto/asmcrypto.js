@@ -1,9 +1,6 @@
 language: node_js
 node_js:
-- '8'
 - '10'
-sudo: required
-before_install:
-  export WITH=ALL
+- '11'
 script:
   npm test
