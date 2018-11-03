@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import ts from 'typescript';
 import * as rollup from 'rollup';
 import UglifyJS from 'uglify-js';
-import UglifyES from 'uglify-es';
+import Terser from 'terser';
 
 (async function() {
   // Delete old
@@ -102,7 +102,7 @@ import UglifyES from 'uglify-es';
   });
 
   const es8Code = await fs.readFile('asmcrypto.all.es8.js', 'utf8');
-  const { error: errorEs8, code: codeEs8 } = UglifyES.minify(es8Code, {
+  const { error: errorEs8, code: codeEs8 } = Terser.minify(es8Code, {
     compress: {
       inline: false,
       collapse_vars: false,
