@@ -2,20 +2,20 @@ import { AES_asm, AES_mode } from './aes.asm';
 import { _heap_init, _heap_write, is_bytes } from '../other/utils';
 import { IllegalArgumentError, SecurityError } from '../other/errors';
 
-export abstract class AES {
-  protected readonly heap: Uint8Array;
-  protected readonly asm: AES_asm;
+export class AES {
+  public readonly heap: Uint8Array;
+  public readonly asm: AES_asm;
   private readonly mode: string;
-  protected padding: boolean; // TODO: This should be `private readonly`, hacking for AES-CFB?!
-  protected pos: number = 0;
-  protected len: number = 0;
+  public padding: boolean; // TODO: This should be `private readonly`, hacking for AES-CFB?!
+  public pos: number = 0;
+  public len: number = 0;
 
-  protected constructor(key: Uint8Array, iv: Uint8Array | undefined, padding = true, mode: AES_mode) {
+  constructor(key: Uint8Array, iv: Uint8Array | undefined, padding = true, mode: AES_mode, heap?: Uint8Array, asm?: AES_asm) {
     this.mode = mode;
 
     // The AES "worker"
-    this.heap = _heap_init().subarray(AES_asm.HEAP_DATA);
-    this.asm = new AES_asm(null, this.heap.buffer);
+    this.heap = heap ? heap : _heap_init().subarray(AES_asm.HEAP_DATA);
+    this.asm = asm ? asm : new AES_asm(null, this.heap.buffer);
 
     // The AES object state
     this.pos = 0;
