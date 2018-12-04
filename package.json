@@ -37,6 +37,7 @@
     "mocha": "^5.2.0",
     "prettier": "^1.14.3",
     "rollup": "^0.66.6",
+    "rollup-plugin-terser": "^3.0.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "tslint-plugin-prettier": "^2.0.1",
