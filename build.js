@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import ts from 'typescript';
 import * as rollup from 'rollup';
+import { terser } from "rollup-plugin-terser";
 
 (async function() {
   // Delete old
@@ -54,45 +55,63 @@ import * as rollup from 'rollup';
   await fs.copy('src/hash/sha512/sha512.asm.js', 'dist_es8/hash/sha512/sha512.asm.js');
   await fs.copy('src/hash/sha512/sha512.asm.d.ts', 'dist_es8/hash/sha512/sha512.asm.d.ts');
 
-  const es5bundle = await rollup.rollup({
-    input: 'dist_es5/entry-export_all.js',
-    onwarn(warning, warn) {
-      if (warning.code === 'THIS_IS_UNDEFINED') return;
-      warn(warning); // this requires Rollup 0.46
-    },
-  });
+  let makeBundle = (input, min) => {
+    let config = {
+      input: input,
+      onwarn(warning, warn) {
+        if (warning.code === 'THIS_IS_UNDEFINED') return;
+        warn(warning); // this requires Rollup 0.46
+      },
+    }
+    if (min) {
+      config.plugins = [terser({
+        numWorkers: 4
+      })]
+    }
+    return rollup.rollup(config);
+  }
 
-  // Legacy browser export, as a bundle
-  await es5bundle.write({
-    file: 'asmcrypto.all.es5.js',
-    format: 'iife',
-    name: 'asmCrypto',
-  });
+  const es5bundle = await makeBundle('dist_es5/entry-export_all.js')
+  const es8bundle = await makeBundle('dist_es8/entry-export_all.js')
+  const es5bundleMin = await makeBundle('dist_es5/entry-export_all.js', true)
+  const es8bundleMin = await makeBundle('dist_es8/entry-export_all.js', true)
 
-  // Legacy browser export, as a bundle
-  await es5bundle.write({
-    file: 'asmcrypto.all.es5.mjs',
-    format: 'es',
-  });
+  let buildAll = async (es5bundle, es8bundle, configWrap) => {
+    // Legacy browser export, as a bundle
+    await es5bundle.write(configWrap({
+      file: 'asmcrypto.all.es5.js',
+      format: 'iife',
+      name: 'asmCrypto',
+    }));
 
-  // NodeJS old
-  await es5bundle.write({
-    file: 'asmcrypto.all.js',
-    format: 'cjs',
-  });
+    // Legacy browser export, as a bundle
+    await es5bundle.write(configWrap({
+      file: 'asmcrypto.all.es5.mjs',
+      format: 'es',
+    }));
 
-  // Modern export, eg. Chrome or NodeJS 10 with ESM
-  const es8bundle = await rollup.rollup({
-    input: 'dist_es8/entry-export_all.js',
-    onwarn(warning, warn) {
-      if (warning.code === 'THIS_IS_UNDEFINED') return;
-      warn(warning); // this requires Rollup 0.46
-    },
-  });
-  await es8bundle.write({
-    file: 'asmcrypto.all.es8.js',
-    format: 'es',
-  });
+    // NodeJS old
+    await es5bundle.write(configWrap({
+      file: 'asmcrypto.all.js',
+      format: 'cjs',
+    }));
 
+    // Modern export, eg. Chrome or NodeJS 10 with ESM
+    await es8bundle.write(configWrap({
+      file: 'asmcrypto.all.es8.js',
+      format: 'es',
+    }));
+  }
+
+  let minifyConfigWrap = (c) => {
+    let fn = c.file;
+    if (fn.endsWith('.js')) c.file = fn.slice(0, -3) + '.min.js';
+    if (fn.endsWith('.mjs')) c.file = fn.slice(0, -4) + '.min.mjs';
+    c.sourcemap = true;
+    return c;
+  }
+
+  await buildAll(es5bundle, es8bundle, (c) => c);
+  await buildAll(es5bundleMin, es8bundleMin, minifyConfigWrap)
   console.log('Build complete');
 })();
