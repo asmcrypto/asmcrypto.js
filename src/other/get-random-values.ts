@@ -21,3 +21,16 @@ export function getRandomValues(buf: Uint32Array | Uint8Array): void {
   }
   throw new Error('No secure random number generator available.');
 }
+
+export function getNonZeroRandomValues(buf: Uint8Array) {
+  getRandomValues(buf);
+  for (let i = 0; i < buf.length; i++) {
+    let byte = buf[i];
+    while (!byte) {
+      const octet = new Uint8Array(1);
+      getRandomValues(octet);
+      byte = octet[0];
+    }
+    buf[i] = byte;
+  }
+}
