@@ -12,7 +12,7 @@ export function string_to_bytes(str: string, utf8: boolean = false): Uint8Array 
       if (++i >= len) throw new Error('Malformed string, low surrogate expected at position ' + i);
       c = ((c ^ 0xd800) << 10) | 0x10000 | (str.charCodeAt(i) ^ 0xdc00);
     } else if (!utf8 && c >>> 8) {
-      throw new Error('Wide characters are not allowed.');
+      throw new Error('Wide characters are not allowed. At the position ' + i + ' this character was found: ' + str[i])
     }
 
     if (!utf8 || c <= 0x7f) {
