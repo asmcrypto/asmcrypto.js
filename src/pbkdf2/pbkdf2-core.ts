@@ -1,8 +1,13 @@
-import { HmacSha1 } from "../hmac/hmac-sha1";
-import { HmacSha256 } from "../hmac/hmac-sha256";
-import { HmacSha512 } from "../hmac/hmac-sha512";
+import { HmacSha1 } from '../hmac/hmac-sha1';
+import { HmacSha256 } from '../hmac/hmac-sha256';
+import { HmacSha512 } from '../hmac/hmac-sha512';
 
-export function pbkdf2core(hmac: HmacSha1 | HmacSha256 | HmacSha512, salt: Uint8Array, length: number, count: number): Uint8Array {
+export function pbkdf2core(
+  hmac: HmacSha1 | HmacSha256 | HmacSha512,
+  salt: Uint8Array,
+  length: number,
+  count: number,
+): Uint8Array {
   const result = new Uint8Array(length);
 
   const blocks = Math.ceil(length / hmac.HMAC_SIZE);
