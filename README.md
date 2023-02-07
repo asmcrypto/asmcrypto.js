@@ -1,5 +1,7 @@
-asmCrypto [![Build Status](https://travis-ci.org/asmcrypto/asmcrypto.js.svg?branch=master)](https://travis-ci.org/asmcrypto/asmcrypto.js) [![Join the chat at https://gitter.im/asmcrypto/asmcrypto.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/asmcrypto/asmcrypto.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+asmCrypto 
 =========
+
+Not maintained anymore, use a native or WASM implementation instead.
 
 JavaScript implementation of popular cryptographic utilities with performance in mind.
 
