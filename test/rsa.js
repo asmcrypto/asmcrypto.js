@@ -1,15 +1,40 @@
 import * as asmCrypto from '../asmcrypto.all.es8';
 import chai from 'chai';
 const expect = chai.expect;
-
+/**
+ * -----BEGIN PUBLIC KEY-----
+ * MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBP4lIGcE2OBqUwZPmGYUd383l
+ * 7KdwAD7DVPMULg9h8GdtfUIVzHoTsG4HRKqDFsnDdmy++jCyNG+6jxI21+ZUjPh9
+ * lXjmkE/EKR4Jaic3/NlmJPcudieTUF+d/F+he0RhGt1U9cAL9UNz1yDLb05cq642
+ * xEQrOdv0kVhBRUf0UwIDAQAB
+ * -----END PUBLIC KEY-----
+ */
 const pubKey = [
   asmCrypto.hex_to_bytes(
     'c13f894819c136381a94c193e619851ddfcde5eca770003ec354f3142e0f61f0676d7d4215cc7a13b06e0744aa8316c9c3766cbefa30b2346fba8f1236d7e6548cf87d9578e6904fc4291e096a2737fcd96624f72e762793505f9dfc5fa17b44611add54f5c00bf54373d720cb6f4e5cabae36c4442b39dbf49158414547f453',
-  ),
-  asmCrypto.hex_to_bytes('10001'),
-];
-
-const privkey = [
+    ),
+    asmCrypto.hex_to_bytes('10001'),
+  ];
+  
+  /**
+   * -----BEGIN PRIVATE KEY-----
+   * MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAME/iUgZwTY4GpTB
+   * k+YZhR3fzeXsp3AAPsNU8xQuD2HwZ219QhXMehOwbgdEqoMWycN2bL76MLI0b7qP
+   * EjbX5lSM+H2VeOaQT8QpHglqJzf82WYk9y52J5NQX538X6F7RGEa3VT1wAv1Q3PX
+   * IMtvTlyrrjbERCs52/SRWEFFR/RTAgMBAAECgYAHVJeqin+PxPUNK4KmudUY2wJ+
+   * dEmtr/SxiCloXI7s0ie6OYQmO4lt8cVatToamuSwa2+Ylvj96YtLcl3ogqwT/BG2
+   * FMssyBvMabmtFn3aCTxcZjd1Ss0OyemEWxsiRNWXyfY9fqB2vaGf6tzbO9G6kBiR
+   * X+yYFlf7ekMBy4ej4QJBAO8vjZHXzZZxDWs7XqG2ditCFO/jKefQYJq4QZdE74Yg
+   * OR5CPViQyGSuuzbA2vUDXSfzQn5qhP3jZGahS1atHPsCQQDO1Ud+Csucg2w8VOMy
+   * aOBkzozf1ARSyLh6uDiza0mK4i/b2zMfWfYd08oVEhQ+d6aPjyQA2+nldqAACE5v
+   * y7aJAkAieIL5otVROifJ7Xt86NPs9hAYZm+ypfhWM/nX+Cpg9SHmN3up2OvYfsoi
+   * YPbtWrfBOzC5EVbrVCszE0nNSxOjAkBN6io0YPyyyQ9M6u1rX/aoAucuqj+2r8ZO
+   * 9Hbnn9LkbrB4sepgNRNxyQanSVg27/veuJ1ndXB28Gj1mityEduBAkAmGpNhOpPk
+   * OPpihYdY0ds7Pbg2YxlRfAOaz8wM4EzQ1zSdfo2MsOigWslm0EwYyBxJAl3itQu4
+   * f3j6zM0ZzYYC
+   * -----END PRIVATE KEY-----
+   */
+  const privkey = [
   asmCrypto.hex_to_bytes(
     'c13f894819c136381a94c193e619851ddfcde5eca770003ec354f3142e0f61f0676d7d4215cc7a13b06e0744aa8316c9c3766cbefa30b2346fba8f1236d7e6548cf87d9578e6904fc4291e096a2737fcd96624f72e762793505f9dfc5fa17b44611add54f5c00bf54373d720cb6f4e5cabae36c4442b39dbf49158414547f453',
   ),
@@ -167,5 +192,69 @@ describe('RSA-PSS-SHA256', () => {
 
     const rsaPss = new asmCrypto.RSA_PSS(key, new asmCrypto.Sha256(), saltlen);
     rsaPss.verify(signature, asmCrypto.string_to_bytes(text));
+  });  
+});
+
+describe('RSA-PKCS1-v1_5', () => {
+  it('asmCrypto.RSA_PKCS1-PKCS-v1_5 sign/verify SHA-1', function() {
+    const message = asmCrypto.string_to_bytes('Test message for signing');
+    const rsaVerify = new asmCrypto.RSA_PKCS1_v1_5(pubKey, new asmCrypto.Sha1());
+    const rsaSign = new asmCrypto.RSA_PKCS1_v1_5(privkey, new asmCrypto.Sha1());
+
+    const signature = rsaSign.sign(message);
+    expect(asmCrypto.bytes_to_hex(signature), 'sign').to.equal('ab391599335aeceec710c1b397eab695607b6eca37a243467c5179cd8187577c49606f621cc8d668cd939a384260192f1763ceef1c7399a07444cdeef636b99e3107d027d9b8f5fd7bdc72b6bbcc801e8e10143afa911b074e005e4e6e2f2d18d88d24957d85312e74d69b75fe33e21d2d845b8a8bbc4ace3832169398253d9e');
+
+    rsaVerify.verify(signature, message);
+  });
+
+  it('asmCrypto.RSA_PKCS1-PKCS-v1_5 sign/verify SHA-256', function() {
+    const message = asmCrypto.string_to_bytes('Test message for signing');
+    const rsaVerify = new asmCrypto.RSA_PKCS1_v1_5(pubKey, new asmCrypto.Sha256());
+    const rsaSign = new asmCrypto.RSA_PKCS1_v1_5(privkey, new asmCrypto.Sha256());
+
+    const signature = rsaSign.sign(message);
+    expect(asmCrypto.bytes_to_hex(signature), 'sign').to.equal('9b7a8eed5d871d948b8c231a724cd7e1db7ed99f4ede25147026e23e9b272126d011b54956249de512bf46012c6c29aee7cb9e497e39f7ab3761daeddcc180062eb88561815e69e9db419b4e542c7920eacef275cdfe7e6cd87ef66f28f815f03d1b348ecf282f127193d048892e55e0f9ac3eff4abad72916f3c2f483bf8f4f');
+
+    rsaVerify.verify(signature, message);
+  });
+
+  it('asmCrypto.RSA_PKCS1-PKCS-v1_5 sign/verify default SHA-256', function() {
+    const message = asmCrypto.string_to_bytes('Test message for signing');
+    const rsaVerify = new asmCrypto.RSA_PKCS1_v1_5(pubKey);
+    const rsaSign = new asmCrypto.RSA_PKCS1_v1_5(privkey);
+
+    const signature = rsaSign.sign(message);
+    expect(asmCrypto.bytes_to_hex(signature), 'sign').to.equal('9b7a8eed5d871d948b8c231a724cd7e1db7ed99f4ede25147026e23e9b272126d011b54956249de512bf46012c6c29aee7cb9e497e39f7ab3761daeddcc180062eb88561815e69e9db419b4e542c7920eacef275cdfe7e6cd87ef66f28f815f03d1b348ecf282f127193d048892e55e0f9ac3eff4abad72916f3c2f483bf8f4f');
+
+    rsaVerify.verify(signature, message);
+  });
+
+  it('asmCrypto.RSA_PKCS1-PKCS-v1_5 sign/verify SHA-512', function() {
+    const message = asmCrypto.string_to_bytes('Test message for signing');
+    const rsaVerify = new asmCrypto.RSA_PKCS1_v1_5(pubKey, new asmCrypto.Sha512());
+    const rsaSign = new asmCrypto.RSA_PKCS1_v1_5(privkey, new asmCrypto.Sha512());
+
+    const signature = rsaSign.sign(message);
+    expect(asmCrypto.bytes_to_hex(signature), 'sign').to.equal('1d153a6251a28a89bb3be6451e42190dd16decce0808f01345f19d24140cec8307f0e47ce10f2b77ecb2d44ac7389e635587c007fd37f9bc4c506d3fbac4b09efc79cca273533f5e641472f4dee811cb5314cea1f51bc2a1601fb2e351a514e39bf6e16a0281b280605d25550f2c9852ae5395d4dcaa53a85678e8ad1582bb03');
+
+    rsaVerify.verify(signature, message);
+  });
+
+  it('asmCrypto.RSA_PKCS1-PKCS-v1_5 encrypt/decrypt', function() {
+    const cleartext = asmCrypto.hex_to_bytes('01435e62ad3ec4850720e34f8cab620e203749f2315b203d');
+    const rsaEnc = new asmCrypto.RSA_PKCS1_v1_5(pubKey);
+    const rsaDec = new asmCrypto.RSA_PKCS1_v1_5(privkey);
+
+    const ciphertext = rsaEnc.encrypt(cleartext);
+
+    const result = rsaDec.decrypt(ciphertext);
+    expect(asmCrypto.bytes_to_hex(result), 'decrypt').to.equal('01435e62ad3ec4850720e34f8cab620e203749f2315b203d');
+  });
+
+  it('asmCrypto.RSA_PKCS1-PKCS-v1_5 decrypt vector', function() {
+    const rsaDec = new asmCrypto.RSA_PKCS1_v1_5(privkey);
+
+    const result = rsaDec.decrypt(asmCrypto.hex_to_bytes("64c7dc7bc47d95081ae4cbb6c9ba9575c92190a3b29d56829dfd162f35fcc4e28658729e4d24e3205b77143034ca0552cb8dd50e391899e33ea6f63107d050c5562b7daed4f7ba2e3bce3090d171a0a20c4777248ad78adaa29259908bacd3271365361e544ddfd1e243dceffe676e815d7def064bbaf948d1da393f55a81a10"));
+    expect(asmCrypto.bytes_to_hex(result), 'decrypt').to.equal('01435e62ad3ec4850720e34f8cab620e203749f2315b203d');
   });
 });

@@ -4,7 +4,7 @@ import { Sha512 } from '../hash/sha512/sha512';
 import { Sha1 } from '../hash/sha1/sha1';
 import { Sha256 } from '../hash/sha256/sha256';
 import { BigNumber } from '../bignum/bignum';
-import { getRandomValues } from '../other/get-random-values';
+import { getRandomValues, getNonZeroRandomValues } from '../other/get-random-values';
 
 export class RSA_OAEP {
   private readonly rsa: RSA;
@@ -275,7 +275,7 @@ export class RSA_PSS {
 export class RSA_PKCS1_v1_5 {
   private readonly rsa: RSA;
   private readonly hash: Sha1 | Sha256 | Sha512;
-  constructor(key: Uint8Array[], hash: Sha1 | Sha256 | Sha512) {
+  constructor(key: Uint8Array[], hash: Sha1 | Sha256 | Sha512 = new Sha256()) {
     this.rsa = new RSA(key);
     this.hash = hash;
   }
@@ -284,6 +284,7 @@ export class RSA_PKCS1_v1_5 {
     if (!this.rsa.key) {
       throw new IllegalStateError('no key is associated with the instance');
     }
+
     const prefix = getHashPrefix(this.hash);
     const hash_size = this.hash.HASH_SIZE;
 
@@ -358,6 +359,44 @@ export class RSA_PKCS1_v1_5 {
     if (!res) {
       throw new SecurityError('Bad signature');
     }
+  }
+
+  encrypt(data: Uint8Array): Uint8Array {
+    const k = (this.rsa.key[0].bitLength + 7) >> 3;
+    const mLen = data.length;
+    if (k < mLen + 11) {
+      throw new SecurityError('Bad signature');
+    }
+
+    // EM = 0x00 || 0x02 || PS || 0x00 || M
+    const psLen = k - mLen - 3;
+    const ps = new Uint8Array(psLen);
+    getNonZeroRandomValues(ps);
+
+    const em = new Uint8Array(k);
+    let offset = 0;
+    em[offset++] = 0x00; // 0x00
+    em[offset++] = 0x02; // 0x02
+    em.set(ps, offset); // PS
+    offset += ps.length;
+    em[offset++] = 0x00; // 0x00
+    em.set(data, offset); // M
+    return this.rsa.encrypt(new BigNumber(em)).result;
+  }
+
+  decrypt(data: Uint8Array): Uint8Array {
+    const k = (this.rsa.key[0].bitLength + 7) >> 3;
+    if (data.length !== k) throw new IllegalArgumentError('bad data');
+
+    this.rsa.decrypt(new BigNumber(data));
+
+    let offset = 0;
+    if (this.rsa.result[offset++] !== 0x00) throw new SecurityError('Decryption failed');
+    if (this.rsa.result[offset++] !== 0x02) throw new SecurityError('Wrong RSA padding');
+    while (this.rsa.result[offset++]) {
+      // nothing
+    }
+    return new Uint8Array(this.rsa.result.slice(offset));
   }
 }
 
