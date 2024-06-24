@@ -2,5 +2,8 @@
   "extends": ["tslint-plugin-prettier"],
   "rules": {
     "prettier": true
+  },
+  "linterOptions": {
+    "exclude": ["src/**/*.d.ts"]
   }
 }

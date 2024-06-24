@@ -10,7 +10,14 @@ export class AES {
   public pos: number = 0;
   public len: number = 0;
 
-  constructor(key: Uint8Array, iv: Uint8Array | undefined, padding = true, mode: AES_mode, heap?: Uint8Array, asm?: AES_asm) {
+  constructor(
+    key: Uint8Array,
+    iv: Uint8Array | undefined,
+    padding = true,
+    mode: AES_mode,
+    heap?: Uint8Array,
+    asm?: AES_asm,
+  ) {
     this.mode = mode;
 
     // The AES "worker"
